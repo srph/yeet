@@ -1,24 +1,34 @@
 {
-  "name": "yeet",
-  "version": "0.1.0",
-  "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:prisma": "npx prisma generate && npx prisma db push",
+    "dev:trigger": "npx trigger.dev@latest dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.1.7"
+    "@aws-sdk/client-s3": "^3.749.0",
+    "@aws-sdk/s3-request-presigner": "^3.749.0",
+    "@prisma/client": "^5.10.2",
+    "@tanstack/react-query": "^5.66.2",
+    "@trigger.dev/sdk": "^3.3.16",
+    "framer-motion": "^11.0.8",
+    "install": "^0.13.0",
+    "next": "14.1.0",
+    "npm": "^11.1.0",
+    "prisma": "^6.3.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@trigger.dev/build": "^3.3.16",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
   }
 }
