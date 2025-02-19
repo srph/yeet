@@ -2,6 +2,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:prisma": "npx prisma generate && npx prisma db push",
+    "dev:prisma:migrate": "npx prisma migrate dev",
     "dev:trigger": "npx trigger.dev@latest dev",
     "build": "next build",
     "start": "next start"
@@ -9,6 +10,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.749.0",
     "@aws-sdk/s3-request-presigner": "^3.749.0",
+    "@distube/ytdl-core": "^4.16.4",
     "@prisma/client": "^5.10.2",
     "@tanstack/react-query": "^5.66.2",
     "@trigger.dev/sdk": "^3.3.16",
@@ -19,10 +21,10 @@
     "prisma": "^6.3.1",
     "react": "^18",
     "react-dom": "^18",
-    "ytdl-core": "^4.11.5"
+    "ytdl-core": "^4.11.5",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@trigger.dev/build": "^3.3.16",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

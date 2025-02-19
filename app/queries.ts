@@ -1,4 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { z } from "zod";
+
+// const DownloadMetaSchema = z.object({
+
+// })
 
 export const useDownloadMeta = (id?: string) => {
   return useQuery({
