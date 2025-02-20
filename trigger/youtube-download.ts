@@ -12,6 +12,7 @@ import { z } from "zod";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION!,
+  endpoint: process.env.AWS_ENDPOINT!,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
@@ -28,7 +29,7 @@ const downloadYoutubeTask = schemaTask({
     // Get video info
     const info = await ytdl.getInfo(payload.url);
     const videoId = info.videoDetails.videoId;
-    const key = `videos/${videoId}.mp4`;
+    const key = `yeet/${videoId}.mp4`;
 
     // Stream to S3
     const videoStream = ytdl(payload.url, {
@@ -71,13 +72,7 @@ const downloadYoutubeTask = schemaTask({
     });
 
     return {
-      success: true,
       downloadUrl,
-      videoDetails: {
-        title: info.videoDetails.title,
-        duration: info.videoDetails.lengthSeconds,
-        thumbnail: info.videoDetails.thumbnails[0].url,
-      },
     };
   },
   onStart: async (payload) => {
