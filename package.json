@@ -1,6 +1,5 @@
 {
   "scripts": {
-    "init:prisma": "prisma generate && prisma migrate dev",
     "dev": "next dev",
     "dev:prisma": "prisma migrate dev",
     "dev:trigger": "npx trigger.dev@latest dev",

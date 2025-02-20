@@ -13,7 +13,7 @@ Web UI for ytdl-core
 
 ```bash
 npm install
-npm run init:prisma
+npm run dev:prisma
 npm run dev:trigger
 npm run dev
 ```
