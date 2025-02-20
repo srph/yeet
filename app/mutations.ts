@@ -1,9 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-
+import { DownloadMetaSchema } from "./types";
 export interface YeetResponse {
   id: string; // The job ID
   status: string;
   youtubeUrl: string;
+  youtubeThumbnail: string;
 }
 
 export const useYeetMutation = () => {
@@ -19,7 +20,7 @@ export const useYeetMutation = () => {
         throw new Error("Failed to yeet");
       }
 
-      return response.json();
+      return DownloadMetaSchema.parse(await response.json());
     },
   });
 };

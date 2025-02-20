@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+});
 
 export const metadata: Metadata = {
   title: "YEET",
-  description: "Yeet videos off YouTube",
+  description: "Download videos from YouTube",
 };
 
 export default function RootLayout({
@@ -17,7 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={`${dmSans.variable} ${playfair.variable} font-sans tracking-tighter`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

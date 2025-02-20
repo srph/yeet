@@ -1,19 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import { z } from "zod";
-
-// const DownloadMetaSchema = z.object({
-
-// })
+import { DownloadMeta, DownloadMetaSchema } from "./types";
 
 export const useDownloadMeta = (id?: string) => {
+  const queryFn = async (): Promise<DownloadMeta> => {
+    const response = await fetch(`/api/download/${id}`);
+    if (!response.ok) throw new Error("Failed to fetch status");
+    return DownloadMetaSchema.parse(await response.json());
+  };
+
   return useQuery({
     queryKey: ["download", id],
-    queryFn: async () => {
-      const response = await fetch(`/api/download/${id}`);
-      if (!response.ok) throw new Error("Failed to fetch status");
-      return response.json();
-    },
+    queryFn,
     enabled: !!id,
-    refetchInterval: (data) => (data?.status === "completed" ? false : 1000), // Poll every second until complete
+    refetchInterval: (query) => {
+      if (query.state.data == undefined) return false;
+      return query.state.data.status === "completed" ? false : 1000;
+    },
   });
 };
