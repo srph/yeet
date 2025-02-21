@@ -17,13 +17,15 @@ export async function POST(req: Request) {
 
     const info = await ytdl.getInfo(url);
 
+    console.log(info.videoDetails.thumbnails);
+
     const download = await prisma.youtubeDownload.create({
       data: {
         youtubeUrl: url,
         youtubeId: info.videoDetails.videoId,
         youtubeTitle: info.videoDetails.title,
-        youtubeThumbnail: info.thumbnail_url ?? "",
-        status: "pending",
+        youtubeThumbnail: info.videoDetails.thumbnails.at(-1)?.url ?? "",
+        status: "queued",
         downloadUrl: null,
         reason: null,
       },
