@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { LoaderCircleIcon } from "lucide-react";
 import {
   motion,
   AnimatePresence,
@@ -58,22 +59,24 @@ export default function Home() {
                       </div>
                     ) : downloadMeta.status === "processing" ? (
                       <div className="text-4xl text-white">
-                        <DecryptedText text="Let us" />
+                        <DecryptedText text="Let us" />{" "}
                         <span className="font-playfair font-bold italic">
                           <DecryptedText text="cook" />
                         </span>
                       </div>
                     ) : (
                       <div className="text-4xl text-white">
-                        <DecryptedText text="Your request is" />
+                        <DecryptedText text="Your request is" />{" "}
                         <span className="font-playfair font-bold italic">
                           <DecryptedText text="queued" />
                         </span>
                       </div>
                     )}
 
+                    <div className="h-2"></div>
+
                     <div className="text-4xl font-bold text-neutral-500">
-                      Rick Astley - Never Gonna Give You Up
+                      {downloadMeta.youtubeTitle}
                     </div>
 
                     <div className="mb-2"></div>
@@ -146,41 +149,56 @@ export default function Home() {
 
                       <motion.button
                         type="submit"
-                        className="overflow-hidden rounded-full bg-yellow-500 p-2 transition hover:bg-yellow-600"
+                        className="relative overflow-hidden rounded-full bg-yellow-500 p-2"
                         initial="initial"
-                        animate="initial"
-                        whileHover="hover"
+                        animate={isYeetPending ? "animate" : "initial"}
+                        whileHover={isYeetPending ? undefined : "hover"}
+                        disabled={isYeetPending}
                       >
-                        <FireEffect />
-                        <motion.div
-                          variants={{
-                            initial: {
-                              x: 0,
-                            },
-                            hover: {
-                              x: [0, 32, -32, 0],
-                              type: "spring",
-                              transition: {
-                                duration: 0.5,
-                                times: [0, 0.25, 0.25, 0.5],
-                              },
-                            },
-                          }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                          </svg>
-                        </motion.div>
+                        <AnimatePresence>
+                          {isYeetPending ? (
+                            <motion.div
+                              initial={{ scale: 0.9 }}
+                              animate={{ scale: 1 }}
+                              exit={{ scale: 0.9 }}
+                              transition={{ duration: 0.5 }}
+                              className="animate-spin"
+                            >
+                              <LoaderCircleIcon className="h-4 w-4" />
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              className="relative z-10"
+                              variants={{
+                                initial: {
+                                  x: 0,
+                                },
+                                hover: {
+                                  x: [0, 32, -32, 0],
+                                  type: "spring",
+                                  transition: {
+                                    duration: 0.5,
+                                    times: [0, 0.25, 0.25, 0.5],
+                                  },
+                                },
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                              </svg>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </motion.button>
                     </div>
                   </div>
@@ -232,87 +250,4 @@ const DecryptedText = ({
   });
 
   return <motion.span>{display}</motion.span>;
-};
-
-interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  vx: number;
-  vy: number;
-  life: number;
-  opacity: number;
-}
-
-export const FireEffect = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particles = useRef<Particle[]>([]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const createParticle = () => ({
-      x: canvas.width / 2 + (Math.random() - 0.5) * 10,
-      y: canvas.height + 5,
-      size: Math.random() * 4 + 2,
-      vx: (Math.random() - 0.5) * 1,
-      vy: -Math.random() * 2 - 2,
-      life: 1,
-      opacity: 1,
-    });
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // spawn new particles
-      if (particles.current.length < 30) {
-        particles.current.push(createParticle());
-      }
-
-      // update and draw particles
-      particles.current = particles.current.filter((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy *= 0.98; // slight deceleration
-        p.life -= 0.02;
-        p.opacity = p.life;
-        p.size *= 0.99;
-
-        const gradient = ctx.createRadialGradient(
-          p.x,
-          p.y,
-          0,
-          p.x,
-          p.y,
-          p.size
-        );
-        gradient.addColorStop(0, `rgba(255, 150, 50, ${p.opacity})`);
-        gradient.addColorStop(1, `rgba(255, 50, 0, 0)`);
-
-        ctx.beginPath();
-        ctx.fillStyle = gradient;
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        return p.life > 0;
-      });
-
-      requestAnimationFrame(animate);
-    };
-
-    animate();
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0"
-      width={60}
-      height={60}
-    />
-  );
 };

@@ -17,8 +17,6 @@ export async function POST(req: Request) {
 
     const info = await ytdl.getInfo(url);
 
-    console.log(info.videoDetails.thumbnails);
-
     const download = await prisma.youtubeDownload.create({
       data: {
         youtubeUrl: url,
