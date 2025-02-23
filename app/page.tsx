@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LoaderCircleIcon } from "lucide-react";
+import { ArrowDownToLineIcon, LoaderCircleIcon } from "lucide-react";
 import {
   motion,
   AnimatePresence,
@@ -11,6 +11,7 @@ import {
 } from "framer-motion";
 import { useYeetMutation } from "./mutations";
 import { useDownloadMeta } from "./queries";
+import { useMeasure } from "react-use";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -21,6 +22,8 @@ export default function Home() {
     data: yeetData,
     isPending: isYeetPending,
   } = useYeetMutation();
+
+  const [www, setWww] = useState(true);
 
   const {
     data: downloadMeta,
@@ -37,7 +40,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-900 p-4 text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-900 p-4 text-white">
       <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
         <AnimatePresence initial={false} mode="popLayout">
           {downloadMeta ? (
@@ -50,25 +53,32 @@ export default function Home() {
               <div className="flex gap-4">
                 <div>
                   <div className="w-[520px] text-left">
-                    {downloadMeta.status === "complete" ? (
+                    {downloadMeta.status === "failed" ? (
                       <div className="text-4xl text-white">
-                        <DecryptedText text="We're done" />{" "}
+                        <DecryptedText text="Task failed" />{" "}
                         <span className="font-playfair font-bold italic">
-                          <DecryptedText text="cooking" />
+                          <DecryptedText text="successfully" />
+                        </span>
+                      </div>
+                    ) : downloadMeta.status === "complete" ? (
+                      <div className="text-4xl text-white">
+                        <DecryptedText text="Dish is" />{" "}
+                        <span className="font-playfair font-bold italic">
+                          <DecryptedText text="served" />
                         </span>
                       </div>
                     ) : downloadMeta.status === "processing" ? (
                       <div className="text-4xl text-white">
-                        <DecryptedText text="Let us" />{" "}
+                        <DecryptedText text="Let 'im" />{" "}
                         <span className="font-playfair font-bold italic">
                           <DecryptedText text="cook" />
                         </span>
                       </div>
                     ) : (
                       <div className="text-4xl text-white">
-                        <DecryptedText text="Your request is" />{" "}
+                        <DecryptedText text="POV: You're" />{" "}
                         <span className="font-playfair font-bold italic">
-                          <DecryptedText text="queued" />
+                          <DecryptedText text="in line" />
                         </span>
                       </div>
                     )}
@@ -81,28 +91,129 @@ export default function Home() {
 
                     <div className="mb-2"></div>
 
-                    {downloadMeta.downloadUrl ? (
-                      <a
-                        href={downloadMeta.downloadUrl}
-                        target="_blank"
-                        className="inline-flex h-[40px] rounded-full bg-white px-4 py-2 text-black"
-                      >
-                        Download
-                      </a>
+                    {true ? (
+                      <div>
+                        <MotionConfig
+                          transition={{
+                            duration: 0.4,
+                            type: "spring",
+                            bounce: 0,
+                          }}
+                        >
+                          <motion.a
+                            // href={downloadMeta.downloadUrl}
+                            href="#"
+                            target="_blank"
+                            className="inline-flex h-[40px] items-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black"
+                            onClick={(evt) => {
+                              evt.preventDefault();
+                              setWww((www) => !www);
+                            }}
+                            layout
+                          >
+                            {/* <WidthAwarePanel>
+                              {www ? (
+                                <motion.span>Cooking</motion.span>
+                              ) : (
+                                <motion.span>Download</motion.span>
+                              )}
+                            </WidthAwarePanel> */}
+                            {www ? (
+                              <motion.span layout="position">
+                                Processing Download
+                              </motion.span>
+                            ) : (
+                              <motion.span layout="position">
+                                Download Now
+                              </motion.span>
+                            )}
+                            <AnimatePresence mode="popLayout" initial={false}>
+                              {www ? (
+                                <motion.div
+                                  key="loading"
+                                  initial={{
+                                    opacity: 0,
+                                    x: 8,
+                                    filter: `blur(4px)`,
+                                  }}
+                                  animate={{
+                                    opacity: 1,
+                                    x: 0,
+                                    filter: `blur(0px)`,
+                                  }}
+                                  exit={{
+                                    opacity: 0,
+                                    x: 8,
+                                    filter: `blur(4px)`,
+                                  }}
+                                >
+                                  <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="complete"
+                                  initial={{
+                                    opacity: 0,
+                                    x: -8,
+                                    filter: `blur(4px)`,
+                                  }}
+                                  animate={{
+                                    opacity: 1,
+                                    x: 0,
+                                    filter: `blur(0px)`,
+                                  }}
+                                  exit={{
+                                    opacity: 0,
+                                    x: 8,
+                                    filter: `blur(4px)`,
+                                  }}
+                                >
+                                  <ArrowDownToLineIcon className="h-4 w-4" />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                            {/* <AnimatePresence mode="popLayout" initial={false}>
+                              {!www && (
+                                <motion.div
+                                  initial={{
+                                    opacity: 0,
+                                    x: 8,
+                                    filter: `blur(4px)`,
+                                  }}
+                                  animate={{
+                                    opacity: 1,
+                                    x: 0,
+                                    filter: `blur(0px)`,
+                                  }}
+                                  exit={{
+                                    opacity: 0,
+                                    x: 8,
+                                    filter: `blur(4px)`,
+                                  }}
+                                >
+                                  <ArrowDownToLineIcon className="h-4 w-4" />
+                                </motion.div>
+                              )}
+                            </AnimatePresence> */}
+                          </motion.a>
+                        </MotionConfig>
+                      </div>
                     ) : null}
                   </div>
                 </div>
 
                 <div className="w-[320px]">
                   {downloadMeta.youtubeThumbnail ? (
-                    <img
-                      src={downloadMeta.youtubeThumbnail}
-                      className={`aspect-video w-full ${
-                        downloadMeta.status === "complete"
-                          ? "animate-pulse"
-                          : ""
-                      } rounded-lg bg-neutral-800`}
-                    />
+                    <a href={downloadMeta.youtubeUrl} target="_blank">
+                      <img
+                        src={downloadMeta.youtubeThumbnail}
+                        className={`aspect-video w-full ${
+                          downloadMeta.status === "complete"
+                            ? ""
+                            : "animate-pulse"
+                        } rounded-lg bg-neutral-800`}
+                      />
+                    </a>
                   ) : (
                     <div className="aspect-video w-full animate-pulse rounded-lg bg-neutral-800"></div>
                   )}
@@ -155,7 +266,7 @@ export default function Home() {
                         whileHover={isYeetPending ? undefined : "hover"}
                         disabled={isYeetPending}
                       >
-                        <AnimatePresence>
+                        <AnimatePresence mode="popLayout">
                           {isYeetPending ? (
                             <motion.div
                               initial={{ scale: 0.9 }}
@@ -175,7 +286,6 @@ export default function Home() {
                                 },
                                 hover: {
                                   x: [0, 32, -32, 0],
-                                  type: "spring",
                                   transition: {
                                     duration: 0.5,
                                     times: [0, 0.25, 0.25, 0.5],
@@ -250,4 +360,24 @@ const DecryptedText = ({
   });
 
   return <motion.span>{display}</motion.span>;
+};
+
+interface AnimatedHeightAwarePanelProps {
+  children: React.ReactNode;
+}
+
+const WidthAwarePanel: React.FC<AnimatedHeightAwarePanelProps> = ({
+  children,
+}) => {
+  const [ref, bounds] = useMeasure<HTMLDivElement>();
+
+  console.log({ width: bounds.width });
+
+  return (
+    <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
+      <motion.div animate={{ width: bounds.width ? bounds.width : "auto" }}>
+        <div ref={ref}>{children}</div>
+      </motion.div>
+    </MotionConfig>
+  );
 };

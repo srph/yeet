@@ -6,7 +6,6 @@ import {
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Readable } from "stream";
 import { prisma } from "@/prisma/client";
 import { z } from "zod";
 
@@ -61,16 +60,6 @@ const downloadYoutubeTask = schemaTask({
     });
     const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // 1 hour
 
-    // Update with success
-    await prisma.youtubeDownload.update({
-      where: { id: payload.downloadId },
-      data: {
-        status: "completed",
-        downloadUrl,
-        expiresAt: new Date(Date.now() + 3600000), // 1 hour from now
-      },
-    });
-
     return {
       downloadUrl,
     };
@@ -96,7 +85,7 @@ const downloadYoutubeTask = schemaTask({
       where: { id: payload.downloadId },
       data: {
         status: "failed",
-        reason: error instanceof Error ? error.message : "",
+        reason: error instanceof Error ? error.message : "Unknown error",
       },
     });
   },
