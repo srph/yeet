@@ -32,4 +32,5 @@ model YoutubeDownload {
     @@index([youtubeId])
     @@index([createdAt])
     @@index([expiresAt])
+    @@map("youtube_downloads")
 }

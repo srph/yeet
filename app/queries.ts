@@ -14,7 +14,7 @@ export const useDownloadMeta = (id?: string) => {
     enabled: !!id,
     refetchInterval: (query) => {
       if (query.state.data == undefined) return false;
-      return query.state.data.status === "completed" ? false : 1000;
+      return query.state.data.status === "complete" ? false : 1000;
     },
   });
 };

@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE `YoutubeDownload` (
+CREATE TABLE `youtube_downloads` (
     `id` VARCHAR(191) NOT NULL,
     `youtubeUrl` VARCHAR(191) NOT NULL,
     `youtubeId` VARCHAR(191) NOT NULL,
@@ -14,9 +14,9 @@ CREATE TABLE `YoutubeDownload` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    INDEX `YoutubeDownload_status_idx`(`status`),
-    INDEX `YoutubeDownload_youtubeId_idx`(`youtubeId`),
-    INDEX `YoutubeDownload_createdAt_idx`(`createdAt`),
-    INDEX `YoutubeDownload_expiresAt_idx`(`expiresAt`),
+    INDEX `youtube_downloads_status_idx`(`status`),
+    INDEX `youtube_downloads_youtubeId_idx`(`youtubeId`),
+    INDEX `youtube_downloads_createdAt_idx`(`createdAt`),
+    INDEX `youtube_downloads_expiresAt_idx`(`expiresAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
