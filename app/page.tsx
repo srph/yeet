@@ -13,6 +13,10 @@ import { useYeetMutation } from "./mutations";
 import { useDownloadMeta } from "./queries";
 import invariant from "tiny-invariant";
 
+// @TODO: Download high quality audio & video; stitch via ffmpeg
+// @TODO: Handle expired downloads - set expiry date
+// @TODO: CRON job to delete expired downloads
+// @TODO: Improve failed downloads
 export default function Home() {
   const [url, setUrl] = useState("");
   const [format, setFormat] = useState<"mp3" | "mp4">("mp4");
@@ -28,8 +32,6 @@ export default function Home() {
     isPending: isDownloadMetaPending,
     isError: isDownloadMetaError,
   } = useDownloadMeta(yeetData?.id);
-
-  console.log({ yeetData });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
