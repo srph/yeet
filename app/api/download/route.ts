@@ -15,6 +15,18 @@ export async function POST(req: Request) {
       );
     }
 
+    const existing = await prisma.youtubeDownload.findFirst({
+      where: {
+        youtubeUrl: url,
+        status: { not: "failed" },
+        expiredAt: { gt: new Date() },
+      },
+    });
+
+    if (existing) {
+      return NextResponse.json(existing);
+    }
+
     const info = await ytdl.getInfo(url);
 
     const download = await prisma.youtubeDownload.create({
