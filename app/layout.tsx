@@ -16,6 +16,25 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Yeet - YouTube Downloader",
   description: "Fast and easy way to download videos from YouTube",
+  icons: {
+    icon: [{ url: "/favicon.svg" }],
+    shortcut: ["/favicon.svg"],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/manifest.json",
+  applicationName: "Yeet",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Yeet",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  themeColor: "#000000",
   keywords: ["youtube", "download", "video", "converter"],
   authors: [{ name: "Yeet" }],
   openGraph: {
@@ -25,7 +44,7 @@ export const metadata: Metadata = {
     siteName: "Yeet",
     images: [
       {
-        url: "/og-image.jpg", // add your OG image
+        url: "/og-image.png", // add your OG image
         width: 1200,
         height: 630,
       },
