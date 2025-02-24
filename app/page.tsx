@@ -108,7 +108,11 @@ export default function Home() {
                         >
                           <motion.button
                             layout
-                            className="inline-flex h-[40px] items-center justify-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black"
+                            className={`inline-flex h-[40px] items-center justify-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black ${
+                              downloadMeta.status !== "complete"
+                                ? "cursor-not-allowed opacity-75"
+                                : "opacity-100"
+                            }`}
                             disabled={downloadMeta.status !== "complete"}
                             onClick={handleDownload}
                             aria-label={
