@@ -29,7 +29,7 @@ const downloadYoutubeTask = schemaTask({
     const info = await ytdl.getInfo(payload.url);
     const videoId = info.videoDetails.videoId;
     const fileName = `${videoId}.mp4`;
-    const key = `yeet/${fileName}`;
+    const key = `${process.env.AWS_BASE_DIRECTORY}/${fileName}`;
 
     // Stream to S3
     const videoStream = ytdl(payload.url, {
