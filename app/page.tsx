@@ -11,7 +11,7 @@ import {
 } from "framer-motion";
 import { useYeetMutation } from "./mutations";
 import { useDownloadMeta } from "./queries";
-import { useMeasure } from "react-use";
+import invariant from "tiny-invariant";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -22,8 +22,6 @@ export default function Home() {
     data: yeetData,
     isPending: isYeetPending,
   } = useYeetMutation();
-
-  const [www, setWww] = useState(true);
 
   const {
     data: downloadMeta,
@@ -37,6 +35,14 @@ export default function Home() {
     e.preventDefault();
     if (!url.trim()) return;
     await yeet(url);
+  };
+
+  const handleDownload = () => {
+    const a = document.createElement("a");
+    invariant(downloadMeta?.downloadUrl, "Download URL is required");
+    a.href = downloadMeta.downloadUrl;
+    a.download = downloadMeta.youtubeTitle;
+    a.click();
   };
 
   return (
@@ -91,7 +97,7 @@ export default function Home() {
 
                     <div className="h-4"></div>
 
-                    {true ? (
+                    {downloadMeta.status !== "failed" ? (
                       <div>
                         <MotionConfig
                           transition={{
@@ -100,38 +106,33 @@ export default function Home() {
                             bounce: 0,
                           }}
                         >
-                          <motion.a
-                            // href={downloadMeta.downloadUrl}
-                            href="#"
-                            target="_blank"
-                            className="inline-flex h-[40px] items-center justify-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black"
-                            onClick={(evt) => {
-                              evt.preventDefault();
-                              setWww((www) => !www);
-                            }}
+                          <motion.button
                             layout
+                            className="inline-flex h-[40px] items-center justify-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black"
+                            disabled={downloadMeta.status !== "complete"}
+                            onClick={handleDownload}
+                            aria-label={
+                              downloadMeta.status === "complete"
+                                ? "Download Now"
+                                : "Processing Download"
+                            }
                           >
-                            {/* <WidthAwarePanel>
-                              {www ? (
-                                <motion.span>Cooking</motion.span>
-                              ) : (
-                                <motion.span>Download</motion.span>
-                              )}
-                            </WidthAwarePanel> */}
-                            {/* <motion.div
-                              className="overflow-x-hidden"
-                              style={{ clipPath: "inset(0 0 0 0)" }}
-                            > */}
                             <motion.div
                               style={{ clipPath: "inset(0 0 0 0)" }}
                               animate={{
-                                width: www ? 145 : 101,
+                                width:
+                                  downloadMeta.status !== "complete"
+                                    ? 145
+                                    : 101,
                               }}
                             >
                               <motion.div
                                 className="flex gap-0.5"
                                 animate={{
-                                  x: www ? 0 : -78,
+                                  x:
+                                    downloadMeta.status !== "complete"
+                                      ? 0
+                                      : -78,
                                 }}
                               >
                                 <div>Processing</div>
@@ -141,7 +142,7 @@ export default function Home() {
                             </motion.div>
 
                             <AnimatePresence mode="popLayout" initial={false}>
-                              {www ? (
+                              {downloadMeta.status !== "complete" ? (
                                 <motion.div
                                   key="loading"
                                   initial={{
@@ -175,7 +176,7 @@ export default function Home() {
                                 </motion.div>
                               )}
                             </AnimatePresence>
-                          </motion.a>
+                          </motion.button>
                         </MotionConfig>
                       </div>
                     ) : null}
