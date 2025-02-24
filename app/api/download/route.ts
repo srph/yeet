@@ -36,6 +36,7 @@ export async function POST(req: Request) {
         youtubeTitle: info.videoDetails.title,
         youtubeThumbnail: info.videoDetails.thumbnails.at(-1)?.url ?? "",
         status: "queued",
+        downloadFileName: null,
         downloadUrl: null,
         reason: null,
       },

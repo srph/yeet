@@ -10,9 +10,7 @@ services:
       - mysql-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=caretv
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=yeet
 
 volumes:
   mysql-data: 
