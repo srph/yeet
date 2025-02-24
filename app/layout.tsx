@@ -14,8 +14,32 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "YEET",
-  description: "Download videos from YouTube",
+  title: "Yeet - YouTube Downloader",
+  description: "Fast and easy way to download videos from YouTube",
+  keywords: ["youtube", "download", "video", "converter"],
+  authors: [{ name: "Yeet" }],
+  openGraph: {
+    title: "Yeet - YouTube Downloader",
+    description: "Fast and easy way to download videos from YouTube",
+    type: "website",
+    siteName: "Yeet",
+    images: [
+      {
+        url: "/og-image.jpg", // add your OG image
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yeet - YouTube Downloader",
+    description: "Fast and easy way to download videos from YouTube",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
