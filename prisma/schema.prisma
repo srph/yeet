@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = "file:./dev.db"
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
 model YoutubeDownload {
@@ -28,8 +28,8 @@ model YoutubeDownload {
     createdAt        DateTime  @default(now())
     updatedAt        DateTime  @updatedAt
 
-    @@index([status]) // For querying downloads by status (pending, completed, etc.)
-    @@index([youtubeId]) // For checking if video was already downloaded
-    @@index([createdAt]) // For sorting/pagination
-    @@index([expiresAt]) // For cleanup jobs to find expired downloads
+    @@index([status])
+    @@index([youtubeId])
+    @@index([createdAt])
+    @@index([expiresAt])
 }

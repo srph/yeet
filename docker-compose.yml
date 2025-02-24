@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=caretv
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+
+volumes:
+  mysql-data: 

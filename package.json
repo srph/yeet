@@ -2,6 +2,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:prisma": "prisma migrate dev",
+    "dev:prisma:reset": "prisma migrate reset",
     "dev:trigger": "npx trigger.dev@latest dev",
     "build": "next build",
     "start": "next start"
