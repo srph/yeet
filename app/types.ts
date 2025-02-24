@@ -8,6 +8,7 @@ export const DownloadMetaSchema = z.object({
   youtubeThumbnail: z.string(),
   status: z.string().default("pending"),
   downloadUrl: z.string().nullable(),
+  downloadFileName: z.string().nullable(),
   reason: z.string().nullable(),
   expiresAt: z.string().nullable(),
   expiredAt: z.string().nullable(),

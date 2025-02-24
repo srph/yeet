@@ -39,10 +39,14 @@ export default function Home() {
 
   const handleDownload = () => {
     const a = document.createElement("a");
-    invariant(downloadMeta?.downloadUrl, "Download URL is required");
+    invariant(downloadMeta, "Download Metadata is required");
+    invariant(downloadMeta.downloadUrl, "Download URL is required");
+    invariant(downloadMeta.downloadFileName, "Download file name is required");
     a.href = downloadMeta.downloadUrl;
-    a.download = downloadMeta.youtubeTitle;
+    a.download = downloadMeta.downloadFileName;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   };
 
   return (

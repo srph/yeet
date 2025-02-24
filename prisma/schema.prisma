@@ -20,6 +20,7 @@ model YoutubeDownload {
     youtubeTitle     String
     youtubeThumbnail String
     status           String    @default("pending")
+    downloadFileName String?
     downloadUrl      String?
     reason           String?
     expiresAt        DateTime?

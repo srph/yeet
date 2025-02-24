@@ -28,7 +28,8 @@ const downloadYoutubeTask = schemaTask({
     // Get video info
     const info = await ytdl.getInfo(payload.url);
     const videoId = info.videoDetails.videoId;
-    const key = `yeet/${videoId}.mp4`;
+    const fileName = `${videoId}.mp4`;
+    const key = `yeet/${fileName}`;
 
     // Stream to S3
     const videoStream = ytdl(payload.url, {
@@ -62,6 +63,7 @@ const downloadYoutubeTask = schemaTask({
 
     return {
       downloadUrl,
+      fileName,
     };
   },
   onStart: async (payload) => {
@@ -76,7 +78,8 @@ const downloadYoutubeTask = schemaTask({
       data: {
         status: "complete",
         downloadUrl: output.downloadUrl,
-        expiresAt: new Date(), // One week from now
+        downloadFileName: output.fileName,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // One week from now
       },
     });
   },
