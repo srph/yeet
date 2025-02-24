@@ -19,7 +19,7 @@ const s3 = new S3Client({
 });
 
 const downloadYoutubeTask = schemaTask({
-  id: "download-youtube",
+  id: "download.youtube",
   schema: z.object({
     url: z.string(),
     downloadId: z.string(),

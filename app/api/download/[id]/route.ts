@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { TriggerClient } from "@trigger.dev/sdk";
 import { prisma } from "@/prisma/client";
 
 export async function GET(

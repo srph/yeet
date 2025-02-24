@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownToLineIcon, LoaderCircleIcon } from "lucide-react";
+import { ArrowDownToLineIcon, LoaderCircleIcon, PlayIcon } from "lucide-react";
 import {
   motion,
   AnimatePresence,
@@ -187,18 +187,30 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="w-[320px]">
+                <div className="relative w-[320px]">
                   {downloadMeta.youtubeThumbnail ? (
-                    <a href={downloadMeta.youtubeUrl} target="_blank">
-                      <img
-                        src={downloadMeta.youtubeThumbnail}
-                        className={`aspect-video w-full ${
+                    <>
+                      <a
+                        href={downloadMeta.youtubeUrl}
+                        target="_blank"
+                        className={`${
                           downloadMeta.status === "complete"
                             ? ""
                             : "animate-pulse"
-                        } rounded-lg bg-neutral-800`}
-                      />
-                    </a>
+                        }`}
+                      >
+                        <img
+                          src={downloadMeta.youtubeThumbnail}
+                          className={`aspect-video w-full rounded-lg bg-neutral-800`}
+                        />
+                      </a>
+
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <div className="flex h-12 w-16 items-center justify-center rounded-lg bg-red-700">
+                          <PlayIcon className="size-6" />
+                        </div>
+                      </div>
+                    </>
                   ) : (
                     <div className="aspect-video w-full animate-pulse rounded-lg bg-neutral-800"></div>
                   )}

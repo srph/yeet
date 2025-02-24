@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import ytdl from "@distube/ytdl-core";
 import { prisma } from "@/prisma/client";
 import { tasks } from "@trigger.dev/sdk/v3";
-import { downloadYoutubeTask } from "@/trigger/youtube-download";
+import { downloadYoutubeTask } from "@/trigger/download-youtube";
 
 export async function POST(req: Request) {
   try {
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       },
     });
 
-    await tasks.trigger<typeof downloadYoutubeTask>("download-youtube", {
+    await tasks.trigger<typeof downloadYoutubeTask>("download.youtube", {
       url,
       downloadId: download.id,
     });
