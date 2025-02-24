@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
@@ -28,13 +28,6 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Yeet",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-  themeColor: "#000000",
   keywords: ["youtube", "download", "video", "converter"],
   authors: [{ name: "Yeet" }],
   openGraph: {
@@ -59,6 +52,14 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
