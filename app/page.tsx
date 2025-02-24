@@ -89,7 +89,7 @@ export default function Home() {
                       {downloadMeta.youtubeTitle}
                     </div>
 
-                    <div className="mb-2"></div>
+                    <div className="h-4"></div>
 
                     {true ? (
                       <div>
@@ -104,7 +104,7 @@ export default function Home() {
                             // href={downloadMeta.downloadUrl}
                             href="#"
                             target="_blank"
-                            className="inline-flex h-[40px] items-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black"
+                            className="inline-flex h-[40px] items-center justify-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black"
                             onClick={(evt) => {
                               evt.preventDefault();
                               setWww((www) => !www);
@@ -118,15 +118,28 @@ export default function Home() {
                                 <motion.span>Download</motion.span>
                               )}
                             </WidthAwarePanel> */}
-                            {www ? (
-                              <motion.span layout="position">
-                                Processing Download
-                              </motion.span>
-                            ) : (
-                              <motion.span layout="position">
-                                Download Now
-                              </motion.span>
-                            )}
+                            {/* <motion.div
+                              className="overflow-x-hidden"
+                              style={{ clipPath: "inset(0 0 0 0)" }}
+                            > */}
+                            <motion.div
+                              style={{ clipPath: "inset(0 0 0 0)" }}
+                              animate={{
+                                width: www ? 145 : 101,
+                              }}
+                            >
+                              <motion.div
+                                className="flex gap-0.5"
+                                animate={{
+                                  x: www ? 0 : -78,
+                                }}
+                              >
+                                <div>Processing</div>
+                                <div>Download</div>
+                                <div>Now</div>
+                              </motion.div>
+                            </motion.div>
+
                             <AnimatePresence mode="popLayout" initial={false}>
                               {www ? (
                                 <motion.div
@@ -140,11 +153,6 @@ export default function Home() {
                                     opacity: 1,
                                     x: 0,
                                     filter: `blur(0px)`,
-                                  }}
-                                  exit={{
-                                    opacity: 0,
-                                    x: 8,
-                                    filter: `blur(4px)`,
                                   }}
                                 >
                                   <LoaderCircleIcon className="h-4 w-4 animate-spin" />
@@ -162,39 +170,11 @@ export default function Home() {
                                     x: 0,
                                     filter: `blur(0px)`,
                                   }}
-                                  exit={{
-                                    opacity: 0,
-                                    x: 8,
-                                    filter: `blur(4px)`,
-                                  }}
                                 >
                                   <ArrowDownToLineIcon className="h-4 w-4" />
                                 </motion.div>
                               )}
                             </AnimatePresence>
-                            {/* <AnimatePresence mode="popLayout" initial={false}>
-                              {!www && (
-                                <motion.div
-                                  initial={{
-                                    opacity: 0,
-                                    x: 8,
-                                    filter: `blur(4px)`,
-                                  }}
-                                  animate={{
-                                    opacity: 1,
-                                    x: 0,
-                                    filter: `blur(0px)`,
-                                  }}
-                                  exit={{
-                                    opacity: 0,
-                                    x: 8,
-                                    filter: `blur(4px)`,
-                                  }}
-                                >
-                                  <ArrowDownToLineIcon className="h-4 w-4" />
-                                </motion.div>
-                              )}
-                            </AnimatePresence> */}
                           </motion.a>
                         </MotionConfig>
                       </div>
@@ -360,24 +340,4 @@ const DecryptedText = ({
   });
 
   return <motion.span>{display}</motion.span>;
-};
-
-interface AnimatedHeightAwarePanelProps {
-  children: React.ReactNode;
-}
-
-const WidthAwarePanel: React.FC<AnimatedHeightAwarePanelProps> = ({
-  children,
-}) => {
-  const [ref, bounds] = useMeasure<HTMLDivElement>();
-
-  console.log({ width: bounds.width });
-
-  return (
-    <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
-      <motion.div animate={{ width: bounds.width ? bounds.width : "auto" }}>
-        <div ref={ref}>{children}</div>
-      </motion.div>
-    </MotionConfig>
-  );
 };
