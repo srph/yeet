@@ -21,6 +21,7 @@ export default function Home() {
     mutateAsync: yeet,
     data: yeetData,
     isPending: isYeetPending,
+    isError: isYeetError,
   } = useYeetMutation();
 
   const {
@@ -326,7 +327,7 @@ export default function Home() {
                 <div className="h-6">
                   <div className="h-2"></div>
                   <AnimatePresence mode="popLayout" initial={false}>
-                    {isDownloadMetaError ? (
+                    {isYeetError ? (
                       <>
                         <motion.div
                           key="error"
