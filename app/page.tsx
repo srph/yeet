@@ -32,7 +32,7 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
-    await yeet(url);
+    await yeet({ url, format });
   };
 
   const handleDownload = () => {

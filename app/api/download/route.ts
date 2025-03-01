@@ -6,13 +6,17 @@ import { downloadYoutubeTask } from "@/trigger/download-youtube";
 
 export async function POST(req: Request) {
   try {
-    const { url } = await req.json();
+    const { url, format } = await req.json();
 
     if (!url || !ytdl.validateURL(url)) {
       return NextResponse.json(
         { error: "Invalid YouTube URL" },
         { status: 400 }
       );
+    }
+
+    if (!format || !["mp3", "mp4"].includes(format)) {
+      return NextResponse.json({ error: "Invalid format" }, { status: 400 });
     }
 
     const existing = await prisma.youtubeDownload.findFirst({

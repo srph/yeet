@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { DownloadMetaSchema } from "./types";
+
 export interface YeetResponse {
   id: string; // The job ID
   status: string;
@@ -7,16 +8,18 @@ export interface YeetResponse {
   youtubeThumbnail: string;
 }
 
-export const useYeetMutation = () => {
-  return useMutation<YeetResponse, Error, string>({
-    mutationFn: async (url: string) => {
-      await sleep(1000);
-      throw new Error("Failed to yeet");
+export interface YeetPayload {
+  url: string;
+  format: string;
+}
 
+export const useYeetMutation = () => {
+  return useMutation<YeetResponse, Error, YeetPayload>({
+    mutationFn: async (payload: YeetPayload) => {
       const response = await fetch("/api/download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
