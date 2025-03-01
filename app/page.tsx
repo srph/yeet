@@ -1,17 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowDownToLineIcon, LoaderCircleIcon, PlayIcon } from "lucide-react";
-import {
-  motion,
-  AnimatePresence,
-  MotionConfig,
-  useTransform,
-  useMotionValue,
-} from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { useYeetMutation } from "./mutations";
 import { useDownloadMeta } from "./queries";
 import invariant from "tiny-invariant";
+import { DecryptedText } from "./decrypted-text";
 
 // @TODO: Download high quality audio & video; stitch via ffmpeg
 // @TODO: Handle expired downloads - set expiry date
@@ -19,6 +14,7 @@ import invariant from "tiny-invariant";
 // @TODO: Improve failed downloads
 export default function Home() {
   const [url, setUrl] = useState("");
+
   const [format, setFormat] = useState<"mp3" | "mp4">("mp4");
 
   const {
@@ -229,62 +225,72 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
+              className="lg:w-[348px]"
             >
-              <div className="text-4xl text-white">
-                <span className="font-playfair font-bold italic">Yeet</span>
+              <div className="font-playfair text-center text-[64px] font-bold italic leading-none text-white">
+                Yeet
               </div>
 
-              <div className="text-2xl text-neutral-500">
+              <div className="h-2" />
+
+              <div className="text-center text-2xl leading-none text-neutral-500">
                 Download videos from YouTube
               </div>
 
               <div className="h-4"></div>
 
-              <div className="w-full max-w-md space-y-8">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      placeholder="https://youtu.be/IBDhuu7CoMI"
-                      className="w-full rounded-full border border-neutral-700 bg-neutral-800 py-3 pl-4 pr-[112px] text-sm font-medium outline-none transition placeholder:text-neutral-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
-                    />
-                    <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormat(format === "mp3" ? "mp4" : "mp3")
-                        }
-                        className="inline-flex items-center rounded-full bg-neutral-700 px-3 py-1 text-xs font-bold transition hover:bg-neutral-600"
-                      >
-                        {format.toUpperCase()}
-                      </button>
+              <form onSubmit={handleSubmit}>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://youtu.be/IBDhuu7CoMI"
+                    className="w-full rounded-full border border-neutral-700 bg-neutral-800 py-3 pl-4 pr-[112px] text-sm font-medium outline-none transition placeholder:text-neutral-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
+                  />
+                  <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormat(format === "mp3" ? "mp4" : "mp3")
+                      }
+                      className="inline-flex items-center rounded-full bg-neutral-700 px-3 py-1 text-xs font-bold transition hover:bg-neutral-600"
+                    >
+                      {format.toUpperCase()}
+                    </button>
 
-                      <motion.button
-                        type="submit"
-                        className="relative overflow-hidden rounded-full bg-yellow-500 p-2"
-                        initial="initial"
-                        animate={isYeetPending ? "animate" : "initial"}
-                        whileHover={isYeetPending ? undefined : "hover"}
-                        disabled={isYeetPending}
-                      >
-                        <AnimatePresence mode="popLayout">
-                          {isYeetPending ? (
-                            <motion.div
-                              initial={{ scale: 0.9 }}
-                              animate={{ scale: 1 }}
-                              exit={{ scale: 0.9 }}
-                              transition={{ duration: 0.5 }}
-                              className="animate-spin"
-                            >
+                    <motion.button
+                      type="submit"
+                      className="relative overflow-hidden rounded-full bg-yellow-500 p-2"
+                      initial="unhovered"
+                      whileHover="hover"
+                      disabled={isYeetPending}
+                    >
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        {isYeetPending ? (
+                          <motion.div
+                            key="loading"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="animate-[spin_0.25s_linear_infinite]">
                               <LoaderCircleIcon className="h-4 w-4" />
-                            </motion.div>
-                          ) : (
+                            </div>
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            className="relative z-10"
+                            key="default"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
                             <motion.div
-                              className="relative z-10"
                               variants={{
-                                initial: {
+                                unhovered: {
                                   x: 0,
                                 },
                                 hover: {
@@ -310,13 +316,38 @@ export default function Home() {
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                               </svg>
                             </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.button>
-                    </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
                   </div>
-                </form>
-              </div>
+                </div>
+
+                <div className="h-6">
+                  <div className="h-2"></div>
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {true ? (
+                      <>
+                        <motion.div
+                          key="error"
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{
+                            duration: 0.2,
+                            type: "spring",
+                            bounce: 0,
+                          }}
+                        >
+                          <div className="text-center text-sm leading-none text-red-600">
+                            Yikes, server hiccup. Maybe try again?
+                          </div>
+                        </motion.div>
+                      </>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
+              </form>
             </motion.div>
           )}
         </AnimatePresence>
@@ -324,43 +355,3 @@ export default function Home() {
     </div>
   );
 }
-
-const encrypt = (input: string) => {
-  return input
-    .split("")
-    .map((char) =>
-      char === " "
-        ? " "
-        : String.fromCharCode(33 + Math.floor(Math.random() * 94))
-    )
-    .join("");
-};
-
-// speed = how long it takes for each loop to complete
-// characters per loop = 1
-const DecryptedText = ({
-  text,
-  speed = 100,
-}: {
-  text: string;
-  speed?: number;
-}) => {
-  const cursor = useMotionValue(0);
-
-  useEffect(() => {
-    cursor.set(0);
-
-    const interval = setInterval(() => {
-      if (cursor.get() === text.length) return;
-      cursor.set(cursor.get() + 1);
-    }, speed);
-
-    return () => clearInterval(interval);
-  }, [text, speed]);
-
-  const display = useTransform(cursor, (cursor) => {
-    return text.slice(0, cursor) + encrypt(text.slice(cursor));
-  });
-
-  return <motion.span>{display}</motion.span>;
-};

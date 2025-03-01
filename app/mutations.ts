@@ -10,6 +10,9 @@ export interface YeetResponse {
 export const useYeetMutation = () => {
   return useMutation<YeetResponse, Error, string>({
     mutationFn: async (url: string) => {
+      await sleep(1000);
+      throw new Error("Failed to yeet");
+
       const response = await fetch("/api/download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,3 +27,5 @@ export const useYeetMutation = () => {
     },
   });
 };
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
