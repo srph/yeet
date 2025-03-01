@@ -8,7 +8,7 @@
     "dev:trigger": "npx trigger.dev@latest dev",
     "build": "npm run build:prisma && next build",
     "start": "next start",
-    "build:prisma": "prisma migrate deploy"
+    "build:prisma": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.749.0",
