@@ -326,7 +326,7 @@ export default function Home() {
                 <div className="h-6">
                   <div className="h-2"></div>
                   <AnimatePresence mode="popLayout" initial={false}>
-                    {true ? (
+                    {isDownloadMetaError ? (
                       <>
                         <motion.div
                           key="error"
