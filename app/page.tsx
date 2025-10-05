@@ -8,6 +8,12 @@ import { useDownloadMeta } from "./queries";
 import invariant from "tiny-invariant";
 import { DecryptedText } from "./decrypted-text";
 
+const snappy = [0.19, 1, 0.22, 1];
+
+const bezier = (values: number[]) => {
+  return `cubic-bezier(${snappy.join(",")})`;
+};
+
 // @TODO: Download high quality audio & video; stitch via ffmpeg
 // @TODO: Handle expired downloads - set expiry date
 // @TODO: CRON job to delete expired downloads
@@ -16,7 +22,6 @@ export default function Home() {
   const [url, setUrl] = useState("");
 
   const [format, setFormat] = useState<"mp3" | "mp4">("mp4");
-
   const {
     mutateAsync: yeet,
     data: yeetData,
@@ -29,6 +34,8 @@ export default function Home() {
     isPending: isDownloadMetaPending,
     isError: isDownloadMetaError,
   } = useDownloadMeta(yeetData?.id);
+
+  console.log(downloadMeta);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +107,7 @@ export default function Home() {
 
                     <div className="h-4"></div>
 
-                    {downloadMeta.status !== "failed" ? (
+                    {!["failed", "queued"].includes(downloadMeta.status) ? (
                       <div>
                         <MotionConfig
                           transition={{
@@ -110,12 +117,14 @@ export default function Home() {
                           }}
                         >
                           <motion.button
-                            layout
-                            className={`inline-flex h-[40px] items-center justify-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-black ${
-                              downloadMeta.status !== "complete"
-                                ? "cursor-not-allowed opacity-75"
-                                : "opacity-100"
-                            }`}
+                            className="group grid grid-cols-[24px_76px_74px_0px_0px] data-[status=complete]:grid-cols-[0px_0px_74px_30px_24px] h-[40px] place-items-center rounded-full bg-white px-4 py-2 font-medium text-black overflow-clip transition-all duration-[var(--duration)] ease-[var(--ease)] disabled:cursor-not-allowed disabled:opacity-75 opacity-100"
+                            style={
+                              {
+                                "--duration": "250ms",
+                                "--ease": bezier(snappy),
+                              } as React.CSSProperties
+                            }
+                            data-status={downloadMeta.status}
                             disabled={downloadMeta.status !== "complete"}
                             onClick={handleDownload}
                             aria-label={
@@ -124,65 +133,23 @@ export default function Home() {
                                 : "Processing Download"
                             }
                           >
-                            <motion.div
-                              style={{ clipPath: "inset(0 0 0 0)" }}
-                              animate={{
-                                width:
-                                  downloadMeta.status !== "complete"
-                                    ? 145
-                                    : 101,
-                              }}
-                            >
-                              <motion.div
-                                className="flex gap-0.5"
-                                animate={{
-                                  x:
-                                    downloadMeta.status !== "complete"
-                                      ? 0
-                                      : -78,
-                                }}
-                              >
-                                <div>Processing</div>
-                                <div>Download</div>
-                                <div>Now</div>
-                              </motion.div>
-                            </motion.div>
+                            <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                              <LoaderCircleIcon className="size-4 animate-spin" />
+                            </div>
 
-                            <AnimatePresence mode="popLayout" initial={false}>
-                              {downloadMeta.status !== "complete" ? (
-                                <motion.div
-                                  key="loading"
-                                  initial={{
-                                    opacity: 0,
-                                    x: 8,
-                                    filter: `blur(4px)`,
-                                  }}
-                                  animate={{
-                                    opacity: 1,
-                                    x: 0,
-                                    filter: `blur(0px)`,
-                                  }}
-                                >
-                                  <LoaderCircleIcon className="h-4 w-4 animate-spin" />
-                                </motion.div>
-                              ) : (
-                                <motion.div
-                                  key="complete"
-                                  initial={{
-                                    opacity: 0,
-                                    x: -8,
-                                    filter: `blur(4px)`,
-                                  }}
-                                  animate={{
-                                    opacity: 1,
-                                    x: 0,
-                                    filter: `blur(0px)`,
-                                  }}
-                                >
-                                  <ArrowDownToLineIcon className="h-4 w-4" />
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
+                            <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                              Processing
+                            </div>
+
+                            <div>Download</div>
+
+                            <div className="opacity-100 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                              Now
+                            </div>
+
+                            <div className="opacity-100 pl-1 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                              <ArrowDownToLineIcon className="size-4" />
+                            </div>
                           </motion.button>
                         </MotionConfig>
                       </div>
@@ -270,50 +237,58 @@ export default function Home() {
                       <AnimatePresence mode="popLayout" initial={false}>
                         {isYeetPending ? (
                           <motion.div
-                            key="loading"
+                            key="pending"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
+                            className="size-full grid place-items-center"
                           >
                             <div className="animate-[spin_0.25s_linear_infinite]">
                               <LoaderCircleIcon className="h-4 w-4" />
                             </div>
                           </motion.div>
                         ) : (
-                          <div className="grid translate-x-0 hover:translate-x-full transition-transform duration-150 eaes-out">
-                            <div className="grid place-items-center [grid-area:1/1] size-full">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                              </svg>
-                            </div>
+                          <motion.div
+                            key="default"
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                            className="size-full grid place-items-center"
+                          >
+                            <div className="grid size-full translate-x-0 hover:translate-x-full transition-transform duration-150 eaes-out">
+                              <div className="grid place-items-center [grid-area:1/1] size-full">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M5 12h14M12 5l7 7-7 7" />
+                                </svg>
+                              </div>
 
-                            <div className="grid place-items-center [grid-area:1/1] -translate-x-full size-full">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                              </svg>
+                              <div className="grid place-items-center [grid-area:1/1] -translate-x-full size-full">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M5 12h14M12 5l7 7-7 7" />
+                                </svg>
+                              </div>
                             </div>
-                          </div>
+                          </motion.div>
                         )}
                       </AnimatePresence>
                     </motion.button>
