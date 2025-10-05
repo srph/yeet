@@ -262,7 +262,7 @@ export default function Home() {
 
                     <motion.button
                       type="submit"
-                      className="relative overflow-hidden rounded-full bg-yellow-500 p-2"
+                      className="relative overflow-hidden rounded-full bg-yellow-500 size-8"
                       initial="unhovered"
                       whileHover="hover"
                       disabled={isYeetPending}
@@ -281,28 +281,8 @@ export default function Home() {
                             </div>
                           </motion.div>
                         ) : (
-                          <motion.div
-                            className="relative z-10"
-                            key="default"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <motion.div
-                              variants={{
-                                unhovered: {
-                                  x: 0,
-                                },
-                                hover: {
-                                  x: [0, 32, -32, 0],
-                                  transition: {
-                                    duration: 0.5,
-                                    times: [0, 0.25, 0.25, 0.5],
-                                  },
-                                },
-                              }}
-                            >
+                          <div className="grid translate-x-0 hover:translate-x-full transition-transform duration-150 eaes-out">
+                            <div className="grid place-items-center [grid-area:1/1] size-full">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"
@@ -316,8 +296,24 @@ export default function Home() {
                               >
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                               </svg>
-                            </motion.div>
-                          </motion.div>
+                            </div>
+
+                            <div className="grid place-items-center [grid-area:1/1] -translate-x-full size-full">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                              </svg>
+                            </div>
+                          </div>
                         )}
                       </AnimatePresence>
                     </motion.button>
