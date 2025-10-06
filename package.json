@@ -1,12 +1,12 @@
 {
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "dev:db": "docker compose up -d",
     "dev:db:down": "docker compose down",
     "dev:prisma": "prisma migrate dev",
     "dev:prisma:reset": "prisma migrate reset",
     "dev:trigger": "npx trigger.dev@latest dev",
-    "build": "npm run build:prisma && next build",
+    "build": "npm run build:prisma && next build --turbopack",
     "start": "next start",
     "build:prisma": "prisma generate && prisma migrate deploy",
     "build:trigger": "npx trigger.dev@latest deploy",
