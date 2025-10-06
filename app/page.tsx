@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownToLineIcon, LoaderCircleIcon, PlayIcon } from "lucide-react";
+import {
+  ArrowDownToLineIcon,
+  LoaderCircleIcon,
+  MoveUpRightIcon,
+  PlayIcon,
+} from "lucide-react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { useYeetMutation } from "./mutations";
 import { useDownloadMeta } from "./queries";
@@ -14,7 +19,6 @@ const bezier = (values: number[]) => {
   return `cubic-bezier(${snappy.join(",")})`;
 };
 
-// @TODO: Download high quality audio & video; stitch via ffmpeg
 // @TODO: Handle expired downloads - set expiry date
 // @TODO: CRON job to delete expired downloads
 // @TODO: Improve failed downloads
@@ -355,6 +359,40 @@ export default function Home() {
           )}
         </AnimatePresence>
       </MotionConfig>
+
+      <div className="fixed inset-x-0 bottom-0 grid place-items-center">
+        <div className="flex items-center justify-between w-full max-w-[720px] py-2 border-t border-neutral-900">
+          <span className="text-center text-sm leading-none text-neutral-700">
+            Crafted by Kier Borromeo
+          </span>
+
+          <div className="flex gap-6">
+            {links.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="group flex items-center text-center text-sm leading-none text-neutral-700"
+                target="_blank"
+              >
+                {link.label}
+                <div className="w-3 pl-1.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-150 ease-out">
+                  <MoveUpRightIcon className="size-3" />
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+const links = [
+  {
+    label: "GitHub",
+    href: "https://github.com/srph",
+  },
+  {
+    label: "Twitter",
+    href: "https://twitter.com/_srph",
+  },
+];
