@@ -6,6 +6,8 @@
 
 generator client {
     provider      = "prisma-client-js"
+    // This fixes an issue on Vercel and trigger.dev:
+    // Prisma Client could not locate the Query Engine for runtime "debian-openssl-3.0.x".
     binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
