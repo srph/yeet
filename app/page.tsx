@@ -35,8 +35,6 @@ export default function Home() {
     isError: isDownloadMetaError,
   } = useDownloadMeta(yeetData?.id);
 
-  console.log(downloadMeta);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
@@ -299,23 +297,21 @@ export default function Home() {
                   <div className="h-2"></div>
                   <AnimatePresence mode="popLayout" initial={false}>
                     {isYeetError ? (
-                      <>
-                        <motion.div
-                          key="error"
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          transition={{
-                            duration: 0.2,
-                            type: "spring",
-                            bounce: 0,
-                          }}
-                        >
-                          <div className="text-center text-sm leading-none text-red-600">
-                            Yikes, server hiccup. Maybe try again?
-                          </div>
-                        </motion.div>
-                      </>
+                      <motion.div
+                        key="error"
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{
+                          duration: 0.2,
+                          type: "spring",
+                          bounce: 0,
+                        }}
+                      >
+                        <div className="text-center text-sm leading-none text-red-600">
+                          Yikes, server hiccup. Maybe try again?
+                        </div>
+                      </motion.div>
                     ) : null}
                   </AnimatePresence>
                 </div>

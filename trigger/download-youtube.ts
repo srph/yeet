@@ -1,5 +1,5 @@
-import { schemaTask } from "@trigger.dev/sdk/v3";
-import ytdl from "@distube/ytdl-core";
+import { schemaTask } from "@trigger.dev/sdk";
+import { Innertube, UniversalCache } from "youtubei.js";
 import {
   S3Client,
   PutObjectCommand,
@@ -18,33 +18,56 @@ const s3 = new S3Client({
   },
 });
 
-const downloadYoutubeTask = schemaTask({
+export const downloadYoutubeTask = schemaTask({
   id: "download.youtube",
   schema: z.object({
-    url: z.string(),
+    videoId: z.string(),
     downloadId: z.string(),
   }),
   run: async (payload) => {
-    // Get video info
-    const info = await ytdl.getInfo(payload.url);
-    const videoId = info.videoDetails.videoId;
+    // https://github.com/LuanRT/YouTube.js/issues/1043#issuecomment-3328154175
+    const yt = await Innertube.create({
+      lang: "en",
+      location: "US",
+      user_agent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      enable_safety_mode: true,
+      generate_session_locally: true,
+      enable_session_cache: true,
+      device_category: "desktop",
+      timezone: "America/New_York",
+      player_id: "0004de42",
+      cache: new UniversalCache(false),
+    });
+
+    const videoId = payload.videoId;
     const fileName = `${videoId}.mp4`;
     const key = `${process.env.AWS_BASE_DIRECTORY}/${fileName}`;
 
-    // Stream to S3
-    const videoStream = ytdl(payload.url, {
-      quality: "highestvideo",
-      filter: "audioandvideo",
+    // Download video stream directly using videoId
+    const stream = await yt.download(videoId, {
+      type: "video+audio",
+      quality: "best",
+      format: "mp4",
+      client: "YTMUSIC",
     });
 
     // Convert stream to buffer (needed for S3)
     const chunks: Buffer[] = [];
-    for await (const chunk of videoStream) {
-      chunks.push(Buffer.from(chunk));
+    const reader = stream.getReader();
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(Buffer.from(value));
+      }
+    } finally {
+      reader.releaseLock();
     }
+
     const buffer = Buffer.concat(chunks);
 
-    // Upload to S3
     await s3.send(
       new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME!,
@@ -66,13 +89,13 @@ const downloadYoutubeTask = schemaTask({
       fileName,
     };
   },
-  onStart: async (payload) => {
+  onStart: async ({ payload, ctx }) => {
     await prisma.youtubeDownload.update({
       where: { id: payload.downloadId },
       data: { status: "processing" },
     });
   },
-  onSuccess: async (payload, output) => {
+  onSuccess: async ({ payload, output, ctx }) => {
     await prisma.youtubeDownload.update({
       where: { id: payload.downloadId },
       data: {
@@ -83,7 +106,7 @@ const downloadYoutubeTask = schemaTask({
       },
     });
   },
-  onFailure: async (payload, error) => {
+  onFailure: async ({ payload, error, ctx }) => {
     await prisma.youtubeDownload.update({
       where: { id: payload.downloadId },
       data: {
@@ -93,5 +116,3 @@ const downloadYoutubeTask = schemaTask({
     });
   },
 });
-
-export { downloadYoutubeTask };
