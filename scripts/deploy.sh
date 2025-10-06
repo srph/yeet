@@ -12,3 +12,15 @@ else
     touch deploy
     echo "Deploy file created ✅"
 fi
+
+# Git operations
+echo "Adding changes to git..."
+git add .
+
+echo "Committing changes..."
+git commit -m "deploy"
+
+echo "Pushing to remote..."
+git push
+
+echo "Deploy script completed! 🚀"
