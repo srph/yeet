@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { Innertube, UniversalCache } from "youtubei.js";
 import { prisma } from "@/prisma/client";
 import { downloadYoutubeTask } from "@/trigger/download-youtube";
 import { z } from "zod";
 import invariant from "tiny-invariant";
+import { createInnertube } from "@/app/yt";
 
 export async function POST(req: Request) {
   try {
@@ -42,20 +42,7 @@ export async function POST(req: Request) {
       return NextResponse.json(existing);
     }
 
-    // https://github.com/LuanRT/YouTube.js/issues/1043#issuecomment-3328154175
-    const yt = await Innertube.create({
-      lang: "en",
-      location: "US",
-      user_agent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      enable_safety_mode: true,
-      generate_session_locally: true,
-      enable_session_cache: true,
-      device_category: "desktop",
-      timezone: "America/New_York",
-      player_id: "0004de42",
-      cache: new UniversalCache(false),
-    });
+    const yt = await createInnertube();
 
     const video = await yt.getInfo(videoId);
 

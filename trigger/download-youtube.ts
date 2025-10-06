@@ -1,5 +1,4 @@
 import { schemaTask } from "@trigger.dev/sdk";
-import { Innertube, UniversalCache } from "youtubei.js";
 import {
   S3Client,
   PutObjectCommand,
@@ -8,7 +7,8 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { prisma } from "@/prisma/client";
 import { z } from "zod";
-import { env } from "@/env.server";
+import { env } from "@/app/env.server";
+import { createInnertube } from "@/app/yt";
 
 const s3 = new S3Client({
   region: env.AWS_REGION,
@@ -27,20 +27,7 @@ export const downloadYoutubeTask = schemaTask({
     format: z.enum(["mp3", "mp4"]),
   }),
   run: async (payload) => {
-    // https://github.com/LuanRT/YouTube.js/issues/1043#issuecomment-3328154175
-    const yt = await Innertube.create({
-      lang: "en",
-      location: "US",
-      user_agent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      enable_safety_mode: true,
-      generate_session_locally: true,
-      enable_session_cache: true,
-      device_category: "desktop",
-      timezone: "America/New_York",
-      player_id: "0004de42",
-      cache: new UniversalCache(false),
-    });
+    const yt = await createInnertube();
 
     const fileName = `${payload.videoId}.${payload.format}`;
     const key = `${env.AWS_BASE_DIRECTORY}/${fileName}`;

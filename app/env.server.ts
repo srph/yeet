@@ -11,6 +11,9 @@ const envSchema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string().min(1, "AWS_SECRET_ACCESS_KEY is required"),
   AWS_BUCKET_NAME: z.string().min(1, "AWS_BUCKET_NAME is required"),
   AWS_BASE_DIRECTORY: z.string().min(1, "AWS_BASE_DIRECTORY is required"),
+
+  // YouTube Player ID (for youtubei.js)
+  PLAYER_ID: z.string().min(1, "PLAYER_ID is required"),
 });
 
 export const env = envSchema.parse(process.env);
