@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 const envSchema = z.object({
+  // Trigger.dev
+  TRIGGER_PROJECT_ID: z.string().min(1, "TRIGGER_PROJECT_ID is required"),
+  TRIGGER_SECRET_KEY: z.string().min(1, "TRIGGER_SECRET_KEY is required"),
+
   // Database
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid URL"),
 
