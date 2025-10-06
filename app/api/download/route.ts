@@ -31,7 +31,8 @@ export async function POST(req: Request) {
 
     const existing = await prisma.youtubeDownload.findFirst({
       where: {
-        youtubeUrl: url,
+        youtubeId: videoId,
+        format: format,
         status: { not: "failed" },
         expiredAt: { gt: new Date() },
       },
@@ -64,6 +65,7 @@ export async function POST(req: Request) {
         youtubeId: videoId,
         youtubeTitle: video.basic_info.title ?? "",
         youtubeThumbnail: video.basic_info.thumbnail?.at(-1)?.url ?? "",
+        format: format,
         status: "queued",
         downloadFileName: null,
         downloadUrl: null,
@@ -74,6 +76,7 @@ export async function POST(req: Request) {
     await downloadYoutubeTask.trigger({
       videoId,
       downloadId: download.id,
+      format,
     });
 
     return NextResponse.json(download);

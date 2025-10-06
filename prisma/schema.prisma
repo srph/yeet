@@ -19,6 +19,7 @@ model YoutubeDownload {
     youtubeId        String
     youtubeTitle     String
     youtubeThumbnail String
+    format           String
     status           String    @default("pending")
     downloadFileName String?
     downloadUrl      String?   @db.Text
@@ -30,6 +31,7 @@ model YoutubeDownload {
 
     @@index([status])
     @@index([youtubeId])
+    @@index([format])
     @@index([createdAt])
     @@index([expiresAt])
     @@map("youtube_downloads")

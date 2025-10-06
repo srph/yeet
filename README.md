@@ -1,17 +1,17 @@
 # yeet
 
-Web UI for ytdl-core
+just another fancy youtube downloader frontend
 
 ## Stack
 
-- @distube/ytdl-core - Does the heavy lifting
+- youtubei.js - Does the heavy lifting
 - trigger.dev - Background jobs to run ytdl-core
 - s3 - Storage for ytdl output
 - Prisma - ORM to track jobs and metadata
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 22+
 - Docker
 
 ## Setup

@@ -3,14 +3,18 @@ import { prisma } from "@/prisma/client";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  ctx: RouteContext<"/api/download/[id]">
 ) {
   try {
-    const { id } = params;
+    const { id } = await ctx.params;
+
+    console.log({ id });
 
     const download = await prisma.youtubeDownload.findFirstOrThrow({
       where: { id },
     });
+
+    console.log({ id, downloadId: download.id });
 
     return NextResponse.json(download);
   } catch (error) {

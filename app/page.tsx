@@ -22,11 +22,13 @@ export default function Home() {
   const [url, setUrl] = useState("");
 
   const [format, setFormat] = useState<"mp3" | "mp4">("mp4");
+
   const {
     mutateAsync: yeet,
     data: yeetData,
     isPending: isYeetPending,
     isError: isYeetError,
+    reset,
   } = useYeetMutation();
 
   const {
@@ -38,6 +40,10 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
+    await yeet({ url, format });
+  };
+
+  const handleRetry = async (e: React.FormEvent) => {
     await yeet({ url, format });
   };
 
@@ -54,7 +60,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-900 p-4 text-white">
+    <div className="grid place-items-center min-h-screen p-4 text-white">
       <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
         <AnimatePresence initial={false} mode="popLayout">
           {downloadMeta ? (
@@ -105,53 +111,82 @@ export default function Home() {
 
                     <div className="h-4"></div>
 
-                    {!["failed", "queued"].includes(downloadMeta.status) ? (
-                      <div>
-                        <MotionConfig
-                          transition={{
-                            duration: 0.4,
-                            type: "spring",
-                            bounce: 0,
-                          }}
+                    <div className="h-10">
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        <motion.div
+                          initial={{ y: -8, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          key={
+                            downloadMeta.status === "failed"
+                              ? "failed"
+                              : downloadMeta.status === "queued"
+                              ? "queued"
+                              : "default"
+                          }
+                          transition={{ duration: 0.3 }}
                         >
-                          <motion.button
-                            className="group grid grid-cols-[24px_76px_74px_0px_0px] data-[status=complete]:grid-cols-[0px_0px_74px_30px_24px] h-[40px] place-items-center rounded-full bg-white px-4 py-2 font-medium text-black overflow-clip transition-all duration-[var(--duration)] ease-[var(--ease)] disabled:cursor-not-allowed disabled:opacity-75 opacity-100"
-                            style={
-                              {
-                                "--duration": "250ms",
-                                "--ease": bezier(snappy),
-                              } as React.CSSProperties
-                            }
-                            data-status={downloadMeta.status}
-                            disabled={downloadMeta.status !== "complete"}
-                            onClick={handleDownload}
-                            aria-label={
-                              downloadMeta.status === "complete"
-                                ? "Download Now"
-                                : "Processing Download"
-                            }
-                          >
-                            <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                              <LoaderCircleIcon className="size-4 animate-spin" />
+                          {downloadMeta.status === "failed" ? (
+                            <div className="text-neutral-400">
+                              Shit crashed in the kitchen. Maybe{" "}
+                              <button
+                                type="button"
+                                className="text-yellow-500"
+                                onClick={handleRetry}
+                              >
+                                try again
+                              </button>
+                              ?
                             </div>
+                          ) : downloadMeta.status !== "queued" ? (
+                            <div>
+                              <MotionConfig
+                                transition={{
+                                  duration: 0.4,
+                                  type: "spring",
+                                  bounce: 0,
+                                }}
+                              >
+                                <motion.button
+                                  className="group grid grid-cols-[24px_76px_74px_0px_0px] data-[status=complete]:grid-cols-[0px_0px_74px_30px_24px] h-[40px] place-items-center rounded-full bg-white px-4 py-2 font-medium text-black overflow-clip transition-all duration-[var(--duration)] ease-[var(--ease)] disabled:cursor-not-allowed disabled:opacity-75 opacity-100"
+                                  style={
+                                    {
+                                      "--duration": "250ms",
+                                      "--ease": bezier(snappy),
+                                    } as React.CSSProperties
+                                  }
+                                  data-status={downloadMeta.status}
+                                  disabled={downloadMeta.status !== "complete"}
+                                  onClick={handleDownload}
+                                  aria-label={
+                                    downloadMeta.status === "complete"
+                                      ? "Download Now"
+                                      : "Processing Download"
+                                  }
+                                >
+                                  <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                                    <LoaderCircleIcon className="size-4 animate-spin" />
+                                  </div>
 
-                            <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                              Processing
+                                  <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                                    Processing
+                                  </div>
+
+                                  <div>Download</div>
+
+                                  <div className="opacity-100 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                                    Now
+                                  </div>
+
+                                  <div className="opacity-100 pl-1 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
+                                    <ArrowDownToLineIcon className="size-4" />
+                                  </div>
+                                </motion.button>
+                              </MotionConfig>
                             </div>
-
-                            <div>Download</div>
-
-                            <div className="opacity-100 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                              Now
-                            </div>
-
-                            <div className="opacity-100 pl-1 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                              <ArrowDownToLineIcon className="size-4" />
-                            </div>
-                          </motion.button>
-                        </MotionConfig>
-                      </div>
-                    ) : null}
+                          ) : null}
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
 

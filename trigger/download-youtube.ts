@@ -8,13 +8,14 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { prisma } from "@/prisma/client";
 import { z } from "zod";
+import { env } from "@/env.server";
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
-  endpoint: process.env.AWS_ENDPOINT!,
+  region: env.AWS_REGION,
+  endpoint: env.AWS_ENDPOINT,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
@@ -23,6 +24,7 @@ export const downloadYoutubeTask = schemaTask({
   schema: z.object({
     videoId: z.string(),
     downloadId: z.string(),
+    format: z.enum(["mp3", "mp4"]),
   }),
   run: async (payload) => {
     // https://github.com/LuanRT/YouTube.js/issues/1043#issuecomment-3328154175
@@ -40,15 +42,14 @@ export const downloadYoutubeTask = schemaTask({
       cache: new UniversalCache(false),
     });
 
-    const videoId = payload.videoId;
-    const fileName = `${videoId}.mp4`;
-    const key = `${process.env.AWS_BASE_DIRECTORY}/${fileName}`;
+    const fileName = `${payload.videoId}.${payload.format}`;
+    const key = `${env.AWS_BASE_DIRECTORY}/${fileName}`;
 
     // Download video stream directly using videoId
-    const stream = await yt.download(videoId, {
-      type: "video+audio",
-      quality: "best",
-      format: "mp4",
+    const stream = await yt.download(payload.videoId, {
+      type: payload.format === "mp3" ? "audio" : "video+audio",
+      quality: payload.format === "mp3" ? "bestefficiency" : "best",
+      format: payload.format,
       client: "YTMUSIC",
     });
 
@@ -70,16 +71,16 @@ export const downloadYoutubeTask = schemaTask({
 
     await s3.send(
       new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME!,
+        Bucket: env.AWS_BUCKET_NAME,
         Key: key,
         Body: buffer,
-        ContentType: "video/mp4",
+        ContentType: payload.format === "mp3" ? "audio/mpeg" : "video/mp4",
       })
     );
 
     // Generate temporary download URL
     const command = new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
+      Bucket: env.AWS_BUCKET_NAME,
       Key: key,
     });
     const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // 1 hour
@@ -91,13 +92,19 @@ export const downloadYoutubeTask = schemaTask({
   },
   onStart: async ({ payload, ctx }) => {
     await prisma.youtubeDownload.update({
-      where: { id: payload.downloadId },
+      where: {
+        id: payload.downloadId,
+        format: payload.format,
+      },
       data: { status: "processing" },
     });
   },
   onSuccess: async ({ payload, output, ctx }) => {
     await prisma.youtubeDownload.update({
-      where: { id: payload.downloadId },
+      where: {
+        id: payload.downloadId,
+        format: payload.format,
+      },
       data: {
         status: "complete",
         downloadUrl: output.downloadUrl,
@@ -108,7 +115,10 @@ export const downloadYoutubeTask = schemaTask({
   },
   onFailure: async ({ payload, error, ctx }) => {
     await prisma.youtubeDownload.update({
-      where: { id: payload.downloadId },
+      where: {
+        id: payload.downloadId,
+        format: payload.format,
+      },
       data: {
         status: "failed",
         reason: error instanceof Error ? error.message : "Unknown error",
