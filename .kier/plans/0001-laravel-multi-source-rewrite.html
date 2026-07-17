@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yeet → Laravel: multi-source rewrite plan</title>
+<style>
+  :root {
+    --ink: #16150f;
+    --ink-2: #4a4740;
+    --ink-3: #78746a;
+    --rule: #e3ded2;
+    --rule-2: #f0ece2;
+    --paper: #fbfaf6;
+    --card: #fffffe;
+    --accent: #a8581a;
+    --accent-soft: #fdf3e7;
+    --go: #2f6b3f;
+    --go-soft: #eef5ef;
+    --stop: #9b2c2c;
+    --stop-soft: #fbeeee;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main { max-width: 940px; margin: 0 auto; padding: 56px 28px 120px; }
+
+  /* ---------- masthead ---------- */
+  .masthead { border-bottom: 3px solid var(--ink); padding-bottom: 22px; margin-bottom: 14px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--serif); font-size: 46px; line-height: 1.06;
+    margin: 0 0 14px; letter-spacing: -.02em; font-weight: 600;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .standfirst { font-size: 18.5px; line-height: 1.55; color: var(--ink-2); max-width: 68ch; margin: 0; }
+  .standfirst strong { color: var(--ink); font-weight: 600; }
+
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 24px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+    padding-bottom: 40px; border-bottom: 1px solid var(--rule); margin-bottom: 44px;
+  }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---------- sections ---------- */
+  section { margin-bottom: 60px; scroll-margin-top: 20px; }
+  h2 {
+    font-family: var(--serif); font-size: 15px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    margin: 0 0 24px; padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  h2::before {
+    content: attr(data-n); font-family: var(--mono); font-size: 11px;
+    color: var(--accent); letter-spacing: 0;
+  }
+  h3 {
+    font-size: 16.5px; font-weight: 650; margin: 32px 0 10px;
+    letter-spacing: -.01em;
+  }
+  h4 { font-size: 13px; font-weight: 650; margin: 22px 0 8px; color: var(--ink-2); }
+  p { margin: 0 0 14px; max-width: 76ch; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; max-width: 76ch; }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--ink-3); }
+  a { color: var(--accent); }
+
+  code:not(pre code) {
+    font-family: var(--mono); font-size: .855em;
+    background: var(--rule-2); border: 1px solid var(--rule);
+    padding: .08em .36em; border-radius: 3px; white-space: nowrap;
+  }
+
+  /* ---------- code blocks ---------- */
+  .code {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 8px; margin: 0 0 20px; overflow: hidden;
+  }
+  .code-head {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+    padding: 9px 14px; border-bottom: 1px solid var(--rule-2);
+    background: #faf8f3; display: flex; justify-content: space-between; gap: 16px;
+  }
+  .code-head .tag { color: var(--accent); }
+  .code-head .new { color: var(--go); }
+  pre {
+    margin: 0; padding: 16px 18px; overflow-x: auto;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.65; color: var(--ink);
+  }
+  pre .c { color: #8a8578; font-style: italic; }
+  pre .k { color: #7c3aed; }
+  pre .s { color: #2f6b3f; }
+  pre .f { color: #1d5c96; }
+  pre .d { color: var(--stop); }
+
+  /* ---------- callouts ---------- */
+  .note {
+    border-left: 3px solid var(--accent); background: var(--accent-soft);
+    padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 0 0 20px;
+    font-size: 14.5px;
+  }
+  .note.warn { border-left-color: var(--stop); background: var(--stop-soft); }
+  .note.ok { border-left-color: var(--go); background: var(--go-soft); }
+  .note p:last-child { margin-bottom: 0; }
+  .note .label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; display: block; margin-bottom: 5px; color: var(--accent);
+  }
+  .note.warn .label { color: var(--stop); }
+  .note.ok .label { color: var(--go); }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13.5px; }
+  th {
+    text-align: left; font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+    padding: 0 12px 8px 0; border-bottom: 1.5px solid var(--rule); font-weight: 500;
+  }
+  td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  td code { white-space: nowrap; }
+  .tbl-wrap { overflow-x: auto; }
+
+  .del { color: var(--stop); font-family: var(--mono); font-size: 12px; }
+  .add { color: var(--go); font-family: var(--mono); font-size: 12px; }
+  .arrow { color: var(--ink-3); padding: 0 4px; }
+
+  /* ---------- decisions ---------- */
+  .decisions { display: grid; gap: 12px; }
+  .decision {
+    display: grid; grid-template-columns: 120px 1fr; gap: 18px;
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 16px 18px;
+  }
+  .decision dt {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3); padding-top: 3px;
+  }
+  .decision dd { margin: 0; }
+  .decision .choice { font-weight: 650; display: block; margin-bottom: 3px; }
+  .decision .why { font-size: 13.5px; color: var(--ink-2); }
+
+  /* ---------- phases ---------- */
+  .phase {
+    border: 1px solid var(--rule); border-radius: 8px;
+    background: var(--card); padding: 20px 22px; margin-bottom: 14px;
+  }
+  .phase-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .phase-n {
+    font-family: var(--mono); font-size: 11px; color: #fff; background: var(--ink);
+    border-radius: 4px; padding: 2px 7px; letter-spacing: .05em;
+  }
+  .phase-title { font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
+  .phase-cost {
+    margin-left: auto; font-family: var(--mono); font-size: 11px;
+    color: var(--ink-3); white-space: nowrap;
+  }
+  .phase-goal { color: var(--ink-2); font-size: 14.5px; margin: 0 0 12px; }
+  .phase ul { margin-bottom: 0; }
+  .phase ul li { font-size: 14.5px; }
+
+  .check {
+    font-family: var(--mono); font-size: 12px; color: var(--go);
+    background: var(--go-soft); border: 1px solid #d6e5da;
+    border-radius: 5px; padding: 8px 12px; margin-top: 12px;
+  }
+  .check b { font-weight: 500; color: #24512f; }
+
+  /* ---------- risks ---------- */
+  .risk {
+    border: 1px solid var(--rule); border-left: 3px solid var(--stop);
+    border-radius: 0 8px 8px 0; background: var(--card);
+    padding: 14px 18px; margin-bottom: 10px;
+  }
+  .risk .r-head { font-weight: 650; font-size: 14.5px; margin-bottom: 4px; }
+  .risk .r-body { font-size: 13.5px; color: var(--ink-2); }
+  .risk .r-body b { color: var(--go); font-weight: 600; }
+
+  .q {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 10px;
+  }
+  .q .q-t { font-weight: 650; font-size: 14.5px; margin-bottom: 4px; }
+  .q .q-b { font-size: 13.5px; color: var(--ink-2); }
+  .q .q-b b { color: var(--ink); }
+
+  .next {
+    border: 2px solid var(--ink); border-radius: 8px;
+    padding: 24px 26px; background: var(--card);
+  }
+  .next h2 { border: none; margin-bottom: 12px; padding: 0; }
+
+  @media (max-width: 680px) {
+    main { padding: 36px 18px 80px; }
+    h1 { font-size: 34px; }
+    .decision { grid-template-columns: 1fr; gap: 6px; }
+    .phase-cost { margin-left: 0; width: 100%; }
+  }
+
+  @media print {
+    body { background: #fff; font-size: 11pt; }
+    main { max-width: none; padding: 0; }
+    section { break-inside: avoid; margin-bottom: 30px; }
+    .phase, .risk, .code, .decision, .q { break-inside: avoid; }
+    pre { font-size: 8.5pt; white-space: pre-wrap; }
+    a { color: var(--ink); text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header class="masthead">
+  <p class="eyebrow">Implementation Plan · 0001</p>
+  <h1>Yeet on Laravel:<br>killing trigger.dev, <em>going multi-source</em></h1>
+  <p class="standfirst">
+    Rewrite the Next.js + trigger.dev + Prisma/MySQL app as <strong>Laravel 12 + Inertia + Postgres</strong>,
+    replacing <code>youtubei.js</code> with <strong>yt-dlp</strong> — which collapses the YouTube/X/Facebook
+    adapter problem into one binary and retires the <code>PLAYER_ID</code> maintenance burden along with the
+    trigger.dev bill. The React frontend ports over close to verbatim.
+  </p>
+</header>
+
+<div class="meta">
+  <span><b>Repo</b> /Users/kier/Code/yeet/yeet</span>
+  <span><b>Branch</b> feat/laravel</span>
+  <span><b>Scope</b> ~700 LOC, 1 table, 1 job, 2 routes, 1 page</span>
+  <span><b>Est.</b> 2–3 focused sessions</span>
+  <span><b>Date</b> 2026-07-17</span>
+</div>
+
+<!-- ══════════════════════════════ 1 ══════════════════════════════ -->
+<section>
+<h2 data-n="01">Objective</h2>
+
+<p>Three things at once, in one rewrite:</p>
+
+<ol>
+  <li><strong>Drop trigger.dev.</strong> It's a paid vendor doing the work of one queued job. Laravel's queue does this for free on hardware you already rent.</li>
+  <li><strong>Support more than YouTube.</strong> X and Facebook now, others later — which means the schema and the extraction path both stop assuming "youtube".</li>
+  <li><strong>Move to a stack you actually operate.</strong> Forge + Postgres in production, DBngin locally. No Vercel, no separate trigger.dev deploy, no env-var syncing between two dashboards.</li>
+</ol>
+
+<p><strong>Expected outcome:</strong> one Laravel app, one deploy target, one <code>.env</code>. Paste a YouTube, X, or Facebook URL; the page looks and behaves exactly as it does today.</p>
+</section>
+
+<!-- ══════════════════════════════ 2 ══════════════════════════════ -->
+<section>
+<h2 data-n="02">Current context</h2>
+
+<p>The app is small, which is what makes this tractable — 12 source files. Here's what actually exists and where it lands:</p>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th style="width:30%">Today</th><th style="width:34%">Becomes</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td>Next.js 15 App Router</td><td>Laravel 12 + Inertia</td><td>Inertia renders one view; no props needed</td></tr>
+    <tr><td>Prisma 6 + MySQL 8</td><td>Eloquent + Postgres 16</td><td>Starting fresh — no data migration</td></tr>
+    <tr><td>trigger.dev <code>downloadYoutubeTask</code></td><td><code>ProcessDownload</code> job</td><td>Database queue driver</td></tr>
+    <tr><td><code>youtubei.js</code> + <code>PLAYER_ID</code></td><td><code>yt-dlp</code> via <code>Process</code></td><td>The one genuinely new piece</td></tr>
+    <tr><td><code>POST /api/download</code></td><td>Same URL, <code>DownloadController@store</code></td><td>Frontend fetch calls unchanged</td></tr>
+    <tr><td><code>GET /api/download/[id]</code></td><td>Same URL, <code>DownloadController@show</code></td><td>Still the 1s polling target</td></tr>
+    <tr><td>S3/R2 + AWS SDK</td><td><code>Storage::disk('s3')</code></td><td>Flysystem speaks the same protocol</td></tr>
+    <tr><td>Tailwind v3.3 + framer-motion 11</td><td>Tailwind v4 + motion</td><td>Same classes, new build pipeline</td></tr>
+    <tr><td>No auth, no rate limit</td><td>Add <code>throttle</code> only</td><td>Still no accounts — nothing to migrate</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Bugs worth fixing on the way through, not porting</h3>
+
+<p>The exploration turned up several real defects. Each is cheap to fix <em>now</em> and annoying to fix later, so the plan folds them in rather than faithfully reproducing them:</p>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th style="width:32%">Bug</th><th>What happens & the fix</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>The dedupe cache never hits</strong><br><code>api/download/route.ts:33</code></td>
+      <td>It filters <code>expiredAt: { gt: now }</code>, but <code>expiredAt</code> is <em>never written by any code path</em> — it's always NULL, and <code>NULL &gt; now()</code> is never true. It meant <code>expiresAt</code>. Every single submit re-downloads and re-uploads, even for a video you fetched ten seconds ago. <b>Fix:</b> the new schema drops the ambiguity entirely — dedupe keys off <code>status</code>, so there's no pair of near-identical columns to confuse (see §4).</td>
+    </tr>
+    <tr>
+      <td><strong>Links die 6 days early</strong><br><code>trigger/download-youtube.ts:70</code></td>
+      <td>The presigned URL is minted with <code>expiresIn: 3600</code> (1 hour), but <code>expiresAt</code> is stored as <em>one week</em> out. The DB promises 7 days; the link is dead after 60 minutes. <b>Fix:</b> stop storing the URL — presign on read (see §4).</td>
+    </tr>
+    <tr>
+      <td><strong>Failed downloads poll forever</strong><br><code>queries.ts:17</code></td>
+      <td><code>refetchInterval</code> only stops on <code>"complete"</code>. A failed job polls at 1 req/sec until the tab closes. <b>Fix:</b> stop on terminal states.</td>
+    </tr>
+    <tr>
+      <td><strong>Missing row returns 500</strong><br><code>api/download/[id]/route.ts</code></td>
+      <td><code>findFirstOrThrow</code> lands in the generic catch. <b>Fix:</b> route-model binding gives a real 404 for free.</td>
+    </tr>
+    <tr>
+      <td><strong>Shorts URLs rejected</strong><br><code>route.ts:92</code></td>
+      <td>The three regexes cover <code>youtu.be</code>, <code>?v=</code>, and <code>/embed/</code> — not <code>/shorts/</code>. <b>Fix:</b> the new matcher includes it.</td>
+    </tr>
+    <tr>
+      <td><strong>Whole video buffered in RAM</strong><br><code>trigger/download-youtube.ts:44</code></td>
+      <td><code>Buffer.concat(chunks)</code> holds the entire file in memory before the S3 put. A long 1080p video can OOM the worker. <b>Fix:</b> yt-dlp writes to a temp file; we stream it up.</td>
+    </tr>
+    <tr>
+      <td><strong>Bucket grows forever</strong></td>
+      <td>Nothing ever deletes objects. The <code>@TODO: CRON job to delete expired downloads</code> at <code>page.tsx:23</code> was never built — which is exactly why <code>expiredAt</code> was never written. <b>Fix:</b> Phase 7.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<!-- ══════════════════════════════ 3 ══════════════════════════════ -->
+<section>
+<h2 data-n="03">Decisions locked</h2>
+
+<dl class="decisions">
+  <div class="decision">
+    <dt>Extractor</dt>
+    <dd>
+      <span class="choice">yt-dlp, shelled out via <code>Process</code></span>
+      <span class="why">The pivotal call. <code>youtubei.js</code> has no PHP equivalent, and it was the source of the <code>PLAYER_ID</code> churn the README complains about. yt-dlp already ships ~1,800 extractors including youtube, twitter/x, and facebook — so "support X and Facebook" becomes a URL-matching exercise, not two new integrations. Upstream absorbs the player/signature breakage.</span>
+    </dd>
+  </div>
+  <div class="decision">
+    <dt>Queue</dt>
+    <dd>
+      <span class="choice">Database driver on Postgres</span>
+      <span class="why">No Redis to run or pay for. Volume is low enough that DB polling is a non-issue. Costs you the Horizon dashboard — <code>failed_jobs</code> plus <code>queue:failed</code> is the replacement. Swapping to Redis later is a <code>QUEUE_CONNECTION</code> change, so this isn't a door that closes.</span>
+    </dd>
+  </div>
+  <div class="decision">
+    <dt>Data</dt>
+    <dd>
+      <span class="choice">Fresh Postgres, no migration</span>
+      <span class="why">Rows are ephemeral download records pointing at links that already expired. No migration script, no backfill phase.</span>
+    </dd>
+  </div>
+  <div class="decision">
+    <dt>Repo</dt>
+    <dd>
+      <span class="choice">In place, on <code>feat/laravel</code></span>
+      <span class="why">Keeps history and the repo name. The branch diff is large and destructive by nature — <code>main</code> stays deployable on Vercel until you cut over.</span>
+    </dd>
+  </div>
+</dl>
+
+<div class="note ok">
+  <span class="label">Verified on this machine</span>
+  <p>PHP <b>8.3.31</b> ✓ · Composer <b>2.8.6</b> ✓ · ffmpeg <b>8.1</b> ✓ (yt-dlp needs it to merge mp4 video+audio streams) · Node <b>22.22</b> ✓ · Postgres ✓ and the <code>yeet</code> database now exists — <strong>yt-dlp is the only thing still missing</strong>, hence Phase 0.</p>
+  <p><strong>Note on Postgres:</strong> the server on <code>127.0.0.1:5432</code> is <b>Postgres.app 18.1</b>, not DBngin — DBngin's Postgres isn't running, only its <code>psql</code> client (16.4) is on PATH, which is easy to mistake for the server. The <code>.env</code> below connects fine as-is; just know which one you're pointed at, and check the version parity against whatever Forge provisions in production.</p>
+</div>
+</section>
+
+<!-- ══════════════════════════════ 4 ══════════════════════════════ -->
+<section>
+<h2 data-n="04">Proposed approach</h2>
+
+<h3>The schema, made source-agnostic</h3>
+
+<p>Your rename, applied — plus a <code>source</code> discriminator. Status and format stay as plain strings: constraining them in the DB would be rigid this early, when the set of sources, formats, and states is all still moving. The one structural addition is an index on <code>(source, source_id, format, status)</code>, so the dedupe fix has something to lean on.</p>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th style="width:38%">Prisma / MySQL (today)</th><th>Laravel / Postgres (new)</th></tr></thead>
+  <tbody>
+    <tr><td><code>id</code> cuid</td><td><code>id</code> <span class="arrow">→</span> ULID <span class="why">(sortable, no cuid dep)</span></td></tr>
+    <tr><td>—</td><td><span class="add">+ source</span> <span class="arrow">·</span> <code>'youtube' | 'x' | 'facebook'</code></td></tr>
+    <tr><td><span class="del">youtubeUrl</span></td><td><span class="add">source_url</span></td></tr>
+    <tr><td><span class="del">youtubeId</span></td><td><span class="add">source_id</span></td></tr>
+    <tr><td><span class="del">youtubeTitle</span></td><td><span class="add">source_title</span></td></tr>
+    <tr><td><span class="del">youtubeThumbnail</span></td><td><span class="add">source_thumbnail</span> <span class="why">— now nullable; X posts often have none</span></td></tr>
+    <tr><td><code>format</code> string</td><td><code>format</code> <span class="arrow">·</span> string <span class="why">— validated at the request boundary, not in the DB</span></td></tr>
+    <tr><td><code>status</code> string, default <code>'pending'</code></td><td><code>status</code> <span class="arrow">·</span> string, default <code>'queued'</code> <span class="why">— the old <code>'pending'</code> default was dead code. States: queued → processing → complete | failed, plus <span class="add">expired</span>, which replaces the <code>expired_at</code> column</span></td></tr>
+    <tr><td><code>downloadFileName</code></td><td><span class="add">storage_file_name</span></td></tr>
+    <tr><td><code>downloadUrl</code> TEXT</td><td><span class="del">dropped</span> <span class="arrow">→</span> <code>storage_key</code> <span class="why">— see below</span></td></tr>
+    <tr><td><code>reason</code></td><td><code>reason</code> <span class="arrow">·</span> text</td></tr>
+    <tr><td><code>expiresAt</code></td><td><code>expires_at</code> <span class="why">— read by <em>one</em> thing: the prune command</span></td></tr>
+    <tr><td><code>expiredAt</code> <span class="why">(never written)</span></td><td><span class="del">dropped</span> <span class="arrow">→</span> <code>status = 'expired'</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="label">Schema change 1 of 2 beyond your rename</span>
+  <p><strong><code>downloadUrl</code> becomes <code>storage_key</code>.</strong> Storing a presigned URL in a column is what created the 1-hour-vs-7-day bug: the URL starts decaying the instant it's written. Store the durable thing (the S3 key) and presign at <em>read</em> time in the API resource. The link is then always fresh for a full hour from when the user actually loads the page, and <code>expires_at</code> becomes the real, honest expiry. The frontend still receives a <code>downloadUrl</code> field and never knows the difference.</p>
+</div>
+
+<div class="note">
+  <span class="label">Schema change 2 of 2 — <code>expired_at</code> is gone</span>
+  <p><strong>Expiry becomes a status, not a timestamp.</strong> <code>expired_at</code> was a nullable timestamp whose only possible meanings were "no" (NULL) and "yes, at some moment nobody will ever query" — which is a boolean wearing a costume, and duplicated state that <code>status</code> already models. It's dropped in favour of a fifth status value, <code>'expired'</code>, written by the prune command.</p>
+  <p>That leaves <code>expires_at</code> with exactly <em>one</em> reader in the whole app: the scheduled prune command asking "what's due?" Nothing else branches on it. This is also what kills the original bug at the root — the old code confused <code>expiredAt</code> with <code>expiresAt</code> because the two columns were nearly indistinguishable. Now there's only one.</p>
+</div>
+
+<div class="note warn">
+  <span class="label">The tradeoff, stated plainly</span>
+  <p>The prune runs hourly, so a row can sit at <code>status = 'complete'</code> with <code>expires_at</code> just past — up to an hour before prune flips it to <code>'expired'</code>. During that window a dedupe hit serves a "technically expired" row. <strong>This is harmless:</strong> the S3 object is still there (prune is what deletes it), so the link works fine. The alternative — checking <code>expires_at</code> in the dedupe query too — would buy nothing except a second reader of the column you just said should have one. Worth knowing, not worth defending against.</p>
+</div>
+
+<h3>How "adapters" actually work here</h3>
+
+<p>Worth being explicit, because it's less code than you'd expect: <strong>yt-dlp does the extraction for every source</strong>. So an adapter isn't a downloader — it's just <em>URL recognition and metadata normalization</em>. Adding TikTok later is one class and one line in a registry.</p>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Sources/Source.php</span><span class="tag">the whole adapter contract</span></div>
+<pre><span class="k">interface</span> <span class="f">Source</span>
+{
+    <span class="c">// Does this adapter own the pasted URL? First match wins.</span>
+    <span class="k">public function</span> <span class="f">matches</span>(<span class="k">string</span> $url): <span class="k">bool</span>;
+
+    <span class="c">// The stable per-source identifier, used for the storage key</span>
+    <span class="c">// and the (source, source_id, format) dedupe index.</span>
+    <span class="k">public function</span> <span class="f">extractId</span>(<span class="k">string</span> $url): ?<span class="k">string</span>;
+
+    <span class="c">// The value stored in the `source` column: 'youtube' | 'x' | 'facebook'.</span>
+    <span class="k">public function</span> <span class="f">key</span>(): <span class="k">string</span>;
+}</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Sources/YouTubeSource.php</span><span class="tag">note: /shorts/ now included</span></div>
+<pre><span class="k">class</span> <span class="f">YouTubeSource</span> <span class="k">implements</span> <span class="f">Source</span>
+{
+    <span class="c">// Ported from the three regexes in app/api/download/route.ts:92,</span>
+    <span class="c">// PLUS the /shorts/ pattern the old app silently rejected.</span>
+    <span class="k">private const</span> PATTERNS = [
+        <span class="s">'~youtu\.be/([a-zA-Z0-9_-]{11})~'</span>,
+        <span class="s">'~[?&amp;]v=([a-zA-Z0-9_-]{11})~'</span>,
+        <span class="s">'~embed/([a-zA-Z0-9_-]{11})~'</span>,
+        <span class="s">'~shorts/([a-zA-Z0-9_-]{11})~'</span>,   <span class="c">// &lt;- new</span>
+    ];
+
+    <span class="k">public function</span> <span class="f">key</span>(): <span class="k">string</span> { <span class="k">return</span> <span class="s">'youtube'</span>; }
+
+    <span class="k">public function</span> <span class="f">matches</span>(<span class="k">string</span> $url): <span class="k">bool</span>
+    {
+        <span class="k">return</span> $this->extractId($url) !== <span class="k">null</span>;
+    }
+
+    <span class="k">public function</span> <span class="f">extractId</span>(<span class="k">string</span> $url): ?<span class="k">string</span>
+    {
+        <span class="k">foreach</span> (<span class="k">self</span>::PATTERNS <span class="k">as</span> $pattern) {
+            <span class="k">if</span> (preg_match($pattern, $url, $m)) <span class="k">return</span> $m[1];
+        }
+        <span class="k">return null</span>;
+    }
+}</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Sources/XSource.php · FacebookSource.php</span><span class="tag">the new sources</span></div>
+<pre><span class="k">class</span> <span class="f">XSource</span> <span class="k">implements</span> <span class="f">Source</span>
+{
+    <span class="c">// x.com/user/status/123 and the legacy twitter.com host.</span>
+    <span class="c">// The status ID is the stable identifier.</span>
+    <span class="k">private const</span> PATTERN = <span class="s">'~(?:twitter|x)\.com/\w+/status/(\d+)~'</span>;
+
+    <span class="k">public function</span> <span class="f">key</span>(): <span class="k">string</span> { <span class="k">return</span> <span class="s">'x'</span>; }
+    <span class="k">public function</span> <span class="f">matches</span>(<span class="k">string</span> $url): <span class="k">bool</span> { <span class="k">return</span> $this->extractId($url) !== <span class="k">null</span>; }
+
+    <span class="k">public function</span> <span class="f">extractId</span>(<span class="k">string</span> $url): ?<span class="k">string</span>
+    {
+        <span class="k">return</span> preg_match(<span class="k">self</span>::PATTERN, $url, $m) ? $m[1] : <span class="k">null</span>;
+    }
+}
+
+<span class="k">class</span> <span class="f">FacebookSource</span> <span class="k">implements</span> <span class="f">Source</span>
+{
+    <span class="c">// Facebook URL shapes are a mess: /watch/?v=, /reel/, /videos/,</span>
+    <span class="c">// fb.watch short links. We match generously and let yt-dlp be</span>
+    <span class="c">// the real authority on whether it can pull the thing.</span>
+    <span class="k">private const</span> PATTERNS = [
+        <span class="s">'~facebook\.com/.*/videos/(\d+)~'</span>,
+        <span class="s">'~facebook\.com/watch/?\?v=(\d+)~'</span>,
+        <span class="s">'~facebook\.com/reel/(\d+)~'</span>,
+        <span class="s">'~fb\.watch/([\w-]+)~'</span>,
+    ];
+
+    <span class="k">public function</span> <span class="f">key</span>(): <span class="k">string</span> { <span class="k">return</span> <span class="s">'facebook'</span>; }
+    <span class="c">// ... same shape as above</span>
+}</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Sources/SourceResolver.php</span><span class="tag">registry — adding a source = one line</span></div>
+<pre><span class="k">class</span> <span class="f">SourceResolver</span>
+{
+    <span class="c">// Order matters only if two adapters could claim the same URL.</span>
+    <span class="c">// They can't today, but keep the most specific first as a habit.</span>
+    <span class="k">public function</span> <span class="f">__construct</span>(
+        <span class="k">private array</span> $sources = <span class="k">new</span> <span class="f">YouTubeSource</span>, <span class="c">// see providers for real binding</span>
+    ) {}
+
+    <span class="c">// Returns [Source, id] or null if nothing recognizes the URL.</span>
+    <span class="c">// The controller turns null into a 422 with a field error,</span>
+    <span class="c">// which is what the old zod .refine() did.</span>
+    <span class="k">public function</span> <span class="f">resolve</span>(<span class="k">string</span> $url): ?<span class="k">array</span>
+    {
+        <span class="k">foreach</span> ($this->sources <span class="k">as</span> $source) {
+            <span class="k">if</span> ($id = $source->extractId($url)) {
+                <span class="k">return</span> [$source, $id];
+            }
+        }
+        <span class="k">return null</span>;
+    }
+}</pre>
+</div>
+</section>
+
+<!-- ══════════════════════════════ 5 ══════════════════════════════ -->
+<section>
+<h2 data-n="05">Critical code</h2>
+
+<h3>The migration</h3>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> database/migrations/…_create_downloads_table.php</span><span class="tag">replaces prisma/schema.prisma</span></div>
+<pre>Schema::create(<span class="s">'downloads'</span>, <span class="k">function</span> (Blueprint $table) {
+    $table-><span class="f">ulid</span>(<span class="s">'id'</span>)-><span class="f">primary</span>();   <span class="c">// was cuid, generated app-side</span>
+
+    <span class="c">// The rename: youtube* -> source*, plus the discriminator.</span>
+    $table-><span class="f">string</span>(<span class="s">'source'</span>);
+    $table-><span class="f">text</span>(<span class="s">'source_url'</span>);
+    $table-><span class="f">string</span>(<span class="s">'source_id'</span>);
+    $table-><span class="f">text</span>(<span class="s">'source_title'</span>);
+    $table-><span class="f">text</span>(<span class="s">'source_thumbnail'</span>)-><span class="f">nullable</span>();  <span class="c">// X posts often lack one</span>
+
+    $table-><span class="f">string</span>(<span class="s">'format'</span>);
+    $table-><span class="f">string</span>(<span class="s">'status'</span>)-><span class="f">default</span>(<span class="s">'queued'</span>);
+
+    <span class="c">// The storage-layer pair. `storage_key` is the durable S3 key —</span>
+    <span class="c">// NOT a presigned URL, which is what fixes the 1hr-link/7day-expiry</span>
+    <span class="c">// mismatch. `storage_file_name` is the name we hand the browser.</span>
+    $table-><span class="f">string</span>(<span class="s">'storage_key'</span>)-><span class="f">nullable</span>();
+    $table-><span class="f">string</span>(<span class="s">'storage_file_name'</span>)-><span class="f">nullable</span>();
+    $table-><span class="f">text</span>(<span class="s">'reason'</span>)-><span class="f">nullable</span>();
+
+    <span class="c">// The ONLY reader of this column is downloads:prune, asking</span>
+    <span class="c">// "what's due for deletion?". Nothing else branches on it.</span>
+    <span class="c">// There is no expired_at — expiry is a status, not a timestamp.</span>
+    $table-><span class="f">timestamp</span>(<span class="s">'expires_at'</span>)-><span class="f">nullable</span>();
+    $table-><span class="f">timestamps</span>();
+
+    $table-><span class="f">index</span>([<span class="s">'created_at'</span>]);
+
+    <span class="c">// Backs the dedupe lookup that was broken before.</span>
+    $table-><span class="f">index</span>([<span class="s">'source'</span>, <span class="s">'source_id'</span>, <span class="s">'format'</span>, <span class="s">'status'</span>]);
+
+    <span class="c">// Backs the prune command's "what's due?" query specifically.</span>
+    $table-><span class="f">index</span>([<span class="s">'status'</span>, <span class="s">'expires_at'</span>]);
+});
+
+<span class="c">// No CHECK constraints on status/format. They'd be rigid this early:</span>
+<span class="c">// every new source, format, or state would need a migration to widen</span>
+<span class="c">// them - and this app is about to grow all three. The values are</span>
+<span class="c">// validated where they enter the system (the FormRequest for `format`,</span>
+<span class="c">// the SourceResolver for `source`) and `status` is only ever written by</span>
+<span class="c">// our own job. Add constraints later if the shape actually settles.</span></pre>
+</div>
+
+<h3>The job — trigger.dev's task, translated</h3>
+
+<p>The old task put <em>all</em> its DB writes in <code>onStart</code>/<code>onSuccess</code>/<code>onFailure</code> hooks and none in <code>run</code>. Laravel has no <code>onStart</code>/<code>onSuccess</code> hooks, so those writes move inline; <code>onFailure</code> maps cleanly onto the <code>failed()</code> method.</p>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Jobs/ProcessDownload.php</span><span class="tag">replaces trigger/download-youtube.ts</span></div>
+<pre><span class="k">class</span> <span class="f">ProcessDownload</span> <span class="k">implements</span> <span class="f">ShouldQueue</span>
+{
+    <span class="k">use</span> Queueable;
+
+    <span class="c">// Mirrors trigger.config.ts: maxAttempts 3, maxDuration 3600.</span>
+    <span class="k">public int</span> $tries = <span class="d">3</span>;
+    <span class="k">public int</span> $timeout = <span class="d">3600</span>;
+
+    <span class="c">// trigger.dev used exponential backoff 1s -> 10s, factor 2, randomized.</span>
+    <span class="c">// Laravel takes a plain array of seconds; close enough, and honestly</span>
+    <span class="c">// these retries only help against transient network blips.</span>
+    <span class="k">public function</span> <span class="f">backoff</span>(): <span class="k">array</span> { <span class="k">return</span> [<span class="d">1</span>, <span class="d">5</span>, <span class="d">10</span>]; }
+
+    <span class="k">public function</span> <span class="f">__construct</span>(<span class="k">public</span> Download $download) {}
+
+    <span class="k">public function</span> <span class="f">handle</span>(YtDlp $ytdlp): <span class="k">void</span>
+    {
+        <span class="c">// Was trigger.dev's onStart hook. Fires per-attempt, same as before.</span>
+        $this->download-><span class="f">update</span>([<span class="s">'status'</span> => <span class="s">'processing'</span>]);
+
+        $fileName = <span class="s">"{$this->download->source_id}.{$this->download->format}"</span>;
+        $key = sprintf(<span class="s">'%s/%s/%s'</span>,
+            config(<span class="s">'services.storage.base_directory'</span>),
+            $this->download->source,   <span class="c">// partition by source now, not one flat dir</span>
+            $fileName,
+        );
+
+        <span class="c">// yt-dlp writes straight to a temp file on disk. This is what</span>
+        <span class="c">// kills the old Buffer.concat() OOM ceiling - the file never</span>
+        <span class="c">// has to fit in memory.</span>
+        $tmp = $ytdlp-><span class="f">download</span>(
+            url:    $this->download->source_url,
+            format: $this->download->format,
+        );
+
+        <span class="k">try</span> {
+            <span class="c">// putFileAs streams; no full read into RAM.</span>
+            Storage::disk(<span class="s">'s3'</span>)-><span class="f">putFileAs</span>(dirname($key), <span class="k">new</span> File($tmp), basename($key), [
+                <span class="s">'ContentType'</span> => $this->download->format === <span class="s">'mp3'</span>
+                    ? <span class="s">'audio/mpeg'</span>
+                    : <span class="s">'video/mp4'</span>,
+            ]);
+        } <span class="k">finally</span> {
+            @unlink($tmp);  <span class="c">// never leave temp files on the Forge box</span>
+        }
+
+        <span class="c">// Was onSuccess. Note we store the KEY, not a presigned URL.</span>
+        <span class="c">// expires_at is now truthful: the object really does live 7 days,</span>
+        <span class="c">// and each presigned link is minted fresh on read.</span>
+        $this->download-><span class="f">update</span>([
+            <span class="s">'status'</span>            => <span class="s">'complete'</span>,
+            <span class="s">'storage_key'</span>       => $key,
+            <span class="s">'storage_file_name'</span> => $fileName,
+            <span class="s">'expires_at'</span>        => now()-><span class="f">addDays</span>(<span class="d">7</span>),
+        ]);
+    }
+
+    <span class="c">// Was onFailure. Like trigger.dev, this fires only after all</span>
+    <span class="c">// $tries are exhausted - so a row sits in 'processing' during retries.</span>
+    <span class="k">public function</span> <span class="f">failed</span>(?Throwable $e): <span class="k">void</span>
+    {
+        $this->download-><span class="f">update</span>([
+            <span class="s">'status'</span> => <span class="s">'failed'</span>,
+            <span class="s">'reason'</span> => $e?-><span class="f">getMessage</span>(),
+        ]);
+    }
+}</pre>
+</div>
+
+<h3>The yt-dlp wrapper</h3>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Sources/YtDlp.php</span><span class="tag">replaces app/yt.ts + youtubei.js entirely</span></div>
+<pre><span class="k">class</span> <span class="f">YtDlp</span>
+{
+    <span class="c">// Metadata probe. Replaces `yt.getInfo(videoId)` in the old POST route.</span>
+    <span class="c">// --dump-json emits one JSON blob describing the media without</span>
+    <span class="c">// downloading it. Same call works for youtube, x, and facebook -</span>
+    <span class="c">// that uniformity is the whole reason we picked yt-dlp.</span>
+    <span class="k">public function</span> <span class="f">probe</span>(<span class="k">string</span> $url): <span class="k">array</span>
+    {
+        $result = Process::<span class="f">timeout</span>(<span class="d">30</span>)-><span class="f">run</span>([
+            config(<span class="s">'services.ytdlp.binary'</span>),
+            <span class="s">'--dump-json'</span>,
+            <span class="s">'--no-warnings'</span>,
+            <span class="s">'--no-playlist'</span>,     <span class="c">// a playlist URL must not fan out</span>
+            $url,
+        ]);
+
+        <span class="k">throw_unless</span>($result-><span class="f">successful</span>(),
+            <span class="k">new</span> <span class="f">SourceUnavailable</span>($result-><span class="f">errorOutput</span>()));
+
+        $json = json_decode($result-><span class="f">output</span>(), <span class="k">true</span>);
+
+        <span class="c">// Normalized across every source. `thumbnail` may be absent</span>
+        <span class="c">// (common on X) - hence the nullable column.</span>
+        <span class="k">return</span> [
+            <span class="s">'title'</span>     => $json[<span class="s">'title'</span>] ?? <span class="s">'Untitled'</span>,
+            <span class="s">'thumbnail'</span> => $json[<span class="s">'thumbnail'</span>] ?? <span class="k">null</span>,
+            <span class="s">'duration'</span>  => $json[<span class="s">'duration'</span>] ?? <span class="k">null</span>,
+        ];
+    }
+
+    <span class="c">// Returns a path to a temp file on local disk. Caller uploads + unlinks.</span>
+    <span class="k">public function</span> <span class="f">download</span>(<span class="k">string</span> $url, <span class="k">string</span> $format): <span class="k">string</span>
+    {
+        $dir = storage_path(<span class="s">'app/tmp/'</span>.Str::<span class="f">ulid</span>());
+        mkdir($dir, <span class="d">0755</span>, <span class="k">true</span>);
+        $out = <span class="s">"{$dir}/media.%(ext)s"</span>;   <span class="c">// yt-dlp fills in the real ext</span>
+
+        $args = $format === <span class="s">'mp3'</span>
+            <span class="c">// Audio-only: extract and transcode to mp3. Needs ffmpeg (present).</span>
+            ? [<span class="s">'-x'</span>, <span class="s">'--audio-format'</span>, <span class="s">'mp3'</span>, <span class="s">'--audio-quality'</span>, <span class="s">'0'</span>]
+            <span class="c">// Best video+audio, remuxed to mp4. Also needs ffmpeg to merge</span>
+            <span class="c">// the separate streams YouTube serves.</span>
+            : [<span class="s">'-f'</span>, <span class="s">'bv*+ba/b'</span>, <span class="s">'--merge-output-format'</span>, <span class="s">'mp4'</span>];
+
+        <span class="c">// timeout must stay under the job's $timeout of 3600.</span>
+        $result = Process::<span class="f">timeout</span>(<span class="d">3500</span>)-><span class="f">run</span>([
+            config(<span class="s">'services.ytdlp.binary'</span>),
+            <span class="s">'--no-playlist'</span>, <span class="s">'--no-warnings'</span>,
+            ...$args,
+            <span class="s">'-o'</span>, $out,
+            $url,
+        ]);
+
+        <span class="k">throw_unless</span>($result-><span class="f">successful</span>(),
+            <span class="k">new</span> <span class="f">DownloadFailed</span>($result-><span class="f">errorOutput</span>()));
+
+        <span class="c">// Exactly one file lands in the scratch dir.</span>
+        $files = glob(<span class="s">"{$dir}/media.*"</span>);
+        <span class="k">throw_if</span>(empty($files), <span class="k">new</span> <span class="f">DownloadFailed</span>(<span class="s">'yt-dlp produced no file'</span>));
+
+        <span class="k">return</span> $files[<span class="d">0</span>];
+    }
+}</pre>
+</div>
+
+<h3>The controller</h3>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Http/Controllers/DownloadController.php</span><span class="tag">replaces both Next.js API routes</span></div>
+<pre><span class="k">class</span> <span class="f">DownloadController</span>
+{
+    <span class="c">// POST /api/download — same URL and JSON shape the frontend</span>
+    <span class="c">// already posts to, so mutations.ts needs no change.</span>
+    <span class="k">public function</span> <span class="f">store</span>(Request $request, SourceResolver $resolver, YtDlp $ytdlp)
+    {
+        <span class="c">// Was zod. Laravel returns 422 with the same field-error shape.</span>
+        $data = $request-><span class="f">validate</span>([
+            <span class="s">'url'</span>    => [<span class="s">'required'</span>, <span class="s">'url'</span>],
+            <span class="s">'format'</span> => [<span class="s">'required'</span>, Rule::<span class="f">in</span>([<span class="s">'mp3'</span>, <span class="s">'mp4'</span>])],
+        ]);
+
+        $resolved = $resolver-><span class="f">resolve</span>($data[<span class="s">'url'</span>]);
+
+        <span class="c">// The old app threw an invariant here and 500'd. This is a real 422.</span>
+        <span class="k">if</span> (! $resolved) {
+            <span class="k">throw</span> ValidationException::<span class="f">withMessages</span>([
+                <span class="s">'url'</span> => <span class="s">'That link is not from a supported site.'</span>,
+            ]);
+        }
+
+        [$source, $sourceId] = $resolved;
+
+        <span class="c">// THE DEDUPE FIX. The original queried `expiredAt` (never written,</span>
+        <span class="c">// always NULL) so this branch was dead and every submit re-downloaded.</span>
+        <span class="c">//</span>
+        <span class="c">// Keying off status alone is what dropping expired_at buys us: a row</span>
+        <span class="c">// is reusable unless it's terminal-and-useless. 'queued'/'processing'</span>
+        <span class="c">// means someone else already started this exact job - join it rather</span>
+        <span class="c">// than dispatch a duplicate. 'complete' means the file is sitting in</span>
+        <span class="c">// the bucket. No date math, no NULL handling, no second column to</span>
+        <span class="c">// confuse with the first.</span>
+        $existing = Download::<span class="f">query</span>()
+            -><span class="f">where</span>(<span class="s">'source'</span>, $source-><span class="f">key</span>())
+            -><span class="f">where</span>(<span class="s">'source_id'</span>, $sourceId)
+            -><span class="f">where</span>(<span class="s">'format'</span>, $data[<span class="s">'format'</span>])
+            -><span class="f">whereNotIn</span>(<span class="s">'status'</span>, [<span class="s">'failed'</span>, <span class="s">'expired'</span>])
+            -><span class="f">first</span>();
+
+        <span class="c">// Returning the model directly — Eloquent serializes it to JSON,</span>
+        <span class="c">// snake_case keys and all. No resource layer.</span>
+        <span class="k">if</span> ($existing) {
+            <span class="k">return</span> $existing;
+        }
+
+        $meta = $ytdlp-><span class="f">probe</span>($data[<span class="s">'url'</span>]);
+
+        $download = Download::<span class="f">create</span>([
+            <span class="s">'source'</span>           => $source-><span class="f">key</span>(),
+            <span class="s">'source_url'</span>       => $data[<span class="s">'url'</span>],
+            <span class="s">'source_id'</span>        => $sourceId,
+            <span class="s">'source_title'</span>     => $meta[<span class="s">'title'</span>],
+            <span class="s">'source_thumbnail'</span> => $meta[<span class="s">'thumbnail'</span>],
+            <span class="s">'format'</span>           => $data[<span class="s">'format'</span>],
+            <span class="s">'status'</span>           => <span class="s">'queued'</span>,
+        ]);
+
+        <span class="c">// Was downloadYoutubeTask.trigger(...). Fire and forget, same as before.</span>
+        ProcessDownload::<span class="f">dispatch</span>($download)-><span class="f">onQueue</span>(<span class="s">'downloads'</span>);
+
+        <span class="k">return</span> $download;
+    }
+
+    <span class="c">// GET /api/download/{download} — the 1s polling target.</span>
+    <span class="c">// Route-model binding gives a real 404 instead of the old 500.</span>
+    <span class="k">public function</span> <span class="f">show</span>(Download $download)
+    {
+        <span class="k">return</span> $download;
+    }
+}</pre>
+</div>
+
+<h3>The model — no resource layer</h3>
+
+<div class="note">
+  <span class="label">Dropping DownloadResource</span>
+  <p>The controller returns the model and Eloquent serializes it, snake_case and all. The frontend adapts. A resource class that only renamed keys wasn't paying for itself — it's a whole file, plus a second place to edit every time a column changes.</p>
+  <p>The one thing that <em>did</em> earn its keep there — minting the presigned URL on read — moves onto the model as an accessor, which is where it arguably belonged anyway. Same fix, no extra layer.</p>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Models/Download.php</span><span class="tag">serializes itself; no resource needed</span></div>
+<pre><span class="k">class</span> <span class="f">Download</span> <span class="k">extends</span> <span class="f">Model</span>
+{
+    <span class="k">use</span> HasUlids, HasFactory;
+
+    <span class="k">protected</span> $guarded = [];
+
+    <span class="k">protected function</span> <span class="f">casts</span>(): <span class="k">array</span>
+    {
+        <span class="k">return</span> [<span class="s">'expires_at'</span> => <span class="s">'datetime'</span>];
+    }
+
+    <span class="c">// storage_key is an internal detail — the bucket layout is nobody's</span>
+    <span class="c">// business but ours, and it's useless to the client anyway.</span>
+    <span class="k">protected</span> $hidden = [<span class="s">'storage_key'</span>];
+
+    <span class="c">// download_url isn't a column, so it must be appended explicitly</span>
+    <span class="c">// to show up in toJson().</span>
+    <span class="k">protected</span> $appends = [<span class="s">'download_url'</span>];
+
+    <span class="c">// The presign-on-read fix, now living on the model. Minted fresh on</span>
+    <span class="c">// every serialization, so it's valid 1hr from NOW rather than 1hr</span>
+    <span class="c">// from whenever the job happened to finish. This is what stops links</span>
+    <span class="c">// dying 6 days before expires_at claims they will.</span>
+    <span class="c">//</span>
+    <span class="c">// Null after prune nulls storage_key — the object is gone, so there's</span>
+    <span class="c">// nothing honest to point at.</span>
+    <span class="k">protected function</span> <span class="f">downloadUrl</span>(): Attribute
+    {
+        <span class="k">return</span> Attribute::<span class="f">get</span>(<span class="k">fn</span> () => $this->storage_key
+            ? Storage::disk(<span class="s">'s3'</span>)-><span class="f">temporaryUrl</span>($this->storage_key, now()-><span class="f">addHour</span>())
+            : <span class="k">null</span>);
+    }
+}</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span>Resulting JSON</span><span class="tag">what the frontend now consumes</span></div>
+<pre>{
+  <span class="s">"id"</span>: <span class="s">"01k0h2n8x9…"</span>,
+  <span class="s">"source"</span>: <span class="s">"youtube"</span>,
+  <span class="s">"source_url"</span>: <span class="s">"https://youtu.be/dQw4w9WgXcQ"</span>,
+  <span class="s">"source_id"</span>: <span class="s">"dQw4w9WgXcQ"</span>,
+  <span class="s">"source_title"</span>: <span class="s">"…"</span>,
+  <span class="s">"source_thumbnail"</span>: <span class="s">"https://i.ytimg.com/…"</span>,
+  <span class="s">"format"</span>: <span class="s">"mp4"</span>,
+  <span class="s">"status"</span>: <span class="s">"complete"</span>,
+  <span class="s">"storage_file_name"</span>: <span class="s">"dQw4w9WgXcQ.mp4"</span>,
+  <span class="s">"reason"</span>: <span class="k">null</span>,
+  <span class="s">"expires_at"</span>: <span class="s">"2026-07-24T09:14:22.000000Z"</span>,
+  <span class="s">"created_at"</span>: <span class="s">"2026-07-17T09:14:22.000000Z"</span>,
+  <span class="s">"updated_at"</span>: <span class="s">"2026-07-17T09:14:31.000000Z"</span>,
+  <span class="s">"download_url"</span>: <span class="s">"https://…?X-Amz-Signature=…"</span>   <span class="c">// appended, presigned just now</span>
+  <span class="c">// no storage_key ($hidden), no expired_at (column is gone)</span>
+}</pre>
+</div>
+
+
+<h3>Frontend — what actually changes</h3>
+
+<p>Genuinely very little. <code>page.tsx</code> is already <code>"use client"</code> with zero server coupling, so it moves to an Inertia page essentially verbatim. React Query keeps talking to the same two URLs. <strong>The only real edit is the field rename</strong>, plus two small bug fixes.</p>
+
+<div class="code">
+  <div class="code-head"><span><span class="tag">EDIT</span> resources/js/types.ts <span class="arrow">(was app/types.ts)</span></span><span class="tag">now snake_case, mirroring the model</span></div>
+<pre><span class="c">// Snake_case throughout — this is Eloquent's serialization, consumed</span>
+<span class="c">// as-is. The zod schema is now a 1:1 mirror of the model's JSON, which</span>
+<span class="c">// is the upside of dropping the resource: one place to look, not two.</span>
+<span class="k">export const</span> DownloadMetaSchema = z.<span class="f">object</span>({
+  id: z.<span class="f">string</span>(),
+
+  source: z.<span class="f">enum</span>([<span class="s">"youtube"</span>, <span class="s">"x"</span>, <span class="s">"facebook"</span>]),
+  source_url: z.<span class="f">string</span>(),
+  source_id: z.<span class="f">string</span>(),
+  source_title: z.<span class="f">string</span>(),
+  source_thumbnail: z.<span class="f">string</span>().<span class="f">nullable</span>(),   <span class="c">// nullable now — X often has none</span>
+
+  <span class="c">// The old schema omitted `format`, so zod silently stripped it</span>
+  <span class="c">// even though the API returned it. Adding it back.</span>
+  format: z.<span class="f">enum</span>([<span class="s">"mp3"</span>, <span class="s">"mp4"</span>]),
+
+  <span class="c">// "expired" is new. In practice the UI will never see it — dedupe</span>
+  <span class="c">// skips expired rows, so a poll can only ever end at complete/failed —</span>
+  <span class="c">// but zod would throw on an unlisted value, so it belongs here.</span>
+  status: z.<span class="f">enum</span>([<span class="s">"queued"</span>, <span class="s">"processing"</span>, <span class="s">"complete"</span>, <span class="s">"failed"</span>, <span class="s">"expired"</span>]),
+
+  download_url: z.<span class="f">string</span>().<span class="f">nullable</span>(),      <span class="c">// appended accessor, presigned per-read</span>
+  storage_file_name: z.<span class="f">string</span>().<span class="f">nullable</span>(),
+  reason: z.<span class="f">string</span>().<span class="f">nullable</span>(),
+  expires_at: z.<span class="f">string</span>().<span class="f">nullable</span>(),
+  <span class="c">// no expired_at — the column is gone; no storage_key — it's $hidden.</span>
+  created_at: z.<span class="f">string</span>(),
+  updated_at: z.<span class="f">string</span>(),
+});</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="tag">EDIT</span> resources/js/queries.ts</span><span class="tag">fix: stop polling terminal states</span></div>
+<pre><span class="k">return</span> <span class="f">useQuery</span>({
+  queryKey: [<span class="s">"download"</span>, id],
+  queryFn,
+  enabled: !!id,
+  refetchInterval: (query) => {
+    <span class="k">const</span> status = query.state.data?.status;
+    <span class="k">if</span> (status == <span class="k">undefined</span>) <span class="k">return false</span>;
+
+    <span class="c">// WAS: `status === "complete" ? false : 1000` — which meant a</span>
+    <span class="c">// FAILED download polled at 1 req/sec forever until the tab closed.</span>
+    <span class="c">// Both states are terminal; stop on both.</span>
+    <span class="k">return</span> status === <span class="s">"complete"</span> || status === <span class="s">"failed"</span> ? <span class="k">false</span> : <span class="d">1000</span>;
+  },
+});</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="tag">EDIT</span> resources/js/Pages/Home.tsx <span class="arrow">(was app/page.tsx)</span></span><span class="tag">~9 lines touched of 398</span></div>
+<pre><span class="c">// The 398-line component is otherwise untouched: MotionConfig, the</span>
+<span class="c">// AnimatePresence form/result crossfade, the grid-template-columns</span>
+<span class="c">// morphing download button, DecryptedText, the status copy — all verbatim.</span>
+<span class="c">// Every edit below is a mechanical field rename.</span>
+
+<span class="c">// 1. The result panel (4 sites):</span>
+<span class="d">-  {downloadMeta.youtubeTitle}</span>
+<span class="s">+  {downloadMeta.source_title}</span>
+
+<span class="d">-  &lt;a href={downloadMeta.youtubeUrl} target="_blank"&gt;</span>
+<span class="s">+  &lt;a href={downloadMeta.source_url} target="_blank"&gt;</span>
+
+<span class="d">-  {downloadMeta.youtubeThumbnail ? (</span>
+<span class="s">+  {downloadMeta.source_thumbnail ? (</span>
+<span class="d">-      &lt;img src={downloadMeta.youtubeThumbnail} ... /&gt;</span>
+<span class="s">+      &lt;img src={downloadMeta.source_thumbnail} ... /&gt;</span>
+<span class="c">// The existing `: (` branch already renders a pulsing grey placeholder,</span>
+<span class="c">// so null thumbnails from X are handled for free.</span>
+
+<span class="c">// 2. handleDownload — this one is new fallout from dropping the</span>
+<span class="c">//    resource layer, which had been mapping these two names for us:</span>
+<span class="k">const</span> handleDownload = () => {
+  <span class="k">const</span> a = document.<span class="f">createElement</span>(<span class="s">"a"</span>);
+  <span class="f">invariant</span>(downloadMeta, <span class="s">"Download Metadata is required"</span>);
+<span class="d">-  invariant(downloadMeta.downloadUrl, "Download URL is required");</span>
+<span class="d">-  invariant(downloadMeta.downloadFileName, "Download file name is required");</span>
+<span class="d">-  a.href = downloadMeta.downloadUrl;</span>
+<span class="d">-  a.download = downloadMeta.downloadFileName;</span>
+<span class="s">+  invariant(downloadMeta.download_url, "Download URL is required");</span>
+<span class="s">+  invariant(downloadMeta.storage_file_name, "Download file name is required");</span>
+<span class="s">+  a.href = downloadMeta.download_url;</span>
+<span class="s">+  a.download = downloadMeta.storage_file_name;</span>
+  document.body.<span class="f">appendChild</span>(a); a.<span class="f">click</span>(); document.body.<span class="f">removeChild</span>(a);
+};
+
+<span class="c">// 3. Copy, since it's not just YouTube anymore:</span>
+<span class="d">-  &lt;div className="..."&gt;Download videos from YouTube&lt;/div&gt;</span>
+<span class="s">+  &lt;div className="..."&gt;Download videos from YouTube, X &amp; Facebook&lt;/div&gt;</span>
+
+<span class="c">// 4. The red PlayIcon badge is hardcoded bg-red-700 (a YouTube tell).</span>
+<span class="c">//    Optional: key it off downloadMeta.source. See open question Q2.</span></pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="tag">EDIT</span> resources/js/mutations.ts</span><span class="tag">the interface was already stale</span></div>
+<pre><span class="c">// YeetResponse duplicated a subset of the download shape by hand and</span>
+<span class="c">// had drifted (it claimed youtubeUrl/youtubeThumbnail but the code</span>
+<span class="c">// only ever reads .id). Since mutationFn already parses through</span>
+<span class="c">// DownloadMetaSchema, the hand-written interface is redundant —</span>
+<span class="c">// infer from the schema and it can never drift again.</span>
+<span class="d">-export interface YeetResponse {</span>
+<span class="d">-  id: string;</span>
+<span class="d">-  status: string;</span>
+<span class="d">-  youtubeUrl: string;</span>
+<span class="d">-  youtubeThumbnail: string;</span>
+<span class="d">-}</span>
+
+<span class="k">export type</span> YeetResponse = DownloadMeta;   <span class="c">// z.infer of the schema</span></pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> resources/views/app.blade.php</span><span class="tag">replaces app/layout.tsx</span></div>
+<pre>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"&gt;
+
+  {{-- Ported verbatim from the Next.js metadata export. Inertia has no
+       equivalent of next/font, so fonts are self-hosted via Fontsource
+       (imported in app.css) — this keeps --font-dm-sans / --font-playfair
+       working, which the Tailwind config and every font-playfair class
+       already depend on. --}}
+  &lt;title&gt;Yeet - Video Downloader&lt;/title&gt;
+  &lt;meta name="description" content="Fast and easy way to download videos from YouTube, X and Facebook"&gt;
+  &lt;meta property="og:image" content="/og-image.png"&gt;
+  &lt;meta name="twitter:card" content="summary_large_image"&gt;
+  &lt;link rel="icon" href="/favicon.svg"&gt;
+  &lt;link rel="manifest" href="/manifest.json"&gt;
+
+  @viteReactRefresh
+  @vite(['resources/js/app.tsx'])
+  @inertiaHead
+&lt;/head&gt;
+
+{{-- The class list is lifted straight from layout.tsx's body tag. --}}
+&lt;body class="font-sans tracking-tighter"&gt;
+  @inertia
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> resources/js/app.tsx</span><span class="tag">Inertia + the existing QueryClientProvider</span></div>
+<pre>createInertiaApp({
+  resolve: (name) => resolvePageComponent(
+    <span class="s">`./Pages/</span>${name}<span class="s">.tsx`</span>,
+    <span class="f">import</span>.meta.<span class="f">glob</span>(<span class="s">'./Pages/**/*.tsx'</span>),
+  ),
+  setup({ el, App, props }) {
+    <span class="c">// providers.tsx, unchanged in spirit — React Query still owns all</span>
+    <span class="c">// data fetching. Inertia is ONLY rendering the view, exactly as</span>
+    <span class="c">// specified: no props flow through it, no partial reloads.</span>
+    <span class="k">const</span> queryClient = <span class="k">new</span> <span class="f">QueryClient</span>();
+
+    createRoot(el).<span class="f">render</span>(
+      &lt;QueryClientProvider client={queryClient}&gt;
+        &lt;App {...props} /&gt;
+      &lt;/QueryClientProvider&gt;,
+    );
+  },
+});</pre>
+</div>
+
+<div class="code">
+  <div class="code-head"><span><span class="tag">EDIT</span> resources/css/app.css</span><span class="tag">Tailwind v3.3 → v4 (CSS-first)</span></div>
+<pre><span class="c">/* v4 drops tailwind.config.ts + postcss.config.js entirely.
+   The old config only extended two font families, so the whole
+   thing collapses into these few lines. */</span>
+<span class="k">@import</span> <span class="s">"tailwindcss"</span>;
+
+<span class="c">/* Self-hosted, replacing next/font/google */</span>
+<span class="k">@import</span> <span class="s">"@fontsource-variable/dm-sans"</span>;
+<span class="k">@import</span> <span class="s">"@fontsource/playfair-display/700-italic.css"</span>;
+
+<span class="k">@theme</span> {
+  <span class="c">/* Was tailwind.config.ts theme.extend.fontFamily.
+     Same token names, so `font-playfair` keeps working untouched. */</span>
+  --font-sans: <span class="s">"DM Sans Variable"</span>, sans-serif;
+  --font-playfair: <span class="s">"Playfair Display"</span>, serif;
+}
+
+<span class="c">/* From the old globals.css, verbatim */</span>
+body { <span class="k">@apply</span> bg-neutral-950 overflow-hidden; }</pre>
+</div>
+</section>
+
+<!-- ══════════════════════════════ 6 ══════════════════════════════ -->
+<section>
+<h2 data-n="06">Implementation phases</h2>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">0</span><span class="phase-title">Local prerequisites</span>
+    <span class="phase-cost">~15 min</span>
+  </div>
+  <p class="phase-goal">Everything is installed except the one thing the whole plan rests on.</p>
+  <ul>
+    <li><code>brew install yt-dlp</code> — the only missing binary. ffmpeg 8.1 is already there, which yt-dlp needs to merge separate video/audio streams into mp4.</li>
+    <li><span class="add">DONE</span> — the <code>yeet</code> database is created on the Postgres at <code>127.0.0.1:5432</code> (Postgres.app 18.1). The <code>.env</code> block:
+      <div class="code" style="margin-top:8px">
+<pre>DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=yeet
+DB_USERNAME=root
+DB_PASSWORD=root</pre>
+      </div>
+    </li>
+    <li>Sanity-check the extractor against all three sources <em>before writing any PHP</em> — if yt-dlp can't pull a Facebook URL from your IP, you want to know that on day one, not in Phase 4.</li>
+  </ul>
+  <div class="check"><b>Verify:</b> <code>yt-dlp --dump-json --no-warnings &lt;youtube-url&gt; | jq .title</code> — repeat for an X post and a Facebook video.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">1</span><span class="phase-title">Branch &amp; scaffold</span>
+    <span class="phase-cost">~30 min</span>
+  </div>
+  <p class="phase-goal">Laravel standing at the repo root, Next.js gone, <code>main</code> untouched.</p>
+  <ul>
+    <li><code>git checkout -b feat/laravel</code>.</li>
+    <li>Scaffold Laravel 12 into a temp dir and move it in — installing over a non-empty directory doesn't work cleanly.</li>
+    <li><strong>Preserve before deleting:</strong> <code>public/</code> (favicon, og-image, manifest, apple-icon) and the six frontend source files. Everything else in <code>app/</code>, <code>prisma/</code>, <code>trigger/</code>, plus <code>trigger.config.ts</code>, <code>next.config.js</code>, <code>docker-compose.yml</code>, <code>Dockerfile.mysql</code>, and <code>scripts/deploy.sh</code> goes.</li>
+    <li><code>composer require inertiajs/inertia-laravel</code>; <code>npm i @inertiajs/react</code>.</li>
+    <li>Rebuild <code>package.json</code>: keep <code>@tanstack/react-query</code>, <code>lucide-react</code>, <code>zod</code>, <code>tiny-invariant</code>; framer-motion 11 → <code>motion</code>; drop <code>next</code>, <code>prisma</code>, <code>@prisma/client</code>, <code>@trigger.dev/sdk</code>, <code>youtubei.js</code>, both AWS SDK packages, and the junk deps (<code>install</code>, <code>npm</code>, and <code>react-use</code>, which was never imported).</li>
+    <li>Set <code>DB_CONNECTION=pgsql</code> and <code>QUEUE_CONNECTION=database</code>.</li>
+  </ul>
+  <div class="check"><b>Verify:</b> <code>php artisan serve</code> renders the Laravel welcome page.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">2</span><span class="phase-title">Schema &amp; model</span>
+    <span class="phase-cost">~30 min</span>
+  </div>
+  <p class="phase-goal">The <code>downloads</code> table exists in Postgres with the source-agnostic shape.</p>
+  <ul>
+    <li>The migration from §5, plus <code>queue:table</code> and <code>queue:failed-table</code>.</li>
+    <li><code>Download</code> model per §5: <code>HasUlids</code>, datetime cast for <code>expires_at</code>, <code>$hidden</code> for <code>storage_key</code>, and the appended <code>download_url</code> accessor. With no resource layer, this model <em>is</em> the API contract — worth getting right here.</li>
+    <li>A factory — Phase 4 and 5 tests both need one.</li>
+  </ul>
+  <div class="check"><b>Verify:</b> <code>php artisan migrate:fresh</code> clean; <code>\d downloads</code> in psql shows the columns and both indexes, and no <code>expired_at</code>.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">3</span><span class="phase-title">Source adapters + yt-dlp wrapper</span>
+    <span class="phase-cost">~1 hr</span>
+  </div>
+  <p class="phase-goal">A URL string resolves to <code>[source, id]</code>, and yt-dlp answers <code>probe()</code>.</p>
+  <ul>
+    <li><code>Source</code> interface, the three adapters, <code>SourceResolver</code>, <code>YtDlp</code>.</li>
+    <li>Bind the resolver's source list in <code>AppServiceProvider</code>; add <code>config/services.php</code> entries for the binary path and storage base dir.</li>
+    <li><strong>Unit-test the URL matchers hard</strong> — they're pure functions, they're where the multi-source promise actually lives, and they're the cheapest possible tests to write. Include a Shorts URL, a legacy <code>twitter.com</code> URL, and an <code>fb.watch</code> short link.</li>
+  </ul>
+  <div class="check"><b>Verify:</b> <code>php artisan test --filter=Source</code> green; <code>tinker</code> → <code>app(YtDlp::class)->probe($url)</code> returns a real title for each of the three sources.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">4</span><span class="phase-title">The job</span>
+    <span class="phase-cost">~1 hr</span>
+  </div>
+  <p class="phase-goal">A dispatched job downloads, uploads to S3, and lands the row at <code>complete</code>.</p>
+  <ul>
+    <li><code>ProcessDownload</code> per §5.</li>
+    <li>Configure the <code>s3</code> disk against your existing R2/S3-compatible bucket — reuse the same credentials the trigger.dev task used.</li>
+    <li>Test with <code>Storage::fake('s3')</code> plus a faked <code>YtDlp</code>: assert the row transitions to <code>complete</code>, and that <code>failed()</code> writes <code>reason</code>.</li>
+  </ul>
+  <div class="note warn">
+    <span class="label">Database queue gotcha — this one will bite</span>
+    <p><code>config/queue.php</code> → <code>connections.database.retry_after</code> defaults to <strong>90 seconds</strong>, but the job's <code>$timeout</code> is <strong>3600</strong>. The queue would reclaim and re-run the job while the first attempt is still downloading — meaning a long video gets downloaded several times concurrently. <strong><code>retry_after</code> must exceed <code>$timeout</code>: set it to 3700.</strong> Trigger.dev handled this invisibly; the DB driver does not.</p>
+  </div>
+  <div class="check"><b>Verify:</b> real end-to-end — <code>queue:work --queue=downloads --timeout=3600</code> in one terminal, dispatch from tinker in another. Confirm the object lands in the bucket and plays.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">5</span><span class="phase-title">Routes, controller, resource</span>
+    <span class="phase-cost">~1 hr</span>
+  </div>
+  <p class="phase-goal">Both API endpoints answer at their existing URLs, returning serialized models.</p>
+  <ul>
+    <li><code>DownloadController</code> per §5 — no resource class; controllers return the model and Eloquent does the rest.</li>
+    <li><code>routes/web.php</code>: the Inertia view route; <code>routes/api.php</code>: <code>POST /api/download</code>, <code>GET /api/download/{download}</code>.</li>
+    <li>Add <code>throttle:10,1</code> to the POST. The old app had <em>nothing</em> — anyone could drive unbounded S3 writes and compute. Now that you're paying for the box directly, this matters more than it did.</li>
+    <li>Feature tests: valid URL → 201 + job dispatched; unsupported URL → 422; <strong>duplicate submit → same row, no second dispatch</strong> (the regression test for the dedupe bug); missing id → 404.</li>
+  </ul>
+  <div class="check"><b>Verify:</b> <code>curl -X POST localhost:8000/api/download -d '{"url":"...","format":"mp4"}'</code>; POST twice and assert the same <code>id</code> comes back.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">6</span><span class="phase-title">Frontend port</span>
+    <span class="phase-cost">~1.5 hr</span>
+  </div>
+  <p class="phase-goal">The page looks and behaves exactly as it does today.</p>
+  <ul>
+    <li>Move the six files into <code>resources/js/</code>; <code>page.tsx</code> → <code>Pages/Home.tsx</code>; drop the <code>"use client"</code> directives.</li>
+    <li>Apply the renames and fixes from §5.</li>
+    <li>Tailwind v3.3 → v4: delete <code>tailwind.config.ts</code> and <code>postcss.config.js</code>, move the theme into <code>@theme</code>. Utility classes are unchanged, so the markup doesn't move.</li>
+    <li>framer-motion 11 → <code>motion</code> (same library, renamed package): <code>import { motion } from "motion/react"</code>. The API is unchanged, so <code>MotionConfig</code>, <code>AnimatePresence mode="popLayout"</code>, and <code>useMotionValue</code>/<code>useTransform</code> in <code>DecryptedText</code> all keep working.</li>
+    <li>Self-host DM Sans + Playfair via Fontsource, replacing <code>next/font/google</code>.</li>
+  </ul>
+  <div class="note warn">
+    <span class="label">Watch these two</span>
+    <p><strong>The download button</strong> animates by morphing <code>grid-template-columns</code> through arbitrary values (<code>grid-cols-[24px_76px_74px_0px_0px]</code> → <code>data-[status=complete]:grid-cols-[0px_0px_74px_30px_24px]</code>) driven by <code>group-data-[status=…]</code> variants. It's the fiddliest thing in the file and the most likely v4 casualty — check it in all four states. <strong><code>DecryptedText</code></strong> pairs <code>setInterval</code> with motion values; verify the scramble still fires on status changes.</p>
+  </div>
+  <div class="check"><b>Verify:</b> side-by-side against the Vercel deploy. Paste a real YouTube URL and watch the full queued → processing → complete arc, then click through to an actual downloaded file. Then do it with an X and a Facebook URL.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">7</span><span class="phase-title">The cleanup cron (finally)</span>
+    <span class="phase-cost">~30 min</span>
+  </div>
+  <p class="phase-goal">Close the <code>@TODO</code> that's been sitting at <code>page.tsx:23</code> since day one. This command is the <em>only</em> reader of <code>expires_at</code> in the app.</p>
+
+<div class="code">
+  <div class="code-head"><span><span class="new">NEW</span> app/Console/Commands/PruneDownloads.php</span><span class="tag">the sole consumer of expires_at</span></div>
+<pre><span class="k">class</span> <span class="f">PruneDownloads</span> <span class="k">extends</span> <span class="f">Command</span>
+{
+    <span class="k">protected</span> $signature = <span class="s">'downloads:prune'</span>;
+
+    <span class="k">public function</span> <span class="f">handle</span>(): <span class="k">void</span>
+    {
+        <span class="c">// The one place expires_at is ever read. Only 'complete' rows own</span>
+        <span class="c">// an S3 object, so nothing else is prunable. chunkById keeps memory</span>
+        <span class="c">// flat if a backlog ever builds up.</span>
+        Download::<span class="f">query</span>()
+            -><span class="f">where</span>(<span class="s">'status'</span>, <span class="s">'complete'</span>)
+            -><span class="f">where</span>(<span class="s">'expires_at'</span>, <span class="s">'&lt;'</span>, now())
+            -><span class="f">chunkById</span>(<span class="d">100</span>, <span class="k">function</span> ($downloads) {
+                <span class="k">foreach</span> ($downloads <span class="k">as</span> $download) {
+                    <span class="c">// delete() is idempotent — a missing object is not an error,</span>
+                    <span class="c">// so a half-finished previous run recovers cleanly.</span>
+                    Storage::disk(<span class="s">'s3'</span>)-><span class="f">delete</span>($download->storage_key);
+
+                    <span class="c">// The row is kept as a tombstone rather than deleted: it's the</span>
+                    <span class="c">// record that this URL was once fetched, and the dedupe query</span>
+                    <span class="c">// skips it via whereNotIn(['failed','expired']).</span>
+                    $download-><span class="f">update</span>([
+                        <span class="s">'status'</span>            => <span class="s">'expired'</span>,   <span class="c">// was: stamping expired_at</span>
+                        <span class="s">'storage_key'</span>       => <span class="k">null</span>,        <span class="c">// the object is gone; don't</span>
+                        <span class="s">'storage_file_name'</span> => <span class="k">null</span>,        <span class="c">// pretend otherwise</span>
+                    ]);
+                }
+            });
+
+        <span class="c">// Sweep orphaned scratch files from jobs that were kill -9'd</span>
+        <span class="c">// between download and unlink (see the disk risk in §8).</span>
+        <span class="k">foreach</span> (File::<span class="f">directories</span>(storage_path(<span class="s">'app/tmp'</span>)) <span class="k">as</span> $dir) {
+            <span class="k">if</span> (File::<span class="f">lastModified</span>($dir) &lt; now()-><span class="f">subDay</span>()-><span class="f">timestamp</span>) {
+                File::<span class="f">deleteDirectory</span>($dir);
+            }
+        }
+    }
+}</pre>
+</div>
+
+  <ul>
+    <li>Schedule hourly in <code>routes/console.php</code>: <code>Schedule::command('downloads:prune')->hourly()</code>.</li>
+    <li>Note <code>storage_key</code> and <code>storage_file_name</code> are nulled on prune, so the model's <code>download_url</code> accessor returns null for free — no presigned URL is minted for an object that no longer exists.</li>
+    <li>This is what stops the bucket growing forever, which is the actual point.</li>
+  </ul>
+  <div class="check"><b>Verify:</b> factory a <code>complete</code> row with <code>expires_at</code> in the past + a real object; run the command; assert the object is gone, <code>status</code> is <code>expired</code>, and <code>storage_key</code> is null. Then assert a fresh POST for that same URL creates a <em>new</em> row rather than returning the tombstone.</div>
+</div>
+
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-n">8</span><span class="phase-title">Forge deploy &amp; cutover</span>
+    <span class="phase-cost">~1 hr</span>
+  </div>
+  <p class="phase-goal">Running on your own box; trigger.dev and Vercel switched off.</p>
+  <ul>
+    <li>Forge site on PHP 8.3 + the Postgres database.</li>
+    <li><strong>Install yt-dlp and ffmpeg on the server</strong> — this is the step that has no Vercel analogue and the one most likely to be forgotten. Install yt-dlp via its standalone binary rather than apt; the distro package lags badly, and a stale yt-dlp is exactly the breakage you're migrating away from.</li>
+    <li>Forge queue worker: queue <code>downloads</code>, timeout <code>3600</code>, tries <code>3</code>. <strong>Set the worker count to 2–3</strong> — this is your concurrency limit, and it's the knob trigger.dev's default queue was managing for you invisibly.</li>
+    <li>Enable the Forge scheduler for the prune command.</li>
+    <li>Deploy script: <code>composer install --no-dev</code>, <code>migrate --force</code>, <code>npm ci && npm run build</code>, <code>config:cache</code>, <code>queue:restart</code>.</li>
+    <li><strong>Cutover:</strong> verify on the Forge URL first, then merge and point DNS. Only then cancel trigger.dev and archive the Vercel project — keeping both alive for a day costs almost nothing and gives you a rollback.</li>
+  </ul>
+  <div class="check"><b>Verify:</b> real downloads on the production URL for all three sources. Check <code>failed_jobs</code> is empty and disk isn't filling with temp files.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ 7 ══════════════════════════════ -->
+<section>
+<h2 data-n="07">Verification &amp; acceptance</h2>
+
+<h3>Automated</h3>
+<ul>
+  <li><strong>Unit</strong> — URL matchers per source, including Shorts, legacy <code>twitter.com</code>, and <code>fb.watch</code>.</li>
+  <li><strong>Feature</strong> — POST validates and dispatches; unsupported URL → 422; duplicate submit returns the same row without a second dispatch; unknown id → 404; throttle returns 429.</li>
+  <li><strong>Job</strong> — with <code>Storage::fake('s3')</code> and a faked <code>YtDlp</code>: happy path lands <code>complete</code> + <code>storage_key</code>; <code>failed()</code> writes <code>reason</code>.</li>
+  <li><strong>Command</strong> — prune deletes expired objects, flips <code>status</code> to <code>expired</code>, and nulls <code>storage_key</code>; a subsequent POST for the same URL re-downloads instead of returning the tombstone.</li>
+</ul>
+
+<h3>Manual — the things tests can't reach</h3>
+<p>The automated suite fakes yt-dlp and S3, which means it deliberately cannot catch the two riskiest things: whether yt-dlp actually pulls from each site, and whether the animations survived the port. Both need eyes.</p>
+<ul>
+  <li>Real download × 3 sources × 2 formats = 6 runs, each producing a file that actually plays.</li>
+  <li>The animation set: form → result crossfade, the four status copy states, the button's grid-morph, <code>DecryptedText</code>'s scramble, the submit button's sliding double-arrow, the error toast.</li>
+  <li>A deliberately broken URL → <code>failed</code> state → retry link works → <strong>polling actually stops</strong> (Network tab; this is the fix in §5).</li>
+  <li>An X post with no thumbnail → the placeholder renders instead of a broken image.</li>
+</ul>
+
+<h3>Acceptance criteria</h3>
+<ul>
+  <li>YouTube, X, and Facebook URLs all download in both formats.</li>
+  <li>The UI is visually indistinguishable from today's, minus the intentional copy change.</li>
+  <li>No trigger.dev, Prisma, Next.js, or <code>youtubei.js</code> anywhere in the tree — and no <code>PLAYER_ID</code>.</li>
+  <li>Re-submitting a fresh URL returns instantly from cache and dispatches nothing.</li>
+  <li>Download links work for the full <code>expires_at</code> window, not 60 minutes.</li>
+  <li>One <code>.env</code>, one deploy, one dashboard.</li>
+</ul>
+</section>
+
+<!-- ══════════════════════════════ 8 ══════════════════════════════ -->
+<section>
+<h2 data-n="08">Risks</h2>
+
+<div class="risk">
+  <div class="r-head">yt-dlp gets blocked from a datacenter IP</div>
+  <div class="r-body">This is the big one, and it's a genuine regression risk versus today. YouTube increasingly serves "Sign in to confirm you're not a bot" to cloud IPs — and your Forge box is exactly that. It may work fine on your Mac and fail on the server. <b>Mitigate:</b> test from the Forge box early — during Phase 0, not Phase 8. If blocked: yt-dlp's <code>--cookies-from-browser</code> / a cookies file, or a residential proxy. Facebook is the most likely to demand cookies; public X videos are usually fine.</div>
+</div>
+
+<div class="risk">
+  <div class="r-head">Format parity isn't guaranteed across sources</div>
+  <div class="r-body">The <code>mp3</code>/<code>mp4</code> toggle assumes both always make sense. A silent X video technically has no audio worth extracting. <b>Mitigate:</b> the <code>bv*+ba/b</code> fallback chain handles missing streams gracefully, and a failure surfaces in the existing <code>failed</code> UI. Not worth pre-solving — see Q1.</div>
+</div>
+
+<div class="risk">
+  <div class="r-head">Disk fills with temp files</div>
+  <div class="r-body">A Forge box has far less disk than a Vercel/trigger.dev function pretended to. Videos now land on real disk before upload. A crash between download and <code>unlink</code> leaves the file behind. <b>Mitigate:</b> the <code>finally</code> block covers exceptions, and the prune command sweeps <code>storage/app/tmp</code> for the kill -9 case. Monitor disk on Forge.</div>
+</div>
+
+<div class="risk">
+  <div class="r-head">Long downloads block a small worker pool</div>
+  <div class="r-body">3 workers × one 40-minute video each = a stalled queue, and no Horizon to see it. Trigger.dev auto-scaled; a Forge daemon does not. <b>Mitigate:</b> start at 2–3 workers and watch. If it bites, either add workers or reject over-long media using the <code>duration</code> that <code>probe()</code> already returns (see Q3).</div>
+</div>
+
+<div class="risk">
+  <div class="r-head">The grid-morph button breaks under Tailwind v4</div>
+  <div class="r-body">Arbitrary <code>grid-cols-[…]</code> values combined with <code>group-data-[status=…]</code> variants are the most exotic CSS in the app. <b>Mitigate:</b> Phase 6 checks it explicitly in all four states. Worst case, hand-write the grid transition in <code>@layer</code> — it's ~15 lines of CSS.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ 9 ══════════════════════════════ -->
+<section>
+<h2 data-n="09">Open questions</h2>
+
+<div class="q">
+  <div class="q-t">Q1 · Should the mp3/mp4 toggle stay visible for every source?</div>
+  <div class="q-b">Facebook and X videos are usually watched, not converted to audio. <b>Recommendation: leave it alone.</b> The toggle is source-agnostic and a failed extraction already has a UI state. Don't add conditional logic for a case that may never come up.</div>
+</div>
+
+<div class="q">
+  <div class="q-t">Q2 · Should the red play badge change per source?</div>
+  <div class="q-b">The <code>bg-red-700</code> badge over the thumbnail is a YouTube visual tell that'll look odd on an X post. <b>Recommendation: yes, but in a follow-up.</b> It's a one-line map from <code>source</code> to a colour, and it's cosmetic — don't let it hold up the migration.</div>
+</div>
+
+<div class="q">
+  <div class="q-t">Q3 · Cap media duration?</div>
+  <div class="q-b"><code>probe()</code> already returns <code>duration</code> for free, so rejecting a 3-hour upload at POST time is nearly zero work. Today nothing stops someone queueing a 10-hour stream. <b>Recommendation: skip for now</b> — <code>throttle</code> covers the realistic abuse. Revisit if a worker actually stalls.</div>
+</div>
+
+<div class="q">
+  <div class="q-t">Q4 · Keep the <code>/api/*</code> URLs, or go full Inertia?</div>
+  <div class="q-b">You said Inertia is "just to render the view," so this plan keeps React Query hitting <code>/api/*</code> and the frontend untouched. <b>Assumed: keep as-is.</b> The alternative — <code>router.reload({ only: ['download'] })</code> — would delete <code>queries.ts</code>/<code>mutations.ts</code> but rewrite the component's data flow, which contradicts "keep almost as is."</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ 10 ══════════════════════════════ -->
+<section class="next">
+<h2 data-n="10">Next action</h2>
+
+<p><strong>Do Phase 0 before committing to any of this</strong> — and specifically, do it on the Forge box, not just the Mac.</p>
+
+<p>The entire plan rests on one bet: that yt-dlp can actually pull from YouTube, X, and Facebook <em>from your production IP</em>. Everything else here is routine Laravel work with a known shape. That one assumption is neither routine nor verified, and it's cheap to test — <code>brew install yt-dlp</code>, then three <code>--dump-json</code> calls locally, then the same three over SSH on Forge.</p>
+
+<p>If all six succeed, the rest of the plan is mechanical and Phase 1 can start immediately. If the Forge box gets bot-checked, that's not fatal — but it changes the plan materially (cookies, or a proxy, or reconsidering the Node sidecar for YouTube specifically), and you want to know that <em>before</em> deleting the Next.js app.</p>
+</section>
+
+</main>
+</body>
+</html>

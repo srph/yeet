@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+/* Self-hosted, replacing next/font/google from the Next.js app. */
+@import '@fontsource-variable/dm-sans';
+@import '@fontsource/playfair-display/700.css';
+@import '@fontsource/playfair-display/700-italic.css';
+
+@source '../js/**/*.tsx';
+@source '../views/**/*.blade.php';
+
+@theme {
+    /* Was tailwind.config.ts theme.extend.fontFamily. Same token names, so
+       every existing `font-sans` / `font-playfair` class ports untouched. */
+    --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-playfair: 'Playfair Display', ui-serif, Georgia, serif;
+}
+
+/* From the old app/globals.css, verbatim. */
+body {
+    @apply bg-neutral-950 overflow-hidden;
+}
