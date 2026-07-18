@@ -7,10 +7,8 @@ import {
   PlayIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { DecryptedText } from "../decrypted-text";
 import { DownloadMeta } from "../types";
-
-type Status = DownloadMeta["status"];
+import { HomeDownloadStatus } from "./home-download-status";
 
 /**
  * The post-submit screen: a narrow spec rail against a big thumbnail.
@@ -21,34 +19,6 @@ type Status = DownloadMeta["status"];
  * nothing captures them, and a plausible-looking "1920x1080 · 60fps" that
  * doesn't reflect the actual file is worse than an absent row.
  */
-
-const STATUS_LABEL: Record<Status, string> = {
-  queued: "In line",
-  processing: "Cooking",
-  complete: "Served",
-  failed: "Burnt",
-  expired: "Gone",
-};
-
-const STATUS_TONE: Record<Status, { text: string; dot: string }> = {
-  queued: {
-    text: "text-neutral-500",
-    dot: "bg-neutral-600 animate-blink-slow",
-  },
-  processing: {
-    text: "text-yellow-500",
-    dot: "bg-yellow-500 shadow-[0_0_8px_var(--color-yellow-500)] animate-blink",
-  },
-  complete: {
-    text: "text-yellow-500",
-    dot: "bg-yellow-500 shadow-[0_0_8px_var(--color-yellow-500)]",
-  },
-  failed: {
-    text: "text-red-400",
-    dot: "bg-red-700 shadow-[0_0_8px_var(--color-red-700)]",
-  },
-  expired: { text: "text-neutral-500", dot: "bg-neutral-600" },
-};
 
 // The play badge is the one piece of source-specific chrome. lucide dropped
 // brand glyphs in v1, so the source reads through colour rather than a logo.
@@ -162,7 +132,6 @@ export const HomeDownloadTracking = ({
   const isWaiting = status === "queued" || status === "processing";
   const isDead = status === "failed" || status === "expired";
 
-  const tone = STATUS_TONE[status];
   const duration = meta.duration === null ? null : formatDuration(meta.duration);
 
   return (
@@ -171,13 +140,7 @@ export const HomeDownloadTracking = ({
     <div className="grid w-[min(1000px,100vw_-_2rem)] grid-cols-1 items-center gap-6 min-[880px]:grid-cols-[274px_1fr] min-[880px]:gap-10">
       {/* ── the rail ── */}
       <section className="min-w-0">
-        <div
-          className={`mb-4 inline-flex items-center gap-2 font-mono text-[11.5px] font-bold tracking-[0.17em] uppercase ${tone.text}`}
-        >
-          <span className={`size-[5px] rounded-full ${tone.dot}`} />
-          {/* keyed so the scramble replays on every transition */}
-          <DecryptedText key={status} text={STATUS_LABEL[status]} speed={45} />
-        </div>
+        <HomeDownloadStatus status={status} />
 
         <h1 className="text-[19px] leading-[1.28] font-semibold tracking-[-0.035em] text-white">
           {meta.source_title}

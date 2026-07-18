@@ -1,0 +1,46 @@
+import { DecryptedText } from "../decrypted-text";
+import { DownloadMeta } from "../types";
+
+type Status = DownloadMeta["status"];
+
+const STATUS_LABEL: Record<Status, string> = {
+  queued: "In line",
+  processing: "Cooking",
+  complete: "Served",
+  failed: "Burnt",
+  expired: "Gone",
+};
+
+const STATUS_TONE: Record<Status, { text: string; dot: string }> = {
+  queued: {
+    text: "text-neutral-500",
+    dot: "bg-neutral-600 animate-blink-slow",
+  },
+  processing: {
+    text: "text-yellow-500",
+    dot: "bg-yellow-500 shadow-[0_0_8px_var(--color-yellow-500)] animate-blink",
+  },
+  complete: {
+    text: "text-yellow-500",
+    dot: "bg-yellow-500 shadow-[0_0_8px_var(--color-yellow-500)]",
+  },
+  failed: {
+    text: "text-red-400",
+    dot: "bg-red-700 shadow-[0_0_8px_var(--color-red-700)]",
+  },
+  expired: { text: "text-neutral-500", dot: "bg-neutral-600" },
+};
+
+export const HomeDownloadStatus = ({ status }: { status: Status }) => {
+  const tone = STATUS_TONE[status];
+
+  return (
+    <div
+      className={`mb-4 inline-flex items-center gap-2 font-mono text-[11.5px] font-bold tracking-[0.17em] uppercase ${tone.text}`}
+    >
+      <span className={`size-[5px] rounded-full ${tone.dot}`} />
+      {/* keyed so the scramble replays on every transition */}
+      <DecryptedText key={status} text={STATUS_LABEL[status]} speed={45} />
+    </div>
+  );
+};
