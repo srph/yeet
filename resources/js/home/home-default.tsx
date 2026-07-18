@@ -2,12 +2,11 @@ import { Fragment, useState } from "react";
 import { LoaderCircleIcon } from "lucide-react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { Head } from "@inertiajs/react";
-import useMeasure from "react-use-measure";
 import { useYeetMutation } from "../mutations";
 import { useDownloadMeta } from "../queries";
-import { useInterval } from "../hooks/use-interval";
 import invariant from "tiny-invariant";
 import { DownloadStatus } from "../download-status";
+import { HomeDefaultRolldown } from "./home-default-rolldown";
 
 const snappy = [0.19, 1, 0.22, 1];
 
@@ -15,20 +14,11 @@ const bezier = () => {
   return `cubic-bezier(${snappy.join(",")})`;
 };
 
-const sources = ["YouTube", "X", "Facebook"] as const;
-
 // @TODO: Improve failed downloads
 export default function Home() {
   const [url, setUrl] = useState("");
 
   const [format, setFormat] = useState<"mp3" | "mp4">("mp4");
-
-  const [sourceIndex, setSourceIndex] = useState(0);
-  const [measureRef, bounds] = useMeasure();
-
-  useInterval(() => {
-    setSourceIndex((index) => (index + 1) % sources.length);
-  }, 3000);
 
   const {
     mutateAsync: yeet,
@@ -99,26 +89,7 @@ export default function Home() {
 
               <div className="h-2" />
 
-              <div className="text-center text-2xl leading-none text-neutral-500">
-                Download videos from{" "}
-                <motion.span
-                  animate={{ width: bounds.width || "auto" }}
-                  className="inline-block overflow-hidden align-bottom whitespace-nowrap"
-                >
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    <motion.span
-                      key={sources[sourceIndex]}
-                      ref={measureRef}
-                      className="inline-block"
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -20, opacity: 0 }}
-                    >
-                      {sources[sourceIndex]}
-                    </motion.span>
-                  </AnimatePresence>
-                </motion.span>
-              </div>
+              <HomeDefaultRolldown />
 
               <div className="h-4"></div>
 
