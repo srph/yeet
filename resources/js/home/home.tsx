@@ -98,7 +98,7 @@ export default function Home() {
             Crafted by{" "}
             <a
               href="https://kierb.com"
-              className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+              className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
               target="_blank"
             >
               Kier Borromeo
@@ -109,7 +109,7 @@ export default function Home() {
               <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
               <a
                 href={link.href}
-                className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+                className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
                 target="_blank"
               >
                 {link.label}

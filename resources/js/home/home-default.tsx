@@ -38,20 +38,20 @@ export function HomeDefault({
             value={url}
             onChange={(e) => onUrlChange(e.target.value)}
             placeholder="https://youtu.be/IBDhuu7CoMI"
-            className="w-full rounded-full border border-neutral-700 bg-neutral-800 py-3 pl-4 pr-[112px] text-sm font-medium outline-none transition placeholder:text-neutral-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
+            className="w-full rounded-full border border-neutral-700 bg-neutral-800 py-3 pl-4 pr-[112px] text-sm font-medium outline-none transition placeholder:text-neutral-500 focus:border-blue-200 focus:ring-1 focus:ring-blue-200"
           />
           <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-2">
             <button
               type="button"
               onClick={() => onFormatChange(format === "mp3" ? "mp4" : "mp3")}
-              className="inline-flex items-center rounded-full bg-neutral-700 px-3 py-1 text-xs font-bold transition hover:bg-neutral-600 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+              className="inline-flex items-center rounded-full bg-neutral-700 px-3 py-1 text-xs font-bold transition hover:bg-neutral-600 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
             >
               {format.toUpperCase()}
             </button>
 
             <motion.button
               type="submit"
-              className="relative overflow-hidden rounded-full bg-yellow-500 size-8 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+              className="relative overflow-hidden rounded-full bg-blue-200 text-blue-950 size-8 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
               initial="unhovered"
               whileHover="hover"
               disabled={isYeetPending}

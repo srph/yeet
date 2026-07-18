@@ -155,7 +155,7 @@ export const HomeDownloadTracking = ({
           href={meta.source_url}
           target="_blank"
           rel="noreferrer"
-          className="group mt-[7px] inline-flex max-w-full items-center gap-1.5 text-[11.5px] tracking-normal text-neutral-600 transition hover:text-yellow-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+          className="group mt-[7px] inline-flex max-w-full items-center gap-1.5 text-[11.5px] tracking-normal text-neutral-600 transition hover:text-blue-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
         >
           <span className="truncate">{formatSourceUrl(meta.source_url)}</span>
           <ArrowUpRightIcon className="size-2.5 shrink-0 transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px" />
@@ -205,7 +205,7 @@ export const HomeDownloadTracking = ({
                 <button
                   type="button"
                   onClick={onRetry}
-                  className="text-yellow-500 underline underline-offset-[3px] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+                  className="text-blue-200 underline underline-offset-[3px] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
                 >
                   {status === "expired" ? "Yeet it again" : "try again"}
                 </button>
@@ -224,7 +224,7 @@ export const HomeDownloadTracking = ({
                   disabled={!isSettled}
                   onClick={onDownload}
                   aria-label={isSettled ? "Download Now" : "Processing Download"}
-                  className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-white text-[14.5px] font-semibold tracking-[-0.02em] text-black transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600"
+                  className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-blue-200 text-[14.5px] font-semibold tracking-[-0.02em] text-blue-950 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600"
                 >
                   {isSettled ? (
                     <>
@@ -243,7 +243,7 @@ export const HomeDownloadTracking = ({
                   <button
                     type="button"
                     onClick={onDownloadAnother}
-                    className="mt-3 flex h-11 w-full items-center justify-center gap-2.5 rounded-full border-2 border-neutral-800 bg-transparent text-[14.5px] font-semibold tracking-[-0.02em] text-neutral-400 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 hover:border-neutral-700 hover:text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+                    className="mt-3 flex h-11 w-full items-center justify-center gap-2.5 rounded-full border-2 border-neutral-800 bg-transparent text-[14.5px] font-semibold tracking-[-0.02em] text-neutral-400 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 hover:border-neutral-700 hover:text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
                   >
                     Start over
                   </button>
@@ -260,7 +260,7 @@ export const HomeDownloadTracking = ({
           href={meta.source_url}
           target="_blank"
           rel="noreferrer"
-          className={`group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 ${
+          className={`group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
             isSettled
               ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(234,179,8,0.34),0_0_90px_-26px_rgba(234,179,8,0.42)]"
               : "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"
@@ -302,7 +302,7 @@ export const HomeDownloadTracking = ({
               <span
                 className={`absolute inset-y-0 w-[38%] ${
                   status === "processing"
-                    ? "animate-sweep bg-linear-to-r from-transparent via-yellow-500/40 to-transparent"
+                    ? "animate-sweep bg-linear-to-r from-transparent via-blue-200/40 to-transparent"
                     : "animate-sweep-slow bg-linear-to-r from-transparent via-white/[0.14] to-transparent"
                 }`}
               />

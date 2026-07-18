@@ -17,8 +17,8 @@ const STATUS_TONE: Record<Status, { text: string; dot: string }> = {
     dot: "bg-neutral-600 animate-blink-slow",
   },
   processing: {
-    text: "text-yellow-500",
-    dot: "bg-yellow-500 shadow-[0_0_8px_var(--color-yellow-500)] animate-blink",
+    text: "text-blue-200",
+    dot: "bg-blue-200 shadow-[0_0_8px_var(--color-blue-200)] animate-blink",
   },
   complete: {
     text: "text-emerald-500",
