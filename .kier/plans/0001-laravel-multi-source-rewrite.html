@@ -230,7 +230,7 @@
   <p class="eyebrow">Implementation Plan · 0001</p>
   <h1>Yeet on Laravel:<br>killing trigger.dev, <em>going multi-source</em></h1>
   <p class="standfirst">
-    Rewrite the Next.js + trigger.dev + Prisma/MySQL app as <strong>Laravel 12 + Inertia + Postgres</strong>,
+    Rewrite the Next.js + trigger.dev + Prisma/MySQL app as <strong>Laravel 13 + Inertia + Postgres</strong>,
     replacing <code>youtubei.js</code> with <strong>yt-dlp</strong> — which collapses the YouTube/X/Facebook
     adapter problem into one binary and retires the <code>PLAYER_ID</code> maintenance burden along with the
     trigger.dev bill. The React frontend ports over close to verbatim.
@@ -243,6 +243,12 @@
   <span><b>Scope</b> ~700 LOC, 1 table, 1 job, 2 routes, 1 page</span>
   <span><b>Est.</b> 2–3 focused sessions</span>
   <span><b>Date</b> 2026-07-17</span>
+</div>
+
+<div class="note ok">
+  <span class="label">Status — Phases 0–7 built and committed</span>
+  <p>Phases 0 through 7 are done on <code>feat/laravel</code> (<code>083ae0d</code>), with the old app parked in <code>legacy/</code> (<code>ef4c7bd</code>). <strong>40 tests, 93 assertions, all passing</strong>, and verified end-to-end against real yt-dlp and real Postgres — metadata and download both work for YouTube (including Shorts), X, and Facebook from this Mac.</p>
+  <p><strong>What's left:</strong> S3 credentials (the only thing blocking a real end-to-end download), a browser pass over the animations, and Phase 8 (Forge). Three assumptions in this plan turned out wrong and are corrected below: it's <b>Laravel 13</b>, the local Postgres is <b>Postgres.app 18.1 rather than DBngin</b>, and the S3 driver isn't bundled. Three new bugs surfaced during verification — see <a href="#found">§11</a>.</p>
 </div>
 
 <!-- ══════════════════════════════ 1 ══════════════════════════════ -->
@@ -270,7 +276,7 @@
 <table>
   <thead><tr><th style="width:30%">Today</th><th style="width:34%">Becomes</th><th>Note</th></tr></thead>
   <tbody>
-    <tr><td>Next.js 15 App Router</td><td>Laravel 12 + Inertia</td><td>Inertia renders one view; no props needed</td></tr>
+    <tr><td>Next.js 15 App Router</td><td>Laravel 13 + Inertia</td><td>Inertia renders one view; no props needed</td></tr>
     <tr><td>Prisma 6 + MySQL 8</td><td>Eloquent + Postgres 16</td><td>Starting fresh — no data migration</td></tr>
     <tr><td>trigger.dev <code>downloadYoutubeTask</code></td><td><code>ProcessDownload</code> job</td><td>Database queue driver</td></tr>
     <tr><td><code>youtubei.js</code> + <code>PLAYER_ID</code></td><td><code>yt-dlp</code> via <code>Process</code></td><td>The one genuinely new piece</td></tr>
@@ -1340,15 +1346,71 @@ DB_PASSWORD=root</pre>
 </div>
 </section>
 
+<!-- ══════════════════════════════ 11 ══════════════════════════════ -->
+<section id="found">
+<h2 data-n="11">Found while building — bugs this plan didn't predict</h2>
+
+<p>Three real defects surfaced during the port. None were visible from reading the code; each took actually running the thing. Worth recording, because two of them are the kind that ship silently.</p>
+
+<div class="risk">
+  <div class="r-head">1. A Facebook link resolved as YouTube</div>
+  <div class="r-body">
+    The old app's <code>[?&amp;]v=</code> regex was never anchored to a YouTube host, so it matched <em>any</em> URL with a <code>v=</code> param. <code>facebook.com/watch/?v=10153231379946729</code> came back as <strong>YouTube, id <code>10153231379</code></strong> — the first 11 characters. Since YouTube is first in the registry, every Facebook watch link would have been handed to yt-dlp as a nonsense YouTube id.
+    <br><br>
+    This bug is <strong>inherited from the original app</strong>, where it was harmless: YouTube was the only source, so nothing else could be mis-claimed. Going multi-source is what made it real — a good argument for the unit tests over URL matchers having been worth writing first. <b>Fixed:</b> every pattern is host-anchored, plus a trailing boundary so an over-long id can't match its first 11 chars.
+  </div>
+</div>
+
+<div class="risk">
+  <div class="r-head">2. Failed uploads silently marked downloads "complete"</div>
+  <div class="r-body">
+    Laravel ships <code>filesystems.disks.s3.throw =&gt; false</code>, so a failed write <em>returns <code>false</code></em> instead of raising. <code>ProcessDownload</code> doesn't check the return value, so with an unreachable bucket the job sailed past the upload and wrote <code>status = 'complete'</code>, a <code>storage_key</code> pointing at nothing, and a 7-day expiry. The user gets "Dish is served" and a dead link. Retries and <code>failed()</code> never fire, because nothing throws.
+    <br><br>
+    Caught only by running the worker with an unconfigured bucket and noticing a <code>complete</code> row with no file behind it. <strong><code>Storage::fake()</code> cannot catch this</strong> — the fake always succeeds. <b>Fixed:</b> <code>'throw' =&gt; true</code>, with a guard test asserting the config directly, since no ordinary test reproduces it.
+  </div>
+</div>
+
+<div class="risk">
+  <div class="r-head">3. POST returned a different shape than GET</div>
+  <div class="r-body">
+    <code>Download::create()</code> returns a model holding only the attributes it set, so POST serialized without the untouched nullable columns (<code>reason</code>, <code>expires_at</code>, <code>storage_file_name</code>) — 11 keys where GET returned 14. zod's <code>.nullable()</code> still <em>requires the key to exist</em>, so <code>DownloadMetaSchema.parse()</code> would have thrown on the very first submit.
+    <br><br>
+    A consequence of dropping the resource layer: a <code>JsonResource</code> would have named every key explicitly and made this impossible. Cheap to fix, worth knowing as the tax on that trade. <b>Fixed:</b> <code>return $download-&gt;refresh()</code>, with a test asserting the full key set.
+  </div>
+</div>
+
+<h3>Corrections to this plan's assumptions</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th style="width:32%">Plan said</th><th>Reality</th></tr></thead>
+  <tbody>
+    <tr><td>Laravel 12</td><td><b>Laravel 13.20</b>. Console commands use PHP attributes (<code>#[Signature]</code>) now.</td></tr>
+    <tr><td>Postgres 16.4 via DBngin</td><td><b>Postgres.app 18.1</b> on 5432. DBngin's Postgres isn't running — only its <code>psql</code> client is on PATH, which is what fooled the check.</td></tr>
+    <tr><td><code>Storage::disk('s3')</code> just works</td><td>Needs <code>league/flysystem-aws-s3-v3</code>; Laravel doesn't bundle it.</td></tr>
+    <tr><td>Tailwind v4, zod v3</td><td>Tailwind v4 ✓, but <b>zod v4</b> and lucide v1 — all ported without incident.</td></tr>
+    <tr><td>Scaffold ships Pest</td><td>Ships PHPUnit; Pest installed separately.</td></tr>
+    <tr><td>~6 lines of <code>page.tsx</code> touched</td><td>~9, and the component is otherwise verbatim. The estimate held.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="label">One thing the port added that the plan didn't call for</span>
+  <p>Inertia's <code>&lt;Head&gt;</code> is client-side only without SSR, so the page shipped with <strong>no server-rendered <code>&lt;title&gt;</code></strong> — a crawler that doesn't run JS would see a titleless page. That's a regression from Next.js, which server-rendered its whole <code>metadata</code> export. A static <code>&lt;title inertia&gt;</code> in the Blade root fixes it; React overrides it on mount. The rest of the OG/Twitter/PWA tags are static in Blade and were never at risk.</p>
+</div>
+</section>
+
 <!-- ══════════════════════════════ 10 ══════════════════════════════ -->
 <section class="next">
 <h2 data-n="10">Next action</h2>
 
-<p><strong>Do Phase 0 before committing to any of this</strong> — and specifically, do it on the Forge box, not just the Mac.</p>
+<p>Two things, and the first is a blocker only you can clear.</p>
 
-<p>The entire plan rests on one bet: that yt-dlp can actually pull from YouTube, X, and Facebook <em>from your production IP</em>. Everything else here is routine Laravel work with a known shape. That one assumption is neither routine nor verified, and it's cheap to test — <code>brew install yt-dlp</code>, then three <code>--dump-json</code> calls locally, then the same three over SSH on Forge.</p>
+<p><strong>1. Supply S3 credentials.</strong> Fill in <code>AWS_*</code> in <code>.env</code> and a real download completes end-to-end. The old <code>legacy/.env.local</code> has a key and secret but <em>no</em> <code>AWS_ENDPOINT</code>, so it's ambiguous whether that bucket is R2 or AWS proper — and rather than guess, I left it alone rather than upload test videos into your production bucket. Everything either side of the upload is verified: yt-dlp produces real files, the job wires up correctly, and a failed upload now fails loudly instead of silently completing.</p>
 
-<p>If all six succeed, the rest of the plan is mechanical and Phase 1 can start immediately. If the Forge box gets bot-checked, that's not fatal — but it changes the plan materially (cookies, or a proxy, or reconsidering the Node sidecar for YouTube specifically), and you want to know that <em>before</em> deleting the Next.js app.</p>
+<p><strong>2. Then re-run the yt-dlp bet on the Forge box.</strong> All three sources work from this Mac, which is the good news — but the original risk still stands and is still unresolved: YouTube increasingly bot-checks datacenter IPs, and your Forge box is exactly that. Three <code>--dump-json</code> calls over SSH answer it. If it's blocked, the fix is cookies or a proxy, not a rethink — but you want to know before Phase 8, not during.</p>
+
+<p>After that, Phase 8 (Forge) is the remaining work, plus a browser pass over the animations — the one thing the 40 tests deliberately don't cover.</p>
 </section>
 
 </main>
