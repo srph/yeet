@@ -12,6 +12,10 @@ export const DownloadMetaSchema = z.object({
   source_title: z.string(),
   source_thumbnail: z.string().nullable(), // X posts often have none
 
+  // Whole seconds, from yt-dlp's probe. Nullable: live streams and some X
+  // posts have no duration, and rows created before the column existed.
+  duration: z.number().nullable(),
+
   // The old schema omitted `format`, so zod silently stripped it even though
   // the API returned it. Adding it back.
   format: z.enum(["mp3", "mp4"]),

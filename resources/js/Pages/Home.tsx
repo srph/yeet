@@ -1,16 +1,11 @@
 import { useState } from "react";
-import {
-  ArrowDownToLineIcon,
-  LoaderCircleIcon,
-  MoveUpRightIcon,
-  PlayIcon,
-} from "lucide-react";
+import { LoaderCircleIcon, MoveUpRightIcon } from "lucide-react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { Head } from "@inertiajs/react";
 import { useYeetMutation } from "../mutations";
 import { useDownloadMeta } from "../queries";
 import invariant from "tiny-invariant";
-import { DecryptedText } from "../decrypted-text";
+import { DownloadStatus } from "../download-status";
 
 const snappy = [0.19, 1, 0.22, 1];
 
@@ -44,7 +39,7 @@ export default function Home() {
     await yeet({ url, format });
   };
 
-  const handleRetry = async (e: React.FormEvent) => {
+  const handleRetry = async () => {
     await yeet({ url, format });
   };
 
@@ -73,155 +68,11 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -24 }}
             >
-              <div className="flex gap-4">
-                <div>
-                  <div className="w-[520px] text-left">
-                    {downloadMeta.status === "failed" ? (
-                      <div className="text-4xl text-white">
-                        <DecryptedText text="Task failed" />{" "}
-                        <span className="font-playfair font-bold italic">
-                          <DecryptedText text="successfully" />
-                        </span>
-                      </div>
-                    ) : downloadMeta.status === "complete" ? (
-                      <div className="text-4xl text-white">
-                        <DecryptedText text="Dish is" />{" "}
-                        <span className="font-playfair font-bold italic">
-                          <DecryptedText text="served" />
-                        </span>
-                      </div>
-                    ) : downloadMeta.status === "processing" ? (
-                      <div className="text-4xl text-white">
-                        <DecryptedText text="Let 'im" />{" "}
-                        <span className="font-playfair font-bold italic">
-                          <DecryptedText text="cook" />
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-4xl text-white">
-                        <DecryptedText text="POV: You're" />{" "}
-                        <span className="font-playfair font-bold italic">
-                          <DecryptedText text="in line" />
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="h-2"></div>
-
-                    <div className="text-4xl font-bold text-neutral-500">
-                      {downloadMeta.source_title}
-                    </div>
-
-                    <div className="h-4"></div>
-
-                    <div className="h-10">
-                      <AnimatePresence mode="popLayout" initial={false}>
-                        <motion.div
-                          initial={{ y: -8, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          key={
-                            downloadMeta.status === "failed"
-                              ? "failed"
-                              : downloadMeta.status === "queued"
-                              ? "queued"
-                              : "default"
-                          }
-                          transition={{ duration: 0.3 }}
-                        >
-                          {downloadMeta.status === "failed" ? (
-                            <div className="text-neutral-400">
-                              Shit crashed in the kitchen. Maybe{" "}
-                              <button
-                                type="button"
-                                className="text-yellow-500"
-                                onClick={handleRetry}
-                              >
-                                try again
-                              </button>
-                              ?
-                            </div>
-                          ) : downloadMeta.status !== "queued" ? (
-                            <div>
-                              <MotionConfig
-                                transition={{
-                                  duration: 0.4,
-                                  type: "spring",
-                                  bounce: 0,
-                                }}
-                              >
-                                <motion.button
-                                  className="group grid grid-cols-[24px_76px_74px_0px_0px] data-[status=complete]:grid-cols-[0px_0px_74px_30px_24px] h-[40px] place-items-center rounded-full bg-white px-4 py-2 font-medium text-black overflow-clip transition-all duration-[var(--duration)] ease-[var(--ease)] disabled:cursor-not-allowed disabled:opacity-75 opacity-100"
-                                  style={
-                                    {
-                                      "--duration": "250ms",
-                                      "--ease": bezier(),
-                                    } as React.CSSProperties
-                                  }
-                                  data-status={downloadMeta.status}
-                                  disabled={downloadMeta.status !== "complete"}
-                                  onClick={handleDownload}
-                                  aria-label={
-                                    downloadMeta.status === "complete"
-                                      ? "Download Now"
-                                      : "Processing Download"
-                                  }
-                                >
-                                  <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                                    <LoaderCircleIcon className="size-4 animate-spin" />
-                                  </div>
-
-                                  <div className="opacity-100 group-data-[status=complete]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                                    Processing
-                                  </div>
-
-                                  <div>Download</div>
-
-                                  <div className="opacity-100 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                                    Now
-                                  </div>
-
-                                  <div className="opacity-100 pl-1 group-data-[status=processing]:opacity-0 transition-opacity duration-[var(--duration)] ease-[var(--ease)]">
-                                    <ArrowDownToLineIcon className="size-4" />
-                                  </div>
-                                </motion.button>
-                              </MotionConfig>
-                            </div>
-                          ) : null}
-                        </motion.div>
-                      </AnimatePresence>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative w-[320px]">
-                  {downloadMeta.source_thumbnail ? (
-                    <>
-                      <a
-                        href={downloadMeta.source_url}
-                        target="_blank"
-                        className={`${
-                          downloadMeta.status === "complete"
-                            ? ""
-                            : "animate-pulse"
-                        }`}
-                      >
-                        <img
-                          src={downloadMeta.source_thumbnail}
-                          className={`aspect-video w-full rounded-lg bg-neutral-800`}
-                        />
-                      </a>
-
-                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-12 w-16 items-center justify-center rounded-lg bg-red-700">
-                          <PlayIcon className="size-6" />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="aspect-video w-full animate-pulse rounded-lg bg-neutral-800"></div>
-                  )}
-                </div>
-              </div>
+              <DownloadStatus
+                meta={downloadMeta}
+                onRetry={handleRetry}
+                onDownload={handleDownload}
+              />
             </motion.div>
           ) : (
             <motion.div

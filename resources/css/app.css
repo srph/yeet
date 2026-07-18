@@ -13,6 +13,38 @@
        every existing `font-sans` / `font-playfair` class ports untouched. */
     --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
     --font-playfair: 'Playfair Display', ui-serif, Georgia, serif;
+
+    /* The post-submit screen's two idle motions. Tailwind's built-in
+       animate-pulse is close to `blink` but bottoms out at opacity .5, which
+       reads as a glow rather than a status light — hence the custom pair.
+
+       `sweep` is the shimmer crossing the thumbnail while a download cooks.
+       It slides a gradient band across, so it animates `left` against a
+       clipped parent rather than transform: the band starts fully offscreen
+       and the overflow-hidden frame does the masking. */
+    --animate-blink: blink 1.2s ease-in-out infinite;
+    --animate-blink-slow: blink 2.2s ease-in-out infinite;
+    --animate-sweep: sweep 2.1s cubic-bezier(0.19, 1, 0.22, 1) infinite;
+    --animate-sweep-slow: sweep 3.2s cubic-bezier(0.19, 1, 0.22, 1) infinite;
+
+    @keyframes blink {
+        0%,
+        100% {
+            opacity: 0.32;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes sweep {
+        0% {
+            left: -40%;
+        }
+        100% {
+            left: 104%;
+        }
+    }
 }
 
 /* From the old app/globals.css, verbatim. */

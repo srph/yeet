@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\DownloadFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,14 +11,19 @@ use Illuminate\Support\Facades\Storage;
 
 class Download extends Model
 {
-    /** @use HasFactory<\Database\Factories\DownloadFactory> */
+    /** @use HasFactory<DownloadFactory> */
     use HasFactory, HasUlids;
 
     protected $guarded = [];
 
     protected function casts(): array
     {
-        return ['expires_at' => 'datetime'];
+        return [
+            'expires_at' => 'datetime',
+            // Without this the column comes back as a JSON string on some
+            // drivers, and the frontend schema types it as a number.
+            'duration' => 'integer',
+        ];
     }
 
     // There's no API resource layer — the controller returns this model and

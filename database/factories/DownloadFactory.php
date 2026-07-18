@@ -2,9 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Download;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/** @extends Factory<\App\Models\Download> */
+/** @extends Factory<Download> */
 class DownloadFactory extends Factory
 {
     public function definition(): array
@@ -15,6 +16,7 @@ class DownloadFactory extends Factory
             'source_id' => 'dQw4w9WgXcQ',
             'source_title' => 'Never Gonna Give You Up',
             'source_thumbnail' => 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+            'duration' => 213,
             'format' => 'mp4',
             'status' => 'queued',
         ];

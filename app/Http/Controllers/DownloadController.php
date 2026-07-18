@@ -65,6 +65,8 @@ class DownloadController extends Controller
             'source_id' => $sourceId,
             'source_title' => $meta['title'],
             'source_thumbnail' => $meta['thumbnail'],
+            // probe() hands back a float; the column is whole seconds.
+            'duration' => isset($meta['duration']) ? (int) round($meta['duration']) : null,
             'format' => $data['format'],
             'status' => 'queued',
         ]);

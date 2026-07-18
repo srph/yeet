@@ -42,9 +42,18 @@ it('returns every key the frontend zod schema requires', function () use ($post)
 
     $response->assertJsonStructure([
         'id', 'source', 'source_url', 'source_id', 'source_title',
-        'source_thumbnail', 'format', 'status', 'download_url',
+        'source_thumbnail', 'duration', 'format', 'status', 'download_url',
         'storage_file_name', 'reason', 'expires_at', 'created_at', 'updated_at',
     ]);
+});
+
+it('persists the probed duration, rounded to whole seconds', function () use ($post) {
+    // probe() always returned this; the controller used to discard it, so the
+    // UI had no runtime to show and had to fake one.
+    $post(['url' => 'https://youtu.be/dQw4w9WgXcQ', 'format' => 'mp4'])
+        ->assertJsonPath('duration', 213); // 213.0 float in, int out
+
+    expect(Download::sole()->duration)->toBe(213);
 });
 
 it('never exposes the storage key', function () use ($post) {
