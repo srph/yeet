@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { LoaderCircleIcon, MoveUpRightIcon } from "lucide-react";
+import { Fragment, useState } from "react";
+import { LoaderCircleIcon } from "lucide-react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { Head } from "@inertiajs/react";
 import { useYeetMutation } from "../mutations";
@@ -56,7 +56,7 @@ export default function Home() {
   };
 
   return (
-    <div className="grid place-items-center min-h-screen p-4 text-white">
+    <div className="grid min-h-screen place-items-center px-4 pt-4 pb-16 text-white">
       <Head title="Video Downloader" />
 
       <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
@@ -210,27 +210,24 @@ export default function Home() {
         </AnimatePresence>
       </MotionConfig>
 
-      <div className="fixed inset-x-0 bottom-0 grid place-items-center">
-        <div className="flex items-center justify-between w-full max-w-[720px] py-2 border-t border-neutral-900">
-          <span className="text-center text-sm leading-none text-neutral-700">
-            Crafted by Kier Borromeo
+      <div className="fixed inset-x-0 bottom-0 grid place-items-center px-4 py-5">
+        <div className="flex items-center gap-2.5 text-[13px] leading-none">
+          <span className="text-neutral-600">
+            Crafted by{" "}
+            <span className="font-medium text-neutral-500">Kier Borromeo</span>
           </span>
-
-          <div className="flex gap-6">
-            {links.map((link) => (
+          {links.map((link) => (
+            <Fragment key={link.label}>
+              <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
               <a
-                key={link.label}
                 href={link.href}
-                className="group flex items-center text-center text-sm leading-none text-neutral-700"
+                className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300"
                 target="_blank"
               >
                 {link.label}
-                <div className="w-3 pl-1.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-150 ease-out">
-                  <MoveUpRightIcon className="size-3" />
-                </div>
               </a>
-            ))}
-          </div>
+            </Fragment>
+          ))}
         </div>
       </div>
     </div>

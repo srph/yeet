@@ -81,6 +81,23 @@ const formatSourceUrl = (url: string) => {
   }
 };
 
+/**
+ * Middle-truncate so the extension survives: the tail is the informative part
+ * ("...mp3" vs "...mp4"), and source ids are long enough that a plain clip
+ * would eat it. The "..." doubles as the separator, so there's no second dot.
+ */
+const truncateFileName = (name: string, head = 8) => {
+  const dot = name.lastIndexOf(".");
+
+  // Dotfile or no extension at all — nothing worth preserving on the right.
+  if (dot <= 0) return name.length > head + 3 ? `${name.slice(0, head)}...` : name;
+
+  const base = name.slice(0, dot);
+  const ext = name.slice(dot + 1);
+
+  return base.length > head ? `${base.slice(0, head)}...${ext}` : name;
+};
+
 const formatExpiry = (iso: string) => {
   const remaining = new Date(iso).getTime() - Date.now();
   if (remaining <= 0) return "any moment now";
@@ -92,11 +109,23 @@ const formatExpiry = (iso: string) => {
   return `in ${days} ${days === 1 ? "day" : "days"}`;
 };
 
-const Spec = ({ label, value, bright }: { label: string; value: string; bright?: boolean }) => (
+const Spec = ({
+  label,
+  value,
+  bright,
+  title,
+}: {
+  label: string;
+  value: string;
+  bright?: boolean;
+  /** The untruncated value, surfaced on hover. */
+  title?: string;
+}) => (
   <div className="flex items-baseline gap-2 py-[5.5px] text-xs">
     <dt className="whitespace-nowrap text-neutral-600">{label}</dt>
     <span className="h-px flex-1 -translate-y-[3px] bg-[repeating-linear-gradient(90deg,var(--color-neutral-800)_0_2px,transparent_2px_5px)]" />
     <dd
+      title={title}
       className={`whitespace-nowrap tabular-nums ${bright ? "text-white" : "text-neutral-400"}`}
     >
       {value}
@@ -168,9 +197,10 @@ export const DownloadStatus = ({
           {duration && <Spec label="Length" value={duration} />}
 
           {meta.storage_file_name && (
-            <StackedSpec
+            <Spec
               label="File name"
-              value={meta.storage_file_name}
+              value={truncateFileName(meta.storage_file_name)}
+              title={meta.storage_file_name}
               bright={isSettled}
             />
           )}
