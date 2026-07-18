@@ -36,3 +36,6 @@ Thumbs.db
 
 # yt-dlp scratch space: videos land here before upload, then get unlinked.
 /storage/app/tmp
+
+# Personal notes
+.kier
