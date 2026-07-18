@@ -313,21 +313,24 @@ export const HomeDownloadTracking = ({
               would sit on top of the "No preview" panel and promise a source
               that isn't there. */}
           {!isWaiting && meta.source_thumbnail && (
-            <span
-              className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg shadow-[0_10px_34px_rgba(0,0,0,0.6)] ${SOURCE_BADGE[meta.source]}`}
-            >
-              <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:max-w-[12rem]">
-                <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
-                  Watch on {SOURCE_LABEL[meta.source]}
+            <>
+              <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_100%_0%,rgba(0,0,0,0.45)_0%,transparent_60%)] opacity-0 transition-opacity duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:opacity-100" />
+              <span
+                className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg ${SOURCE_BADGE[meta.source]}`}
+              >
+                <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:max-w-[12rem]">
+                  <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
+                    Watch on {SOURCE_LABEL[meta.source]}
+                  </span>
+                  <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0">
+                    Watch on {SOURCE_LABEL[meta.source]}
+                  </span>
                 </span>
-                <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0">
-                  Watch on {SOURCE_LABEL[meta.source]}
+                <span className="grid size-9 shrink-0 place-items-center text-white">
+                  <ArrowUpRightIcon className="size-4" />
                 </span>
               </span>
-              <span className="grid size-9 shrink-0 place-items-center text-white">
-                <ArrowUpRightIcon className="size-4" />
-              </span>
-            </span>
+            </>
           )}
 
           {duration && (
