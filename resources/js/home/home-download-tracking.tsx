@@ -2,9 +2,8 @@ import {
   ArrowDownToLineIcon,
   FilmIcon,
   LoaderCircleIcon,
-  MoveUpRightIcon,
+  ArrowUpRightIcon,
   MusicIcon,
-  PlayIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { DownloadMeta } from "../types";
@@ -20,12 +19,18 @@ import { HomeDownloadStatus } from "./home-download-status";
  * doesn't reflect the actual file is worse than an absent row.
  */
 
-// The play badge is the one piece of source-specific chrome. lucide dropped
+// The open badge is the one piece of source-specific chrome. lucide dropped
 // brand glyphs in v1, so the source reads through colour rather than a logo.
 const SOURCE_BADGE: Record<DownloadMeta["source"], string> = {
   youtube: "bg-red-700",
   x: "bg-neutral-950",
   facebook: "bg-blue-600",
+};
+
+const SOURCE_LABEL: Record<DownloadMeta["source"], string> = {
+  youtube: "YouTube",
+  x: "X",
+  facebook: "Facebook",
 };
 
 const formatDuration = (seconds: number) => {
@@ -153,7 +158,7 @@ export const HomeDownloadTracking = ({
           className="group mt-[7px] inline-flex max-w-full items-center gap-1.5 text-[11.5px] tracking-normal text-neutral-600 transition hover:text-yellow-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
         >
           <span className="truncate">{formatSourceUrl(meta.source_url)}</span>
-          <MoveUpRightIcon className="size-2.5 shrink-0 transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px" />
+          <ArrowUpRightIcon className="size-2.5 shrink-0 transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px" />
         </a>
 
         <dl className="mt-5 border-t border-neutral-800 pt-3.5">
@@ -265,7 +270,7 @@ export const HomeDownloadTracking = ({
             <img
               src={meta.source_thumbnail}
               alt=""
-              className={`size-full object-cover transition-[filter_700ms_cubic-bezier(0.19,1,0.22,1),transform_500ms_cubic-bezier(0.19,1,0.22,1)] group-hover:scale-110 ${
+              className={`size-full object-cover transition-[filter] duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
                 isWaiting ? "brightness-50 grayscale-[0.85]" : ""
               } ${isDead ? "brightness-[0.3] grayscale" : ""} ${
                 isSettled ? "scale-[1.02]" : ""
@@ -304,15 +309,23 @@ export const HomeDownloadTracking = ({
             </span>
           )}
 
-          {/* Hidden while cooking (nothing to play yet) and when there's no
-              thumbnail — the badge would sit on top of the "No preview" panel
-              and promise a preview that isn't there. */}
+          {/* Hidden while cooking and when there's no thumbnail — the badge
+              would sit on top of the "No preview" panel and promise a source
+              that isn't there. */}
           {!isWaiting && meta.source_thumbnail && (
-            <span className="pointer-events-none absolute inset-0 grid place-items-center">
-              <span
-                className={`grid h-[52px] w-[76px] place-items-center rounded-xl shadow-[0_10px_34px_rgba(0,0,0,0.6)] ${SOURCE_BADGE[meta.source]}`}
-              >
-                <PlayIcon className="size-7 fill-white text-white" />
+            <span
+              className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg shadow-[0_10px_34px_rgba(0,0,0,0.6)] ${SOURCE_BADGE[meta.source]}`}
+            >
+              <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:max-w-[12rem]">
+                <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
+                  Watch on {SOURCE_LABEL[meta.source]}
+                </span>
+                <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0">
+                  Watch on {SOURCE_LABEL[meta.source]}
+                </span>
+              </span>
+              <span className="grid size-9 shrink-0 place-items-center text-white">
+                <ArrowUpRightIcon className="size-4" />
               </span>
             </span>
           )}
