@@ -149,10 +149,12 @@ export const HomeDownloadTracking = ({
   meta,
   onRetry,
   onDownload,
+  onDownloadAnother,
 }: {
   meta: DownloadMeta;
   onRetry: () => void;
   onDownload: () => void;
+  onDownloadAnother: () => void;
 }) => {
   const { status } = meta;
 
@@ -170,7 +172,7 @@ export const HomeDownloadTracking = ({
       {/* ── the rail ── */}
       <section className="min-w-0">
         <div
-          className={`mb-4 inline-flex items-center gap-2 text-[11.5px] font-bold tracking-[0.17em] uppercase ${tone.text}`}
+          className={`mb-4 inline-flex items-center gap-2 font-mono text-[11.5px] font-bold tracking-[0.17em] uppercase ${tone.text}`}
         >
           <span className={`size-[5px] rounded-full ${tone.dot}`} />
           {/* keyed so the scramble replays on every transition */}
@@ -242,30 +244,43 @@ export const HomeDownloadTracking = ({
                 ?
               </motion.div>
             ) : (
-              <motion.button
+              <motion.div
                 key="download"
-                type="button"
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25 }}
-                disabled={!isSettled}
-                onClick={onDownload}
-                aria-label={isSettled ? "Download Now" : "Processing Download"}
-                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-white text-[14.5px] font-semibold tracking-[-0.02em] text-black transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600"
               >
+                <button
+                  type="button"
+                  disabled={!isSettled}
+                  onClick={onDownload}
+                  aria-label={isSettled ? "Download Now" : "Processing Download"}
+                  className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-white text-[14.5px] font-semibold tracking-[-0.02em] text-black transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600"
+                >
+                  {isSettled ? (
+                    <>
+                      <ArrowDownToLineIcon className="size-[15px]" />
+                      Download Now
+                    </>
+                  ) : (
+                    <>
+                      <LoaderCircleIcon className="size-[15px] animate-spin" />
+                      {status === "queued" ? "Waiting" : "Processing"}
+                    </>
+                  )}
+                </button>
+
                 {isSettled ? (
-                  <>
-                    <ArrowDownToLineIcon className="size-[15px]" />
-                    Download Now
-                  </>
-                ) : (
-                  <>
-                    <LoaderCircleIcon className="size-[15px] animate-spin" />
-                    {status === "queued" ? "Waiting" : "Processing"}
-                  </>
-                )}
-              </motion.button>
+                  <button
+                    type="button"
+                    onClick={onDownloadAnother}
+                    className="mt-3 flex h-11 w-full items-center justify-center gap-2.5 rounded-full border-2 border-neutral-800 bg-transparent text-[14.5px] font-semibold tracking-[-0.02em] text-neutral-400 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 hover:border-neutral-700 hover:text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+                  >
+                    Start over
+                  </button>
+                ) : null}
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

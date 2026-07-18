@@ -18,6 +18,7 @@ export default function Home() {
     data: yeetData,
     isPending: isYeetPending,
     isError: isYeetError,
+    reset: resetYeet,
   } = useYeetMutation();
 
   const { data: downloadMeta } = useDownloadMeta(yeetData?.id);
@@ -44,6 +45,11 @@ export default function Home() {
     document.body.removeChild(a);
   };
 
+  const handleDownloadAnother = () => {
+    resetYeet();
+    setUrl("");
+  };
+
   return (
     <div className="grid min-h-screen place-items-center px-4 pt-4 pb-16 text-white">
       <Head title="Video Downloader" />
@@ -61,6 +67,7 @@ export default function Home() {
                 meta={downloadMeta}
                 onRetry={handleRetry}
                 onDownload={handleDownload}
+                onDownloadAnother={handleDownloadAnother}
               />
             </motion.div>
           ) : (

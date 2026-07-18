@@ -4,6 +4,7 @@
 @import '@fontsource-variable/dm-sans';
 @import '@fontsource/playfair-display/700.css';
 @import '@fontsource/playfair-display/700-italic.css';
+@import '@fontsource/sometype-mono/700.css';
 
 @source '../js/**/*.tsx';
 @source '../views/**/*.blade.php';
@@ -13,6 +14,7 @@
        every existing `font-sans` / `font-playfair` class ports untouched. */
     --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
     --font-playfair: 'Playfair Display', ui-serif, Georgia, serif;
+    --font-mono: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /* The post-submit screen's two idle motions. Tailwind's built-in
        animate-pulse is close to `blink` but bottoms out at opacity .5, which
