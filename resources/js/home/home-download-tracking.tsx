@@ -292,7 +292,7 @@ export const HomeDownloadTracking = ({
           href={meta.source_url}
           target="_blank"
           rel="noreferrer"
-          className={`relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 ${
+          className={`group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 ${
             isSettled
               ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(234,179,8,0.34),0_0_90px_-26px_rgba(234,179,8,0.42)]"
               : "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"
@@ -302,7 +302,7 @@ export const HomeDownloadTracking = ({
             <img
               src={meta.source_thumbnail}
               alt=""
-              className={`size-full object-cover transition-[filter,transform] duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+              className={`size-full object-cover transition-[filter_700ms_cubic-bezier(0.19,1,0.22,1),transform_500ms_cubic-bezier(0.19,1,0.22,1)] group-hover:scale-110 ${
                 isWaiting ? "brightness-50 grayscale-[0.85]" : ""
               } ${isDead ? "brightness-[0.3] grayscale" : ""} ${
                 isSettled ? "scale-[1.02]" : ""
