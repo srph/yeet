@@ -5,4 +5,4 @@ use Inertia\Inertia;
 
 // Inertia is only rendering the view — no props. All data flows through
 // React Query against /api/download, exactly as it did under Next.js.
-Route::get('/', fn () => Inertia::render('home-default'))->name('home');
+Route::get('/', fn () => Inertia::render('home'))->name('home');

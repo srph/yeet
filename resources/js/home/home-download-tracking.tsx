@@ -7,8 +7,8 @@ import {
   PlayIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { DecryptedText } from "./decrypted-text";
-import { DownloadMeta } from "./types";
+import { DecryptedText } from "../decrypted-text";
+import { DownloadMeta } from "../types";
 
 type Status = DownloadMeta["status"];
 
@@ -145,7 +145,7 @@ const StackedSpec = ({ label, value, bright }: { label: string; value: string; b
   </div>
 );
 
-export const DownloadStatus = ({
+export const HomeDownloadTracking = ({
   meta,
   onRetry,
   onDownload,
