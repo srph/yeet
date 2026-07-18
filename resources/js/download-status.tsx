@@ -185,7 +185,7 @@ export const DownloadStatus = ({
           href={meta.source_url}
           target="_blank"
           rel="noreferrer"
-          className="group mt-[7px] inline-flex max-w-full items-center gap-1.5 text-[11.5px] tracking-normal text-neutral-600 transition hover:text-yellow-500"
+          className="group mt-[7px] inline-flex max-w-full items-center gap-1.5 text-[11.5px] tracking-normal text-neutral-600 transition hover:text-yellow-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
         >
           <span className="truncate">{formatSourceUrl(meta.source_url)}</span>
           <MoveUpRightIcon className="size-2.5 shrink-0 transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px" />
@@ -235,7 +235,7 @@ export const DownloadStatus = ({
                 <button
                   type="button"
                   onClick={onRetry}
-                  className="text-yellow-500 underline underline-offset-[3px]"
+                  className="text-yellow-500 underline underline-offset-[3px] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
                 >
                   {status === "expired" ? "Yeet it again" : "try again"}
                 </button>
@@ -252,7 +252,7 @@ export const DownloadStatus = ({
                 disabled={!isSettled}
                 onClick={onDownload}
                 aria-label={isSettled ? "Download Now" : "Processing Download"}
-                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-white text-[14.5px] font-semibold tracking-[-0.02em] text-black transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600"
+                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-white text-[14.5px] font-semibold tracking-[-0.02em] text-black transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600"
               >
                 {isSettled ? (
                   <>
@@ -277,7 +277,7 @@ export const DownloadStatus = ({
           href={meta.source_url}
           target="_blank"
           rel="noreferrer"
-          className={`relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 ${
+          className={`relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500 ${
             isSettled
               ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(234,179,8,0.34),0_0_90px_-26px_rgba(234,179,8,0.42)]"
               : "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"

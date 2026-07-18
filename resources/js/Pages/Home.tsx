@@ -109,14 +109,14 @@ export default function Home() {
                       onClick={() =>
                         setFormat(format === "mp3" ? "mp4" : "mp3")
                       }
-                      className="inline-flex items-center rounded-full bg-neutral-700 px-3 py-1 text-xs font-bold transition hover:bg-neutral-600"
+                      className="inline-flex items-center rounded-full bg-neutral-700 px-3 py-1 text-xs font-bold transition hover:bg-neutral-600 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
                     >
                       {format.toUpperCase()}
                     </button>
 
                     <motion.button
                       type="submit"
-                      className="relative overflow-hidden rounded-full bg-yellow-500 size-8"
+                      className="relative overflow-hidden rounded-full bg-yellow-500 size-8 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
                       initial="unhovered"
                       whileHover="hover"
                       disabled={isYeetPending}
@@ -211,17 +211,23 @@ export default function Home() {
       </MotionConfig>
 
       <div className="fixed inset-x-0 bottom-0 grid place-items-center px-4 py-5">
-        <div className="flex items-center gap-2.5 text-[13px] leading-none">
+        <div className="flex items-center gap-2.5 text-sm leading-none">
           <span className="text-neutral-600">
             Crafted by{" "}
-            <span className="font-medium text-neutral-500">Kier Borromeo</span>
+            <a
+              href="https://kierb.com"
+              className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
+              target="_blank"
+            >
+              Kier Borromeo
+            </a>
           </span>
           {links.map((link) => (
             <Fragment key={link.label}>
               <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
               <a
                 href={link.href}
-                className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300"
+                className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500"
                 target="_blank"
               >
                 {link.label}

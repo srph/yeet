@@ -28,3 +28,7 @@ php artisan queue:work --queue=downloads   # jobs
 | `GET`  | `/api/download/{download}` | Poll target (~1s). 404 if missing. Same JSON shape as POST.                                                    |
 
 `Download` serializes directly (no resource layer). Status: `queued → processing → complete \| failed`, then `expired` after prune. `download_url` is a fresh presigned link from `storage_key`.
+
+## CSS
+
+- **Focus:** Interactive links/buttons get `focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-yellow-500` applied per element (not globally). Text inputs use their own border/ring focus styles.
