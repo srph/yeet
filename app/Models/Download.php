@@ -16,6 +16,11 @@ class Download extends Model
 
     protected $guarded = [];
 
+    // status is the state machine: queued → processing → complete | failed,
+    // then expired once downloads:prune deletes the object. There is no
+    // expired_at column — expiry is a status. expires_at has exactly one
+    // reader: the prune command (see PruneDownloads).
+
     protected function casts(): array
     {
         return [
@@ -30,7 +35,8 @@ class Download extends Model
     // There's no API resource layer — the controller returns this model and
     // Eloquent serializes it, so what's below IS the API contract.
 
-    // The bucket layout is an internal detail and useless to the client.
+    // Durable S3 key — NOT a presigned URL. Links are minted per-read by
+    // download_url below, so they're always fresh for a full hour.
     protected $hidden = ['storage_key'];
 
     // download_url isn't a column, so it needs appending to show up in JSON.

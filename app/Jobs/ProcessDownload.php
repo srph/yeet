@@ -24,6 +24,8 @@ class ProcessDownload implements ShouldQueue
     // Mirrors trigger.config.ts: maxAttempts 3, maxDuration 3600.
     public int $tries = 3;
 
+    // DB_QUEUE_RETRY_AFTER must exceed this. At Laravel's default 90s the
+    // queue reclaims a job mid-download and runs it a second time.
     public int $timeout = 3600;
 
     /**
