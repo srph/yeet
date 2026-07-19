@@ -20,6 +20,7 @@ class Download extends Model
     {
         return [
             'expires_at' => 'datetime',
+            'fulfilled_at' => 'datetime',
             // Without this the column comes back as a JSON string on some
             // drivers, and the frontend schema types it as a number.
             'duration' => 'integer',

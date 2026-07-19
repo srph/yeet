@@ -29,6 +29,9 @@ export const DownloadMetaSchema = z.object({
   storage_file_name: z.string().nullable(),
   reason: z.string().nullable(),
   expires_at: z.string().nullable(),
+  // Set when the job settles (complete or failed). Null while queued/
+  // processing, and for rows created before the column existed.
+  fulfilled_at: z.string().nullable(),
   // no expired_at — the column is gone; no storage_key — it's $hidden.
   created_at: z.string(),
   updated_at: z.string(),

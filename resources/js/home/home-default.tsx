@@ -1,6 +1,7 @@
 import { LoaderCircleIcon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { HomeDefaultRolldown } from "./home-default-rolldown";
+import { HomeDefaultSourceTags } from "./home-default-source-tags";
 
 export function HomeDefault({
   url,
@@ -134,6 +135,8 @@ export function HomeDefault({
           </AnimatePresence>
         </div>
       </form>
+
+      <HomeDefaultSourceTags onSelect={onUrlChange} />
     </>
   );
 }

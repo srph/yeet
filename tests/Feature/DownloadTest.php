@@ -43,7 +43,8 @@ it('returns every key the frontend zod schema requires', function () use ($post)
     $response->assertJsonStructure([
         'id', 'source', 'source_url', 'source_id', 'source_title',
         'source_thumbnail', 'duration', 'format', 'status', 'download_url',
-        'storage_file_name', 'reason', 'expires_at', 'created_at', 'updated_at',
+        'storage_file_name', 'reason', 'expires_at', 'fulfilled_at',
+        'created_at', 'updated_at',
     ]);
 });
 

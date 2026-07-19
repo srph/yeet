@@ -80,6 +80,7 @@ class ProcessDownload implements ShouldQueue
             'storage_key' => $key,
             'storage_file_name' => $fileName,
             'expires_at' => now()->addDays(7),
+            'fulfilled_at' => now(),
         ]);
     }
 
@@ -92,6 +93,7 @@ class ProcessDownload implements ShouldQueue
         $this->download->update([
             'status' => 'failed',
             'reason' => $e?->getMessage(),
+            'fulfilled_at' => now(),
         ]);
     }
 }

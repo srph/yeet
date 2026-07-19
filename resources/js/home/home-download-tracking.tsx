@@ -12,11 +12,11 @@ import { HomeDownloadStatus } from "./home-download-status";
 /**
  * The post-submit screen: a narrow spec rail against a big thumbnail.
  *
- * Only three of the rail's rows are real columns — format, file name and
- * expiry — plus duration, which the API started persisting for this screen.
- * Resolution, codec and file size were in the design too and are NOT rendered:
- * nothing captures them, and a plausible-looking "1920x1080 · 60fps" that
- * doesn't reflect the actual file is worse than an absent row.
+ * Rail rows that are real columns: format, file name, expiry, media duration,
+ * and fulfilled_at (shown as "Took"). Resolution, codec and file size were in
+ * the design too and are NOT rendered: nothing captures them, and a
+ * plausible-looking "1920x1080 · 60fps" that doesn't reflect the actual file
+ * is worse than an absent row.
  */
 
 // The open badge is the one piece of source-specific chrome. lucide dropped
@@ -43,6 +43,26 @@ const formatDuration = (seconds: number) => {
   return hours > 0
     ? `${hours}:${pad(minutes)}:${pad(rest)}`
     : `${minutes}:${pad(rest)}`;
+};
+
+/** Queue wait + cook — distinct from media Length above. */
+const formatElapsed = (createdAt: string, fulfilledAt: string) => {
+  const seconds = Math.max(
+    0,
+    Math.round((new Date(fulfilledAt).getTime() - new Date(createdAt).getTime()) / 1000),
+  );
+
+  if (seconds < 60) return `${seconds}s`;
+
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+
+  if (minutes < 60) return rest > 0 ? `${minutes}m ${rest}s` : `${minutes}m`;
+
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
 };
 
 /** youtube.com/watch?v=x, x.com/user/status/1 — whatever the source happens to be. */
@@ -138,6 +158,10 @@ export const HomeDownloadTracking = ({
   const isDead = status === "failed" || status === "expired";
 
   const duration = meta.duration === null ? null : formatDuration(meta.duration);
+  const took =
+    meta.fulfilled_at === null
+      ? null
+      : formatElapsed(meta.created_at, meta.fulfilled_at);
 
   return (
     // viewport-relative, not 100%: the parent is a centred grid item and so is
@@ -165,6 +189,8 @@ export const HomeDownloadTracking = ({
           <Spec label="Format" value={meta.format.toUpperCase()} bright />
 
           {duration && <Spec label="Length" value={duration} />}
+
+          {took && <Spec label="Took" value={took} />}
 
           {meta.storage_file_name && (
             <Spec

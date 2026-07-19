@@ -29,6 +29,7 @@ class DownloadFactory extends Factory
             'storage_key' => 'yeet/youtube/dQw4w9WgXcQ.mp4',
             'storage_file_name' => 'dQw4w9WgXcQ.mp4',
             'expires_at' => now()->addDays(7),
+            'fulfilled_at' => now(),
         ]);
     }
 

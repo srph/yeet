@@ -23,12 +23,15 @@ it('uploads the file and completes the row', function () {
 
     $download->refresh();
 
-    expect($download->status)->toBe('complete')
-        ->and($download->storage_key)->toBe('yeet/youtube/dQw4w9WgXcQ.mp4')
-        ->and($download->storage_file_name)->toBe('dQw4w9WgXcQ.mp4')
-        ->and($download->expires_at)->not->toBeNull();
+    $key = config('services.storage.base_directory').'/youtube/dQw4w9WgXcQ.mp4';
 
-    Storage::disk('s3')->assertExists('yeet/youtube/dQw4w9WgXcQ.mp4');
+    expect($download->status)->toBe('complete')
+        ->and($download->storage_key)->toBe($key)
+        ->and($download->storage_file_name)->toBe('dQw4w9WgXcQ.mp4')
+        ->and($download->expires_at)->not->toBeNull()
+        ->and($download->fulfilled_at)->not->toBeNull();
+
+    Storage::disk('s3')->assertExists($key);
 
     // The scratch file must not survive — disk on the box is finite, unlike
     // the serverless function this used to run in.
@@ -50,7 +53,9 @@ it('partitions the storage key by source', function () {
 
     (new ProcessDownload($download))->handle(app(YtDlp::class));
 
-    Storage::disk('s3')->assertExists('yeet/x/1732824684683784516.mp4');
+    Storage::disk('s3')->assertExists(
+        config('services.storage.base_directory').'/x/1732824684683784516.mp4',
+    );
 });
 
 it('is configured to raise on storage write failures', function () {
@@ -74,7 +79,8 @@ it('records the reason when it fails', function () {
     $download->refresh();
 
     expect($download->status)->toBe('failed')
-        ->and($download->reason)->toBe('video is private');
+        ->and($download->reason)->toBe('video is private')
+        ->and($download->fulfilled_at)->not->toBeNull();
 });
 
 it('presigns the download url on read rather than storing it', function () {
