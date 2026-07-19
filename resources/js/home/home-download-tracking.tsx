@@ -250,7 +250,7 @@ export const HomeDownloadTracking = ({
                   <button
                     type="button"
                     onClick={onDownloadAnother}
-                    className="mt-3 flex h-11 w-full items-center justify-center gap-2.5 rounded-full border-2 border-neutral-800 bg-transparent text-[14.5px] font-semibold tracking-[-0.02em] text-neutral-400 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 hover:border-neutral-700 hover:text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                    className="mt-1.5 flex h-11 w-full items-center justify-center gap-2.5 rounded-full border-2 border-neutral-800 bg-transparent text-[14.5px] font-semibold tracking-[-0.02em] text-neutral-400 hover:border-neutral-700 hover:text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
                   >
                     Start over
                   </button>
