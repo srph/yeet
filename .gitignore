@@ -26,14 +26,6 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# The parked Next.js app. Its source is committed as a porting reference, but
-# its build artifacts are not — and the root /node_modules rule above is
-# anchored, so these need naming explicitly.
-/legacy/node_modules
-/legacy/.next
-/legacy/.trigger
-/legacy/.env.local
-
 # yt-dlp scratch space: videos land here before upload, then get unlinked.
 /storage/app/tmp
 

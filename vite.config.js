@@ -24,8 +24,7 @@ export default defineConfig(({ mode }) => {
                 host: appHost,
             },
             watch: {
-                // legacy/ still has the old node_modules in it; don't crawl it.
-                ignored: ['**/storage/framework/views/**', '**/legacy/**'],
+                ignored: ['**/storage/framework/views/**'],
             },
         },
     };

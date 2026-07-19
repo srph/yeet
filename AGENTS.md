@@ -2,7 +2,7 @@
 
 Download videos from YouTube, X, and Facebook as mp3/mp4.
 
-Laravel + Inertia + React. Extraction via `yt-dlp` (`app/Sources/YtDlp.php`). Jobs on the `downloads` queue. Legacy Next.js app in `legacy/` for porting reference only.
+Laravel + Inertia + React. Extraction via `yt-dlp` (`app/Sources/YtDlp.php`). Jobs on the `downloads` queue.
 
 ## Starting
 

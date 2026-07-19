@@ -18,5 +18,5 @@
     }
   },
   "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"],
-  "exclude": ["legacy", "node_modules", "vendor"]
+  "exclude": ["node_modules", "vendor"]
 }

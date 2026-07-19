@@ -6,9 +6,6 @@ Laravel + Inertia + React. Extraction is handled by [yt-dlp](https://github.com/
 which replaced `youtubei.js` — that retires the `PLAYER_ID` that had to be hand-updated
 whenever YouTube shipped a player change, and it supports X and Facebook for free.
 
-The previous Next.js + trigger.dev + Prisma/MySQL app is parked in [`legacy/`](legacy)
-as a porting reference. It gets deleted once the port is fully verified.
-
 ## Requirements
 
 - PHP 8.3+
