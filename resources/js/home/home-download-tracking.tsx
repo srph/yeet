@@ -262,7 +262,7 @@ export const HomeDownloadTracking = ({
           rel="noreferrer"
           className={`group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
             isSettled
-              ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(234,179,8,0.34),0_0_90px_-26px_rgba(234,179,8,0.42)]"
+              ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(16,185,129,0.34),0_0_90px_-26px_rgba(16,185,129,0.42)]"
               : "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"
           }`}
         >
