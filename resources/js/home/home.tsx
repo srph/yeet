@@ -98,7 +98,7 @@ export default function Home() {
       </MotionConfig>
 
       <div className="fixed inset-x-0 bottom-0 grid place-items-center px-4 py-5">
-        <div className="flex items-center gap-2.5 text-sm leading-none">
+        <div className="flex w-full items-center justify-between gap-6 text-sm leading-none sm:w-auto sm:justify-center">
           <span className="text-neutral-600">
             Crafted by{" "}
             <a
@@ -109,18 +109,22 @@ export default function Home() {
               Kier Borromeo
             </a>
           </span>
-          {links.map((link) => (
-            <Fragment key={link.label}>
-              <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
-              <a
-                href={link.href}
-                className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                target="_blank"
-              >
-                {link.label}
-              </a>
-            </Fragment>
-          ))}
+          <div className="flex items-center gap-2.5">
+            {links.map((link, i) => (
+              <Fragment key={link.label}>
+                {i > 0 && (
+                  <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
+                )}
+                <a
+                  href={link.href}
+                  className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                  target="_blank"
+                >
+                  {link.label}
+                </a>
+              </Fragment>
+            ))}
+          </div>
         </div>
       </div>
     </div>
