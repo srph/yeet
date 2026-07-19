@@ -1,12 +1,11 @@
 import {
-  ArrowDownToLineIcon,
   FilmIcon,
-  LoaderCircleIcon,
   ArrowUpRightIcon,
   MusicIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { DownloadMeta } from "../types";
+import { HomeDownloadCta } from "./home-download-cta";
 import { HomeDownloadStatus } from "./home-download-status";
 
 /**
@@ -245,25 +244,7 @@ export const HomeDownloadTracking = ({
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25 }}
               >
-                <button
-                  type="button"
-                  disabled={!isSettled}
-                  onClick={onDownload}
-                  aria-label={isSettled ? "Download Now" : "Processing Download"}
-                  className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-blue-200 text-[14.5px] font-semibold tracking-[-0.02em] text-blue-950 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600"
-                >
-                  {isSettled ? (
-                    <>
-                      <ArrowDownToLineIcon className="size-[15px]" />
-                      Download Now
-                    </>
-                  ) : (
-                    <>
-                      <LoaderCircleIcon className="size-[15px] animate-spin" />
-                      {status === "queued" ? "Waiting" : "Processing"}
-                    </>
-                  )}
-                </button>
+                <HomeDownloadCta status={status} onDownload={onDownload} />
 
                 {isSettled ? (
                   <button
