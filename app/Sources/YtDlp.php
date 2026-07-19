@@ -4,8 +4,10 @@ namespace App\Sources;
 
 use App\Exceptions\DownloadFailed;
 use App\Exceptions\SourceUnavailable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
+use JsonException;
 
 /**
  * Replaces youtubei.js. The same two calls work for every source, which is
@@ -27,6 +29,9 @@ class YtDlp
      */
     public function probe(string $url): array
     {
+        $started = hrtime(true);
+        $host = parse_url($url, PHP_URL_HOST) ?: 'unknown';
+
         // --ignore-no-formats-error: YouTube bot-checks often leave only
         // storyboard images. Without this, --dump-json still tries to pick a
         // downloadable format and dies with "Requested format is not available"
@@ -38,16 +43,47 @@ class YtDlp
             $url,
         ]);
 
-        throw_unless($result->successful(), new SourceUnavailable(
-            $this->unavailableMessage($result->errorOutput())
-        ));
+        if (! $result->successful()) {
+            Log::warning('ytdlp.probe.fail', [
+                'url_host' => $host,
+                'reason' => 'process_failed',
+                'exit' => $result->exitCode(),
+                'stderr' => Str::limit(trim($result->errorOutput()), 500),
+            ]);
 
-        $json = json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR);
+            throw new SourceUnavailable(
+                $this->unavailableMessage($result->errorOutput())
+            );
+        }
+
+        try {
+            $json = json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            Log::warning('ytdlp.probe.fail', [
+                'url_host' => $host,
+                'reason' => 'invalid_json',
+                'message' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
 
         // Metadata alone isn't enough — the queue job needs real A/V streams.
-        throw_unless($this->hasDownloadableFormats($json), new SourceUnavailable(
-            'YouTube isn\'t serving a downloadable stream for this video right now.'
-        ));
+        if (! $this->hasDownloadableFormats($json)) {
+            Log::warning('ytdlp.probe.fail', [
+                'url_host' => $host,
+                'reason' => 'no_formats',
+            ]);
+
+            throw new SourceUnavailable(
+                'YouTube isn\'t serving a downloadable stream for this video right now.'
+            );
+        }
+
+        Log::info('ytdlp.probe.ok', [
+            'url_host' => $host,
+            'duration_ms' => (int) ((hrtime(true) - $started) / 1_000_000),
+        ]);
 
         // Normalized across every source. `thumbnail` is often absent on X,
         // hence the nullable column.
@@ -65,6 +101,9 @@ class YtDlp
      */
     public function download(string $url, string $format): string
     {
+        $started = hrtime(true);
+        $host = parse_url($url, PHP_URL_HOST) ?: 'unknown';
+
         $dir = storage_path('app/tmp/'.Str::ulid());
         mkdir($dir, 0755, true);
 
@@ -88,24 +127,57 @@ class YtDlp
             $url,
         ]);
 
-        throw_unless($result->successful(), new DownloadFailed(
-            trim($result->errorOutput()) ?: 'yt-dlp failed'
-        ));
+        if (! $result->successful()) {
+            $stderr = trim($result->errorOutput()) ?: 'yt-dlp failed';
+
+            Log::error('ytdlp.download.fail', [
+                'format' => $format,
+                'exit' => $result->exitCode(),
+                'stderr' => Str::limit($stderr, 500),
+                'url_host' => $host,
+            ]);
+
+            throw new DownloadFailed($stderr);
+        }
 
         $files = glob("{$dir}/media.*");
 
-        throw_if(empty($files), new DownloadFailed('yt-dlp produced no file'));
+        if (empty($files)) {
+            Log::error('ytdlp.download.fail', [
+                'format' => $format,
+                'exit' => $result->exitCode(),
+                'stderr' => 'yt-dlp produced no file',
+                'url_host' => $host,
+            ]);
+
+            throw new DownloadFailed('yt-dlp produced no file');
+        }
 
         $path = $files[0];
+        $bytes = filesize($path) ?: 0;
 
-        if (filesize($path) > $maxBytes) {
+        if ($bytes > $maxBytes) {
             @unlink($path);
             @rmdir($dir);
 
             $limitMb = (int) round($maxBytes / 1024 / 1024);
 
+            Log::error('ytdlp.download.fail', [
+                'format' => $format,
+                'stderr' => "File exceeds the {$limitMb} MB limit",
+                'url_host' => $host,
+                'bytes' => $bytes,
+            ]);
+
             throw new DownloadFailed("File exceeds the {$limitMb} MB limit");
         }
+
+        Log::info('ytdlp.download.ok', [
+            'format' => $format,
+            'bytes' => $bytes,
+            'duration_ms' => (int) ((hrtime(true) - $started) / 1_000_000),
+            'url_host' => $host,
+        ]);
 
         return $path;
     }

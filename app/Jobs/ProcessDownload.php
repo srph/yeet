@@ -7,6 +7,7 @@ use App\Sources\YtDlp;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -42,6 +43,17 @@ class ProcessDownload implements ShouldQueue
 
     public function handle(YtDlp $ytdlp): void
     {
+        $started = hrtime(true);
+        $attempt = $this->attempts();
+
+        Log::info('download.job.start', [
+            'id' => $this->download->id,
+            'attempt' => $attempt,
+            'tries' => $this->tries,
+            'source' => $this->download->source,
+            'format' => $this->download->format,
+        ]);
+
         // Was trigger.dev's onStart hook. Fires per-attempt, same as before.
         $this->download->update(['status' => 'processing']);
 
@@ -61,12 +73,31 @@ class ProcessDownload implements ShouldQueue
             format: $this->download->format,
         );
 
+        $bytes = filesize($tmp) ?: 0;
+        $contentType = $this->download->format === 'mp3'
+            ? 'audio/mpeg'
+            : 'video/mp4';
+
         try {
             Storage::disk('s3')->putFileAs(dirname($key), new File($tmp), basename($key), [
-                'ContentType' => $this->download->format === 'mp3'
-                    ? 'audio/mpeg'
-                    : 'video/mp4',
+                'ContentType' => $contentType,
             ]);
+
+            Log::info('storage.upload.ok', [
+                'disk' => 's3',
+                'key' => $key,
+                'bytes' => $bytes,
+                'content_type' => $contentType,
+            ]);
+        } catch (Throwable $e) {
+            Log::error('storage.upload.fail', [
+                'disk' => 's3',
+                'key' => $key,
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
+
+            throw $e;
         } finally {
             // Never leave scratch files behind on the box.
             $dir = dirname($tmp);
@@ -84,6 +115,13 @@ class ProcessDownload implements ShouldQueue
             'expires_at' => now()->addDays(7),
             'fulfilled_at' => now(),
         ]);
+
+        Log::info('download.job.done', [
+            'id' => $this->download->id,
+            'attempt' => $attempt,
+            'duration_ms' => (int) ((hrtime(true) - $started) / 1_000_000),
+            'storage_key' => $key,
+        ]);
     }
 
     /**
@@ -92,6 +130,13 @@ class ProcessDownload implements ShouldQueue
      */
     public function failed(?Throwable $e): void
     {
+        Log::error('download.job.fail', [
+            'id' => $this->download->id,
+            'attempt' => $this->attempts(),
+            'exception' => $e ? $e::class : null,
+            'message' => $e?->getMessage(),
+        ]);
+
         $this->download->update([
             'status' => 'failed',
             'reason' => $e?->getMessage(),

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class Download extends Model
 {
@@ -53,8 +55,23 @@ class Download extends Model
      */
     protected function downloadUrl(): Attribute
     {
-        return Attribute::get(fn () => $this->storage_key
-            ? Storage::disk('s3')->temporaryUrl($this->storage_key, now()->addHour())
-            : null);
+        return Attribute::get(function () {
+            if (! $this->storage_key) {
+                return null;
+            }
+
+            try {
+                return Storage::disk('s3')->temporaryUrl($this->storage_key, now()->addHour());
+            } catch (Throwable $e) {
+                Log::error('storage.presign.fail', [
+                    'download_id' => $this->id,
+                    'key' => $this->storage_key,
+                    'exception' => $e::class,
+                    'message' => $e->getMessage(),
+                ]);
+
+                throw $e;
+            }
+        });
     }
 }

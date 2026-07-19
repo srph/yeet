@@ -7,6 +7,7 @@ use App\Models\Download;
 use App\Sources\SourceResolver;
 use App\Sources\YtDlp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -60,6 +61,14 @@ class DownloadController extends Controller
         // Returning the model directly — Eloquent serializes it to JSON,
         // snake_case keys and all. No resource layer.
         if ($existing) {
+            Log::info('download.create', [
+                'id' => $existing->id,
+                'source' => $existing->source,
+                'source_id' => $existing->source_id,
+                'format' => $existing->format,
+                'deduped' => true,
+            ]);
+
             return $existing;
         }
 
@@ -79,6 +88,14 @@ class DownloadController extends Controller
 
         // Was downloadYoutubeTask.trigger(...). Fire and forget, as before.
         ProcessDownload::dispatch($download)->onQueue('downloads');
+
+        Log::info('download.create', [
+            'id' => $download->id,
+            'source' => $download->source,
+            'source_id' => $download->source_id,
+            'format' => $download->format,
+            'deduped' => false,
+        ]);
 
         // create() leaves the model holding only the attributes we set, so it
         // would serialize without the untouched nullable columns (reason,
