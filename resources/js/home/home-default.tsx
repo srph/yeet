@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { LoaderCircleIcon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { HomeDefaultRolldown } from "./home-default-rolldown";
@@ -7,7 +8,7 @@ export function HomeDefault({
   url,
   format,
   isYeetPending,
-  isYeetError,
+  yeetErrorMessage,
   onUrlChange,
   onFormatChange,
   onSubmit,
@@ -15,11 +16,17 @@ export function HomeDefault({
   url: string;
   format: "mp3" | "mp4";
   isYeetPending: boolean;
-  isYeetError: boolean;
+  yeetErrorMessage: string | null;
   onUrlChange: (url: string) => void;
   onFormatChange: (format: "mp3" | "mp4") => void;
   onSubmit: (e: React.FormEvent) => void;
 }) {
+  // Keep last message mounted so 1fr → 0fr has content to collapse.
+  const [displayedError, setDisplayedError] = useState(yeetErrorMessage);
+  if (yeetErrorMessage !== null && yeetErrorMessage !== displayedError) {
+    setDisplayedError(yeetErrorMessage);
+  }
+
   return (
     <>
       <HomeDefaultRolldown />
@@ -112,29 +119,34 @@ export function HomeDefault({
           </div>
         </div>
 
-        <div className="h-6">
-          <div className="h-2"></div>
-          <AnimatePresence mode="popLayout" initial={false}>
-            {isYeetError ? (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{
-                  duration: 0.2,
-                  type: "spring",
-                  bounce: 0,
-                }}
-              >
-                <div className="text-center text-sm leading-none text-red-600">
-                  Yikes, server hiccup. Maybe try again?
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-        </div>
+        <motion.div
+          initial={false}
+          animate={{ gridTemplateRows: yeetErrorMessage ? "1fr" : "0fr" }}
+          transition={{ duration: 0.2, type: "spring", bounce: 0 }}
+          onAnimationComplete={() => {
+            if (!yeetErrorMessage) setDisplayedError(null);
+          }}
+          className="grid"
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="h-2"></div>
+            <motion.div
+              initial={false}
+              animate={{
+                opacity: yeetErrorMessage ? 1 : 0,
+                y: yeetErrorMessage ? 0 : -8,
+              }}
+              transition={{ duration: 0.2, type: "spring", bounce: 0 }}
+            >
+              <div className="text-center text-sm leading-none text-red-600">
+                {displayedError}
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       </form>
+
+      <div className="h-4"></div>
 
       <HomeDefaultSourceTags onSelect={onUrlChange} />
     </>

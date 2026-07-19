@@ -16,6 +16,7 @@ export default function Home() {
   const {
     mutateAsync: yeet,
     data: yeetData,
+    error: yeetError,
     isPending: isYeetPending,
     isError: isYeetError,
     reset: resetYeet,
@@ -26,11 +27,19 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
-    await yeet({ url, format });
+    try {
+      await yeet({ url, format });
+    } catch {
+      // Surfaced via yeetErrorMessage
+    }
   };
 
   const handleRetry = async () => {
-    await yeet({ url, format });
+    try {
+      await yeet({ url, format });
+    } catch {
+      // Surfaced via download tracking / yeetErrorMessage
+    }
   };
 
   const handleDownload = () => {
@@ -87,7 +96,7 @@ export default function Home() {
                 url={url}
                 format={format}
                 isYeetPending={isYeetPending}
-                isYeetError={isYeetError}
+                yeetErrorMessage={isYeetError ? yeetError.message : null}
                 onUrlChange={setUrl}
                 onFormatChange={setFormat}
                 onSubmit={handleSubmit}
