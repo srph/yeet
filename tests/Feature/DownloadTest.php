@@ -34,6 +34,15 @@ it('creates a download and dispatches the job', function () use ($post) {
     expect(Download::count())->toBe(1);
 });
 
+it('stores a canonical youtube watch url even when the paste has list=', function () use ($post) {
+    $post([
+        'url' => 'https://youtu.be/YnSW8ian29w?list=RDYnSW8ian29w',
+        'format' => 'mp4',
+    ])->assertCreated()
+        ->assertJsonPath('source_id', 'YnSW8ian29w')
+        ->assertJsonPath('source_url', 'https://www.youtube.com/watch?v=YnSW8ian29w');
+});
+
 it('returns every key the frontend zod schema requires', function () use ($post) {
     // Regression: Download::create() returns a model holding only the
     // attributes it set, so the response omitted the untouched nullable

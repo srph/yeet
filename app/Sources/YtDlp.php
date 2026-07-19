@@ -111,8 +111,14 @@ class YtDlp
     }
 
     /**
-     * Shared flags. YouTube datacenter IPs get bot-checked; a Netscape cookies
-     * file from a logged-in browser is the supported workaround.
+     * Shared flags.
+     *
+     * - --js-runtimes node: YouTube serves JS challenges; yt-dlp needs a
+     *   runtime to solve them. Deno is yt-dlp's default, but we always have
+     *   Node 22 on Forge/local, so force that.
+     * - --remote-components ejs:github: the challenge solver scripts. Bundled
+     *   in some yt-dlp installs, missing in others — fetch if needed.
+     * - --cookies: datacenter IPs still get bot-checked even with a runtime.
      *
      * @return list<string>
      */
@@ -122,6 +128,8 @@ class YtDlp
             $this->binary,
             '--no-playlist', // a playlist URL must not fan out
             '--no-warnings',
+            '--js-runtimes', 'node',
+            '--remote-components', 'ejs:github',
         ];
 
         if ($this->cookies) {

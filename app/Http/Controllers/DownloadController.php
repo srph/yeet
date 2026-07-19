@@ -36,6 +36,12 @@ class DownloadController extends Controller
 
         [$source, $sourceId] = $resolved;
 
+        // Share / mix URLs often carry ?list=… — with --no-playlist yt-dlp still
+        // walks youtube:tab first. Canonical watch URLs skip that hop.
+        $fetchUrl = $source->key() === 'youtube'
+            ? "https://www.youtube.com/watch?v={$sourceId}"
+            : $data['url'];
+
         // THE DEDUPE FIX. The original queried `expiredAt` — a column nothing
         // ever wrote, so it was always NULL and `NULL > now()` was never true.
         // The branch was dead and every submit re-downloaded.
@@ -57,11 +63,11 @@ class DownloadController extends Controller
             return $existing;
         }
 
-        $meta = $ytdlp->probe($data['url']);
+        $meta = $ytdlp->probe($fetchUrl);
 
         $download = Download::create([
             'source' => $source->key(),
-            'source_url' => $data['url'],
+            'source_url' => $fetchUrl,
             'source_id' => $sourceId,
             'source_title' => $meta['title'],
             'source_thumbnail' => $meta['thumbnail'],
