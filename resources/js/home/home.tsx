@@ -51,8 +51,13 @@ export default function Home() {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center px-4 pt-4 pb-16 text-white">
+    <div className="grid min-h-screen place-items-center px-4 pt-20 pb-16 text-white">
       <Head title="Video Downloader" />
+
+      <div className="fixed inset-x-0 top-0 z-10 flex items-center justify-center gap-2.5 px-4 py-5">
+        <img src="/logo.svg" alt="" className="h-7 w-auto" />
+        <span className="font-sans text-xl font-semibold text-white">Yeet</span>
+      </div>
 
       <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
         <AnimatePresence initial={false} mode="popLayout">

@@ -11,28 +11,32 @@
          metadata export. The client overrides this once React mounts. --}}
     <title inertia>Yeet - Video Downloader</title>
 
-    {{-- Ported from the Next.js `metadata` export in app/layout.tsx. --}}
     <meta name="description" content="Fast and easy way to download videos from YouTube, X and Facebook">
     <meta name="keywords" content="youtube, x, twitter, facebook, download, video, converter">
+    <meta name="application-name" content="Yeet">
 
     <meta property="og:title" content="Yeet - Video Downloader">
     <meta property="og:description" content="Fast and easy way to download videos from YouTube, X and Facebook">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Yeet">
-    <meta property="og:image" content="/og-image.png">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ url('/og-image.png') }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Yeet">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Yeet - Video Downloader">
     <meta name="twitter:description" content="Fast and easy way to download videos from YouTube, X and Facebook">
+    <meta name="twitter:image" content="{{ url('/og-image.png') }}">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Yeet">
 
-    <link rel="icon" href="/favicon.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="{{ url('/favicon.svg') }}" type="image/svg+xml">
+    <link rel="shortcut icon" href="{{ url('/favicon.svg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/apple-icon.png') }}">
+    <link rel="manifest" href="{{ url('/manifest.json') }}">
 
     @viteReactRefresh
     @vite(['resources/js/app.tsx'])

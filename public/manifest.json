@@ -1,7 +1,7 @@
 {
   "name": "Yeet",
   "short_name": "Yeet",
-  "description": "Fast and easy way to download videos from YouTube",
+  "description": "Fast and easy way to download videos from YouTube, X and Facebook",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
@@ -11,7 +11,13 @@
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

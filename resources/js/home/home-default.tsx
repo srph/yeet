@@ -21,12 +21,6 @@ export function HomeDefault({
 }) {
   return (
     <>
-      <div className="font-playfair text-center text-[64px] font-bold italic leading-none text-white">
-        Yeet
-      </div>
-
-      <div className="h-2" />
-
       <HomeDefaultRolldown />
 
       <div className="h-4"></div>
