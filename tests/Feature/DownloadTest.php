@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\SourceUnavailable;
 use App\Jobs\ProcessDownload;
 use App\Models\Download;
 use App\Sources\YtDlp;
@@ -100,6 +101,22 @@ it('rejects an unsupported url with 422', function () use ($post) {
         ->assertJsonValidationErrorFor('url');
 
     Queue::assertNothingPushed();
+});
+
+it('returns 422 when yt-dlp cannot probe the url', function () use ($post) {
+    // Bot-checked YouTube IPs often only get storyboards; probe throws
+    // SourceUnavailable. That used to 500 and spam production.ERROR.
+    $this->mock(YtDlp::class, fn ($m) => $m->shouldReceive('probe')
+        ->andThrow(new SourceUnavailable(
+            'YouTube isn\'t serving a downloadable stream for this video right now.'
+        )));
+
+    $post(['url' => 'https://youtu.be/UTeupD7HluM', 'format' => 'mp4'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrorFor('url');
+
+    Queue::assertNothingPushed();
+    expect(Download::count())->toBe(0);
 });
 
 it('validates the format', function () use ($post) {

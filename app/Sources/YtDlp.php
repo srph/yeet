@@ -27,17 +27,27 @@ class YtDlp
      */
     public function probe(string $url): array
     {
+        // --ignore-no-formats-error: YouTube bot-checks often leave only
+        // storyboard images. Without this, --dump-json still tries to pick a
+        // downloadable format and dies with "Requested format is not available"
+        // before we can read title/thumbnail — or tell the user why.
         $result = Process::timeout(30)->run([
             ...$this->baseArgs(),
             '--dump-json',
+            '--ignore-no-formats-error',
             $url,
         ]);
 
         throw_unless($result->successful(), new SourceUnavailable(
-            trim($result->errorOutput()) ?: 'yt-dlp could not read that URL'
+            $this->unavailableMessage($result->errorOutput())
         ));
 
         $json = json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR);
+
+        // Metadata alone isn't enough — the queue job needs real A/V streams.
+        throw_unless($this->hasDownloadableFormats($json), new SourceUnavailable(
+            'YouTube isn\'t serving a downloadable stream for this video right now.'
+        ));
 
         // Normalized across every source. `thumbnail` is often absent on X,
         // hence the nullable column.
@@ -120,5 +130,49 @@ class YtDlp
         }
 
         return $args;
+    }
+
+    /**
+     * Storyboards (mhtml/images) don't count — those are what YouTube leaves
+     * behind when it refuses to serve media to a bot-checked IP.
+     */
+    private function hasDownloadableFormats(array $json): bool
+    {
+        foreach ($json['formats'] ?? [] as $format) {
+            $vcodec = $format['vcodec'] ?? 'none';
+            $acodec = $format['acodec'] ?? 'none';
+
+            if ($vcodec !== 'none' || $acodec !== 'none') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Strip yt-dlp's ERROR: prefix into something the UI can show. */
+    private function unavailableMessage(string $stderr): string
+    {
+        $message = trim($stderr);
+
+        if ($message === '') {
+            return 'Could not read that URL.';
+        }
+
+        // "ERROR: [youtube] id: Requested format is not available..."
+        if (str_contains($message, 'Requested format is not available')
+            || str_contains($message, 'Only images are available')) {
+            return 'YouTube isn\'t serving a downloadable stream for this video right now.';
+        }
+
+        $message = preg_replace('/^ERROR:\s*/', '', $message) ?? $message;
+        $message = preg_replace('/^\[[^\]]+\]\s*/', '', $message) ?? $message;
+
+        // Drop leading "videoId: " when present.
+        if (preg_match('/^\S+:\s+(.+)$/s', $message, $matches)) {
+            $message = $matches[1];
+        }
+
+        return rtrim($message, '.');
     }
 }

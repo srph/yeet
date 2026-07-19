@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\SourceUnavailable;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,4 +22,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        // Expected yt-dlp miss (private, bot-checked, no formats) — not a 500.
+        $exceptions->dontReport([SourceUnavailable::class]);
+
+        $exceptions->render(function (SourceUnavailable $e, Request $request) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null;
+            }
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => ['url' => [$e->getMessage()]],
+            ], 422);
+        });
     })->create();
