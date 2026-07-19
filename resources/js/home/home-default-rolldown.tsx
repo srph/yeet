@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import useMeasure from "react-use-measure";
 import { useInterval } from "../hooks/use-interval";
 
-const sources = ["YouTube", "X", "Facebook"] as const;
+const sources = ["YouTube", "X", "Facebook", "TikTok", "Douyin"] as const;
 
 export function HomeDefaultRolldown() {
   const [sourceIndex, setSourceIndex] = useState(0);

@@ -1,6 +1,6 @@
 # Yeet
 
-Download videos from YouTube, X, and Facebook as mp3/mp4.
+Download videos from YouTube, X, Facebook, TikTok, and Douyin as mp3/mp4.
 
 Laravel + Inertia + React. Extraction via `yt-dlp` (`app/Sources/YtDlp.php`). Jobs on the `downloads` queue.
 

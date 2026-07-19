@@ -24,12 +24,16 @@ const SOURCE_BADGE: Record<DownloadMeta["source"], string> = {
   youtube: "bg-red-700",
   x: "bg-neutral-950",
   facebook: "bg-blue-600",
+  tiktok: "bg-rose-600",
+  douyin: "bg-orange-600",
 };
 
 const SOURCE_LABEL: Record<DownloadMeta["source"], string> = {
   youtube: "YouTube",
   x: "X",
   facebook: "Facebook",
+  tiktok: "TikTok",
+  douyin: "Douyin",
 };
 
 const formatDuration = (seconds: number) => {

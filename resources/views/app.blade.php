@@ -11,12 +11,12 @@
          metadata export. The client overrides this once React mounts. --}}
     <title inertia>Yeet - Video Downloader</title>
 
-    <meta name="description" content="Fast and easy way to download videos from YouTube, X and Facebook">
-    <meta name="keywords" content="youtube, x, twitter, facebook, download, video, converter">
+    <meta name="description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
+    <meta name="keywords" content="youtube, x, twitter, facebook, tiktok, douyin, download, video, converter">
     <meta name="application-name" content="Yeet">
 
     <meta property="og:title" content="Yeet - Video Downloader">
-    <meta property="og:description" content="Fast and easy way to download videos from YouTube, X and Facebook">
+    <meta property="og:description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Yeet">
     <meta property="og:url" content="{{ url('/') }}">
@@ -27,7 +27,7 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Yeet - Video Downloader">
-    <meta name="twitter:description" content="Fast and easy way to download videos from YouTube, X and Facebook">
+    <meta name="twitter:description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
     <meta name="twitter:image" content="{{ url('/og-image.png') }}">
 
     <meta name="apple-mobile-web-app-capable" content="yes">

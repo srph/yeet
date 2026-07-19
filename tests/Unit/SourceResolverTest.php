@@ -1,7 +1,9 @@
 <?php
 
+use App\Sources\DouyinSource;
 use App\Sources\FacebookSource;
 use App\Sources\SourceResolver;
+use App\Sources\TikTokSource;
 use App\Sources\XSource;
 use App\Sources\YouTubeSource;
 
@@ -13,6 +15,8 @@ beforeEach(function () {
         new YouTubeSource,
         new XSource,
         new FacebookSource,
+        new TikTokSource,
+        new DouyinSource,
     ]);
 });
 
@@ -39,6 +43,19 @@ dataset('facebook urls', [
     ['https://fb.watch/abc123XYZ/', 'abc123XYZ'],
 ]);
 
+dataset('tiktok urls', [
+    ['https://www.tiktok.com/@leenabhushan/video/6748451240264420610', '6748451240264420610'],
+    ['https://www.tiktok.com/embed/6748451240264420610', '6748451240264420610'],
+    ['https://www.tiktok.com/t/ZTRC5xgJp', 'ZTRC5xgJp'],
+    ['https://vm.tiktok.com/ZMR3abcXY/', 'ZMR3abcXY'],
+    ['https://vt.tiktok.com/ZSHxyz123/', 'ZSHxyz123'],
+]);
+
+dataset('douyin urls', [
+    ['https://www.douyin.com/video/6961737553342991651', '6961737553342991651'],
+    ['https://v.douyin.com/iJRxabcX/', 'iJRxabcX'],
+]);
+
 it('resolves youtube urls', function (string $url, string $id) {
     [$source, $extracted] = $this->resolver->resolve($url);
     expect($source->key())->toBe('youtube')->and($extracted)->toBe($id);
@@ -54,6 +71,16 @@ it('resolves facebook urls', function (string $url, string $id) {
     expect($source->key())->toBe('facebook')->and($extracted)->toBe($id);
 })->with('facebook urls');
 
+it('resolves tiktok urls', function (string $url, string $id) {
+    [$source, $extracted] = $this->resolver->resolve($url);
+    expect($source->key())->toBe('tiktok')->and($extracted)->toBe($id);
+})->with('tiktok urls');
+
+it('resolves douyin urls', function (string $url, string $id) {
+    [$source, $extracted] = $this->resolver->resolve($url);
+    expect($source->key())->toBe('douyin')->and($extracted)->toBe($id);
+})->with('douyin urls');
+
 it('returns null for unsupported urls', function (string $url) {
     expect($this->resolver->resolve($url))->toBeNull();
 })->with([
@@ -62,6 +89,8 @@ it('returns null for unsupported urls', function (string $url) {
     'not a url at all',
     'https://youtube.com/',           // no id present
     'https://x.com/SpaceX',            // profile, not a status
+    'https://www.tiktok.com/@leenabhushan', // profile, not a video
+    'https://www.douyin.com/user/MS4wLjABAAAA', // profile, not a video
 ]);
 
 it('does not let youtube claim another host\'s v= param', function () {

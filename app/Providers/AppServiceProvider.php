@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Sources\DouyinSource;
 use App\Sources\FacebookSource;
 use App\Sources\SourceResolver;
+use App\Sources\TikTokSource;
 use App\Sources\XSource;
 use App\Sources\YouTubeSource;
 use App\Sources\YtDlp;
@@ -24,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
             new YouTubeSource,
             new XSource,
             new FacebookSource,
+            new TikTokSource,
+            new DouyinSource,
         ]));
     }
 

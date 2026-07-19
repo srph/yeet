@@ -1,7 +1,7 @@
 {
   "name": "Yeet",
   "short_name": "Yeet",
-  "description": "Fast and easy way to download videos from YouTube, X and Facebook",
+  "description": "Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

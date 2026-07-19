@@ -4,7 +4,7 @@ namespace App\Sources;
 
 interface Source
 {
-    /** The value stored in the `source` column: 'youtube' | 'x' | 'facebook'. */
+    /** The value stored in the `source` column: 'youtube' | 'x' | 'facebook' | 'tiktok' | 'douyin'. */
     public function key(): string;
 
     /**

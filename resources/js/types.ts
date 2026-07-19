@@ -6,7 +6,7 @@ import { z } from "zod";
 export const DownloadMetaSchema = z.object({
   id: z.string(),
 
-  source: z.enum(["youtube", "x", "facebook"]),
+  source: z.enum(["youtube", "x", "facebook", "tiktok", "douyin"]),
   source_url: z.string(),
   source_id: z.string(),
   source_title: z.string(),

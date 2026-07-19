@@ -1,10 +1,10 @@
 # Yeet
 
-Download videos from YouTube, X and Facebook.
+Download videos from YouTube, X, Facebook, TikTok and Douyin.
 
 Laravel + Inertia + React. Extraction is handled by [yt-dlp](https://github.com/yt-dlp/yt-dlp),
 which replaced `youtubei.js` — that retires the `PLAYER_ID` that had to be hand-updated
-whenever YouTube shipped a player change, and it supports X and Facebook for free.
+whenever YouTube shipped a player change, and it supports X, Facebook, TikTok and Douyin for free.
 
 ## Requirements
 
