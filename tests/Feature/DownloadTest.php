@@ -120,3 +120,53 @@ it('shows an existing download', function () {
         ->assertOk()
         ->assertJsonPath('id', $download->id);
 });
+
+it('throttles burst requests per minute', function () use ($post) {
+    config([
+        'services.downloads.throttle_per_minute' => 2,
+        'services.downloads.throttle_per_day' => 100,
+    ]);
+
+    // RateLimiter is resolved at boot; re-bind with the test config.
+    Illuminate\Support\Facades\RateLimiter::for('downloads', function ($request) {
+        return [
+            Illuminate\Cache\RateLimiting\Limit::perMinute(
+                config('services.downloads.throttle_per_minute')
+            )->by($request->ip()),
+            Illuminate\Cache\RateLimiting\Limit::perDay(
+                config('services.downloads.throttle_per_day')
+            )->by($request->ip()),
+        ];
+    });
+
+    $payload = ['url' => 'https://youtu.be/dQw4w9WgXcQ', 'format' => 'mp4'];
+
+    $post($payload)->assertCreated();
+    // Dedupe hit — still counts against the limiter.
+    $post($payload)->assertOk();
+    $post($payload)->assertStatus(429);
+});
+
+it('throttles daily requests', function () use ($post) {
+    config([
+        'services.downloads.throttle_per_minute' => 100,
+        'services.downloads.throttle_per_day' => 2,
+    ]);
+
+    Illuminate\Support\Facades\RateLimiter::for('downloads', function ($request) {
+        return [
+            Illuminate\Cache\RateLimiting\Limit::perMinute(
+                config('services.downloads.throttle_per_minute')
+            )->by($request->ip()),
+            Illuminate\Cache\RateLimiting\Limit::perDay(
+                config('services.downloads.throttle_per_day')
+            )->by($request->ip()),
+        ];
+    });
+
+    $payload = ['url' => 'https://youtu.be/dQw4w9WgXcQ', 'format' => 'mp4'];
+
+    $post($payload)->assertCreated();
+    $post($payload)->assertOk();
+    $post($payload)->assertStatus(429);
+});

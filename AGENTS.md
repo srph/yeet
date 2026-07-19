@@ -24,7 +24,7 @@ php artisan queue:work --queue=downloads   # jobs
 | Method | Path                       | Notes                                                                                                          |
 | ------ | -------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `GET`  | `/`                        | Inertia `Home` — UI only; data via React Query                                                                 |
-| `POST` | `/api/download`            | Body: `{ url, format: "mp3"\|"mp4" }`. Throttled 10/min. Returns `Download` JSON (dedupes non-failed/expired). |
+| `POST` | `/api/download`            | Body: `{ url, format: "mp3"\|"mp4" }`. Throttled 10/min + 50/day per IP. Max file 200 MiB. Returns `Download` JSON (dedupes non-failed/expired). |
 | `GET`  | `/api/download/{download}` | Poll target (~1s). 404 if missing. Same JSON shape as POST.                                                    |
 
 `Download` serializes directly (no resource layer). Status: `queued → processing → complete \| failed`, then `expired` after prune. `download_url` is a fresh presigned link from `storage_key`.

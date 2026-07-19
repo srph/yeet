@@ -16,6 +16,10 @@ const FALLBACK_YEET_ERROR = "Yikes, server hiccup. Maybe try again?";
 
 /** Laravel 422 shape: `{ errors: { field: [msg] } }`. Prefer `url`, else first field. */
 async function yeetErrorMessage(response: Response): Promise<string> {
+  if (response.status === 429) {
+    return "Slow down — daily or per-minute limit hit. Try again later.";
+  }
+
   if (response.status === 422) {
     try {
       const body = await response.json();

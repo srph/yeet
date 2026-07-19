@@ -39,6 +39,18 @@ return [
         // Absolute path: the queue worker daemon may not inherit a PATH
         // containing homebrew.
         'binary' => env('YTDLP_BINARY', 'yt-dlp'),
+        // Netscape cookies.txt. YouTube bot-checks bare datacenter IPs;
+        // export from a logged-in browser and point this at the file.
+        'cookies' => env('YTDLP_COOKIES'),
+    ],
+
+    'downloads' => [
+        // Hard cap on the produced file. yt-dlp gets --max-filesize; we also
+        // reject after download in case format metadata lied or merge grew.
+        'max_filesize_bytes' => (int) env('DOWNLOAD_MAX_FILESIZE_BYTES', 209715200), // 200 MiB
+        // Named RateLimiter `downloads` on POST /api/download (per IP).
+        'throttle_per_minute' => (int) env('DOWNLOAD_THROTTLE_PER_MINUTE', 10),
+        'throttle_per_day' => (int) env('DOWNLOAD_THROTTLE_PER_DAY', 50),
     ],
 
     'storage' => [

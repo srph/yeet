@@ -29,5 +29,8 @@ Thumbs.db
 # yt-dlp scratch space: videos land here before upload, then get unlinked.
 /storage/app/tmp
 
+# YouTube session cookies for yt-dlp — never commit.
+/storage/app/yt-dlp-cookies.txt
+
 # Personal notes
 .kier

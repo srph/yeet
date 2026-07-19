@@ -14,7 +14,10 @@ use Illuminate\Support\Str;
  */
 class YtDlp
 {
-    public function __construct(private string $binary) {}
+    public function __construct(
+        private string $binary,
+        private ?string $cookies = null,
+    ) {}
 
     /**
      * Metadata probe — replaces `yt.getInfo(videoId)` from the old POST route.
@@ -25,10 +28,8 @@ class YtDlp
     public function probe(string $url): array
     {
         $result = Process::timeout(30)->run([
-            $this->binary,
+            ...$this->baseArgs(),
             '--dump-json',
-            '--no-warnings',
-            '--no-playlist', // a playlist URL must not fan out
             $url,
         ]);
 
@@ -57,6 +58,8 @@ class YtDlp
         $dir = storage_path('app/tmp/'.Str::ulid());
         mkdir($dir, 0755, true);
 
+        $maxBytes = (int) config('services.downloads.max_filesize_bytes');
+
         $args = $format === 'mp3'
             // Audio-only: extract and transcode. Needs ffmpeg.
             ? ['-x', '--audio-format', 'mp3', '--audio-quality', '0']
@@ -65,11 +68,12 @@ class YtDlp
             : ['-f', 'bv*+ba/b', '--merge-output-format', 'mp4'];
 
         // Stays under ProcessDownload's $timeout of 3600.
+        // --max-filesize aborts when yt-dlp knows the remote size; the
+        // post-download check below covers unknown/merged sizes.
         $result = Process::timeout(3500)->run([
-            $this->binary,
-            '--no-playlist',
-            '--no-warnings',
+            ...$this->baseArgs(),
             ...$args,
+            '--max-filesize', (string) $maxBytes,
             '-o', "{$dir}/media.%(ext)s", // yt-dlp fills in the real extension
             $url,
         ]);
@@ -82,6 +86,39 @@ class YtDlp
 
         throw_if(empty($files), new DownloadFailed('yt-dlp produced no file'));
 
-        return $files[0];
+        $path = $files[0];
+
+        if (filesize($path) > $maxBytes) {
+            @unlink($path);
+            @rmdir($dir);
+
+            $limitMb = (int) round($maxBytes / 1024 / 1024);
+
+            throw new DownloadFailed("File exceeds the {$limitMb} MB limit");
+        }
+
+        return $path;
+    }
+
+    /**
+     * Shared flags. YouTube datacenter IPs get bot-checked; a Netscape cookies
+     * file from a logged-in browser is the supported workaround.
+     *
+     * @return list<string>
+     */
+    private function baseArgs(): array
+    {
+        $args = [
+            $this->binary,
+            '--no-playlist', // a playlist URL must not fan out
+            '--no-warnings',
+        ];
+
+        if ($this->cookies) {
+            $args[] = '--cookies';
+            $args[] = $this->cookies;
+        }
+
+        return $args;
     }
 }

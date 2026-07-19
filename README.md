@@ -29,6 +29,11 @@ Set `AWS_*` in `.env` to point at your S3-compatible bucket, and `YTDLP_BINARY`
 to the absolute path of yt-dlp (`which yt-dlp`) — the queue worker may not
 inherit a PATH containing homebrew.
 
+On production, YouTube often bot-checks datacenter IPs. Export cookies from a
+logged-in browser into a Netscape `cookies.txt`, put it on the server (e.g.
+`storage/app/yt-dlp-cookies.txt`), and set `YTDLP_COOKIES` to that path. Refresh
+the file when YouTube starts rejecting it again.
+
 ## Running
 
 ```sh

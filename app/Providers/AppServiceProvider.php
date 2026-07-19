@@ -9,6 +9,9 @@ use App\Sources\TikTokSource;
 use App\Sources\XSource;
 use App\Sources\YouTubeSource;
 use App\Sources\YtDlp;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(YtDlp::class, fn () => new YtDlp(
             config('services.ytdlp.binary'),
+            config('services.ytdlp.cookies') ?: null,
         ));
 
         // The source registry. Adding a source is one class and one line here.
@@ -33,6 +37,16 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        // POST /api/download — short burst + daily ceiling, both per IP.
+        RateLimiter::for('downloads', function (Request $request) {
+            $ip = $request->ip();
+
+            return [
+                Limit::perMinute(config('services.downloads.throttle_per_minute'))
+                    ->by($ip),
+                Limit::perDay(config('services.downloads.throttle_per_day'))
+                    ->by($ip),
+            ];
+        });
     }
 }
