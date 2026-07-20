@@ -45,6 +45,7 @@ class YtDlp
 
         if (! $result->successful()) {
             Log::warning('ytdlp.probe.fail', [
+                'url' => $url,
                 'url_host' => $host,
                 'reason' => 'process_failed',
                 'exit' => $result->exitCode(),
@@ -60,6 +61,7 @@ class YtDlp
             $json = json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             Log::warning('ytdlp.probe.fail', [
+                'url' => $url,
                 'url_host' => $host,
                 'reason' => 'invalid_json',
                 'message' => $e->getMessage(),
@@ -71,8 +73,14 @@ class YtDlp
         // Metadata alone isn't enough — the queue job needs real A/V streams.
         if (! $this->hasDownloadableFormats($json)) {
             Log::warning('ytdlp.probe.fail', [
+                'url' => $url,
                 'url_host' => $host,
                 'reason' => 'no_formats',
+                // yt-dlp still returns meta when only storyboards remain.
+                'id' => $json['id'] ?? null,
+                'extractor' => $json['extractor_key'] ?? $json['extractor'] ?? null,
+                'title' => $json['title'] ?? null,
+                'format_count' => count($json['formats'] ?? []),
             ]);
 
             throw new SourceUnavailable(
@@ -81,7 +89,9 @@ class YtDlp
         }
 
         Log::info('ytdlp.probe.ok', [
+            'url' => $url,
             'url_host' => $host,
+            'id' => $json['id'] ?? null,
             'duration_ms' => (int) ((hrtime(true) - $started) / 1_000_000),
         ]);
 
