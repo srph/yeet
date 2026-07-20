@@ -1,20 +1,11 @@
 <?php
 
-use App\Exceptions\SourceUnavailable;
 use App\Jobs\ProcessDownload;
 use App\Models\Download;
-use App\Sources\YtDlp;
 use Illuminate\Support\Facades\Queue;
 
 beforeEach(function () {
     Queue::fake();
-
-    // Never shell out to yt-dlp in tests.
-    $this->mock(YtDlp::class, fn ($m) => $m->shouldReceive('probe')->andReturn([
-        'title' => 'Never Gonna Give You Up',
-        'thumbnail' => 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-        'duration' => 213.0,
-    ]));
 });
 
 $post = fn (array $payload) => test()->postJson('/api/download', $payload);
@@ -58,13 +49,16 @@ it('returns every key the frontend zod schema requires', function () use ($post)
     ]);
 });
 
-it('persists the probed duration, rounded to whole seconds', function () use ($post) {
-    // probe() always returned this; the controller used to discard it, so the
-    // UI had no runtime to show and had to fake one.
+it('does not probe on create — title/duration fill in from the job', function () use ($post) {
+    // Regression: probe() used to run inline and block POST for ~10s+ on
+    // the server (yt-dlp JS challenge). Meta is placeholder until probing.
     $post(['url' => 'https://youtu.be/dQw4w9WgXcQ', 'format' => 'mp4'])
-        ->assertJsonPath('duration', 213); // 213.0 float in, int out
-
-    expect(Download::sole()->duration)->toBe(213);
+        ->assertJsonPath('source_title', 'Untitled')
+        ->assertJsonPath('duration', null)
+        ->assertJsonPath(
+            'source_thumbnail',
+            'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+        );
 });
 
 it('never exposes the storage key', function () use ($post) {
@@ -110,22 +104,6 @@ it('rejects an unsupported url with 422', function () use ($post) {
         ->assertJsonValidationErrorFor('url');
 
     Queue::assertNothingPushed();
-});
-
-it('returns 422 when yt-dlp cannot probe the url', function () use ($post) {
-    // Bot-checked YouTube IPs often only get storyboards; probe throws
-    // SourceUnavailable. That used to 500 and spam production.ERROR.
-    $this->mock(YtDlp::class, fn ($m) => $m->shouldReceive('probe')
-        ->andThrow(new SourceUnavailable(
-            'YouTube isn\'t serving a downloadable stream for this video right now.'
-        )));
-
-    $post(['url' => 'https://youtu.be/UTeupD7HluM', 'format' => 'mp4'])
-        ->assertStatus(422)
-        ->assertJsonValidationErrorFor('url');
-
-    Queue::assertNothingPushed();
-    expect(Download::count())->toBe(0);
 });
 
 it('validates the format', function () use ($post) {

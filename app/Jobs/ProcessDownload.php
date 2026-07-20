@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\SourceUnavailable;
 use App\Models\Download;
 use App\Sources\YtDlp;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,29 +12,17 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
-/**
- * Replaces the trigger.dev `download.youtube` task.
- *
- * The old task did all its DB writes in onStart/onSuccess/onFailure hooks and
- * none in run(). Laravel has no onStart/onSuccess, so those writes move inline;
- * onFailure maps onto failed().
- */
 class ProcessDownload implements ShouldQueue
 {
     use Queueable;
 
-    // Mirrors trigger.config.ts: maxAttempts 3, maxDuration 3600.
     public int $tries = 3;
 
     // DB_QUEUE_RETRY_AFTER must exceed this. At Laravel's default 90s the
     // queue reclaims a job mid-download and runs it a second time.
     public int $timeout = 3600;
 
-    /**
-     * trigger.dev used exponential backoff 1s -> 10s, factor 2, randomized.
-     * Laravel takes plain seconds; these retries only really help against
-     * transient network blips anyway.
-     */
+    /** Seconds between attempts — mostly for transient network blips. */
     public function backoff(): array
     {
         return [1, 5, 10];
@@ -46,16 +35,47 @@ class ProcessDownload implements ShouldQueue
         $started = hrtime(true);
         $attempt = $this->attempts();
 
+        // Serialized model can be stale across retries — status is the
+        // "already probed?" signal (processing ⇒ skip probe).
+        $this->download->refresh();
+
         Log::info('download.job.start', [
             'id' => $this->download->id,
             'attempt' => $attempt,
             'tries' => $this->tries,
+            'status' => $this->download->status,
             'source' => $this->download->source,
             'format' => $this->download->format,
         ]);
 
-        // Was trigger.dev's onStart hook. Fires per-attempt, same as before.
-        $this->download->update(['status' => 'processing']);
+        // Probe when we haven't finished it yet. Skip once status is
+        // processing — that means a prior attempt already wrote meta and
+        // failed later on download/upload.
+        //
+        // Both queued (first run) and probing (died mid-probe) need probe.
+        if (in_array($this->download->status, ['queued', 'probing'], true)) {
+            $this->download->update(['status' => 'probing']);
+
+            try {
+                $meta = $ytdlp->probe($this->download->source_url);
+            } catch (SourceUnavailable $e) {
+                // Permanent miss — don't burn the remaining $tries.
+                $this->download->update([
+                    'status' => 'failed',
+                    'reason' => $e->getMessage(),
+                    'fulfilled_at' => now(),
+                ]);
+
+                return;
+            }
+
+            $this->download->update([
+                'source_title' => $meta['title'],
+                'source_thumbnail' => $meta['thumbnail'] ?? $this->download->source_thumbnail,
+                'duration' => isset($meta['duration']) ? (int) round($meta['duration']) : null,
+                'status' => 'processing',
+            ]);
+        }
 
         $fileName = "{$this->download->source_id}.{$this->download->format}";
 
@@ -105,9 +125,7 @@ class ProcessDownload implements ShouldQueue
             @rmdir($dir);
         }
 
-        // Was onSuccess. Note we store the KEY, not a presigned URL, so
-        // expires_at is now truthful: the object really does live 7 days,
-        // and each link is minted fresh on read.
+        // Store the KEY, not a presigned URL — links are minted fresh on read.
         $this->download->update([
             'status' => 'complete',
             'storage_key' => $key,
@@ -125,8 +143,9 @@ class ProcessDownload implements ShouldQueue
     }
 
     /**
-     * Was onFailure. Like trigger.dev, this fires only once all $tries are
-     * exhausted — so a row sits in 'processing' for the whole retry window.
+     * Fires only once all $tries are exhausted — so a row sits in
+     * 'processing' for the whole retry window. SourceUnavailable is handled
+     * inline in handle() (no retry).
      */
     public function failed(?Throwable $e): void
     {

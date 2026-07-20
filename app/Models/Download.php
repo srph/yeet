@@ -18,10 +18,12 @@ class Download extends Model
 
     protected $guarded = [];
 
-    // status is the state machine: queued → processing → complete | failed,
-    // then expired once downloads:prune deletes the object. There is no
-    // expired_at column — expiry is a status. expires_at has exactly one
-    // reader: the prune command (see PruneDownloads).
+    // status is the state machine:
+    // queued → probing → processing → complete | failed,
+    // then expired once downloads:prune deletes the object.
+    // probing = yt-dlp metadata; also the retry skip signal (once processing,
+    // re-runs don't probe again). There is no expired_at column — expiry is a
+    // status. expires_at has exactly one reader: the prune command.
 
     protected function casts(): array
     {

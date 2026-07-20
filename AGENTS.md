@@ -27,7 +27,7 @@ php artisan queue:work --queue=downloads   # jobs
 | `POST` | `/api/download`            | Body: `{ url, format: "mp3"\|"mp4" }`. Throttled 10/min + 50/day per IP. Max file 200 MiB. Returns `Download` JSON (dedupes non-failed/expired). |
 | `GET`  | `/api/download/{download}` | Poll target (~1s). 404 if missing. Same JSON shape as POST.                                                    |
 
-`Download` serializes directly (no resource layer). Status: `queued → processing → complete \| failed`, then `expired` after prune. `download_url` is a fresh presigned link from `storage_key`.
+`Download` serializes directly (no resource layer). Status: `queued → probing → processing → complete \| failed`, then `expired` after prune. Probe (yt-dlp metadata) runs in the job, not on POST. `download_url` is a fresh presigned link from `storage_key`.
 
 ## CSS
 
