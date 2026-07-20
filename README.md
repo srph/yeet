@@ -87,12 +87,13 @@ path is gitignored locally as `storage/app/yt-dlp-cookies.txt` — never commit 
 ### Inspect on the server
 
 ```sh
-php artisan ytdlp:check          # file path, age, session cookie names (no values)
+php artisan ytdlp:check          # file path, age, each cookie name + expiry (no values)
 php artisan ytdlp:check --probe  # also live-probe a public video for streams
 ```
 
 Exit non-zero if the file is missing/unreadable, has no YouTube cookies, or
-`--probe` gets `no_formats` / bot-check.
+`--probe` gets `no_formats` / bot-check. Session health keys off
+`__Secure-3PSID` / `__Secure-1PSID` / `SID` — not short-lived GPS/consent cookies.
 
 ### When it breaks again
 

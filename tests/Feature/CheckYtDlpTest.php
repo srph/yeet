@@ -36,30 +36,31 @@ it('fails when the cookies file is missing', function () {
         ->assertFailed();
 });
 
-it('reports youtube cookie names without printing values', function () {
+it('lists youtube cookie names and expiries without printing values', function () {
     $path = writeCookies(
         "# Netscape HTTP Cookie File\n"
-        .netscapeLine('.youtube.com', 'LOGIN_INFO')
-        .netscapeLine('.youtube.com', 'SID')
-        .netscapeLine('.youtube.com', '__Secure-1PSID')
-        .netscapeLine('.youtube.com', 'SAPISID')
+        .netscapeLine('.youtube.com', 'PREF', 0)
+        .netscapeLine('.youtube.com', '__Secure-3PSID', 2_000_000_000)
+        .netscapeLine('.youtube.com', 'GPS', 1_000_000_000) // expired
         .netscapeLine('.google.com', 'NID') // ignored
     );
 
     config(['services.ytdlp.cookies' => $path]);
 
+    // expectsOutputToContain matches per doWrite/line — don't assert two
+    // substrings that only appear together on the same line.
     test()->artisan('ytdlp:check')
-        ->expectsOutputToContain('count: 4')
-        ->expectsOutputToContain('✓ LOGIN_INFO')
-        ->expectsOutputToContain('✓ SID')
-        ->expectsOutputToContain('✓ __Secure-1PSID')
+        ->expectsOutputToContain('youtube cookies (3)')
+        ->expectsOutputToContain('PREF')
+        ->expectsOutputToContain('GPS             EXPIRED')
+        ->expectsOutputToContain('cookie:  __Secure-3PSID')
         ->doesntExpectOutputToContain('redacted')
         ->assertSuccessful();
 
     unlink($path);
 });
 
-it('warns when typical session cookies are missing', function () {
+it('warns when no session SID cookie is present', function () {
     $path = writeCookies(
         netscapeLine('.youtube.com', 'VISITOR_INFO1_LIVE')
     );
@@ -67,8 +68,7 @@ it('warns when typical session cookies are missing', function () {
     config(['services.ytdlp.cookies' => $path]);
 
     test()->artisan('ytdlp:check')
-        ->expectsOutputToContain('Missing typical logged-in session cookies')
-        ->expectsOutputToContain('✗ LOGIN_INFO')
+        ->expectsOutputToContain('no SID / __Secure-1PSID / __Secure-3PSID')
         ->assertSuccessful();
 
     unlink($path);
@@ -76,15 +76,14 @@ it('warns when typical session cookies are missing', function () {
 
 it('parses HttpOnly-prefixed rows', function () {
     $path = writeCookies(
-        '#HttpOnly_.youtube.com	TRUE	/	TRUE	2000000000	LOGIN_INFO	redacted'.PHP_EOL
-        .netscapeLine('.youtube.com', '__Secure-3PSID')
+        '#HttpOnly_.youtube.com	TRUE	/	TRUE	2000000000	__Secure-3PSID	redacted'.PHP_EOL
     );
 
     config(['services.ytdlp.cookies' => $path]);
 
     test()->artisan('ytdlp:check')
-        ->expectsOutputToContain('✓ LOGIN_INFO')
-        ->expectsOutputToContain('✓ __Secure-3PSID')
+        ->expectsOutputToContain('youtube cookies (1)')
+        ->expectsOutputToContain('__Secure-3PSID')
         ->assertSuccessful();
 
     unlink($path);
@@ -104,8 +103,7 @@ it('fails when the file has no youtube cookies', function () {
 
 it('live-probes when --probe is passed', function () {
     $path = writeCookies(
-        netscapeLine('.youtube.com', 'LOGIN_INFO')
-        .netscapeLine('.youtube.com', 'SID')
+        netscapeLine('.youtube.com', '__Secure-3PSID')
     );
 
     config(['services.ytdlp.cookies' => $path]);
@@ -128,8 +126,7 @@ it('live-probes when --probe is passed', function () {
 
 it('fails the command when --probe hits no_formats', function () {
     $path = writeCookies(
-        netscapeLine('.youtube.com', 'LOGIN_INFO')
-        .netscapeLine('.youtube.com', 'SID')
+        netscapeLine('.youtube.com', '__Secure-3PSID')
     );
 
     config(['services.ytdlp.cookies' => $path]);

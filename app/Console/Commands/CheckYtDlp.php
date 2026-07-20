@@ -11,19 +11,20 @@ use Throwable;
 
 /**
  * Ops check for the YouTube cookies file and (optionally) a live probe.
- * Never prints cookie values — names, counts, and expiry only.
+ * Never prints cookie values — names and expiry only.
  */
 #[Signature('ytdlp:check {--probe : Live-probe a YouTube URL and report whether streams are available} {--url= : URL used with --probe (default rickroll)}')]
 #[Description('Inspect YTDLP_COOKIES health and optionally live-probe YouTube')]
 class CheckYtDlp extends Command
 {
-    /** Cookie names that usually mean a logged-in YouTube session. */
-    private const CRITICAL = [
-        'LOGIN_INFO',
-        'SID',
-        '__Secure-1PSID',
+    /**
+     * Modern Chrome exports lean on these. Older LOGIN_INFO/SID/SAPISID
+     * checklists false-alarm on otherwise working files.
+     */
+    private const SESSION_COOKIES = [
         '__Secure-3PSID',
-        'SAPISID',
+        '__Secure-1PSID',
+        'SID',
     ];
 
     private const DEFAULT_PROBE_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
@@ -67,53 +68,37 @@ class CheckYtDlp extends Command
         $this->line('  size:     '.filesize($path).' bytes');
         $this->line('  mtime:    '.($mtime ? date('c', $mtime)." ({$ageDays} days ago)" : 'unknown'));
 
-        $parsed = $this->parseNetscape($path);
+        $cookies = $this->parseNetscape($path);
 
         $this->newLine();
-        $this->info('youtube cookies');
-        $this->line("  count: {$parsed['count']}");
+        $this->info('youtube cookies ('.count($cookies).')');
 
-        if ($parsed['count'] === 0) {
+        if ($cookies === []) {
             $this->error('No youtube.com cookies found in the file.');
 
             return self::FAILURE;
         }
 
-        foreach (self::CRITICAL as $name) {
-            $present = in_array($name, $parsed['names'], true);
-            $this->line('  '.($present ? '✓' : '✗')." {$name}");
+        $nameWidth = max(array_map(fn (array $c) => strlen($c['name']), $cookies));
+
+        foreach ($cookies as $cookie) {
+            $this->line('  '.$this->formatCookieRow($cookie, $nameWidth));
         }
 
-        if ($parsed['earliest_expiry'] !== null) {
-            $expiresIn = $parsed['earliest_expiry'] - time();
-            $label = $expiresIn < 0
-                ? 'EXPIRED '.date('c', $parsed['earliest_expiry'])
-                : date('c', $parsed['earliest_expiry']).' (in '.round($expiresIn / 86400, 1).' days)';
-
-            $this->line("  earliest expiry: {$label}");
-
-            if ($expiresIn < 0) {
-                $this->warn('At least one YouTube cookie is already expired.');
-            }
-        } else {
-            $this->line('  earliest expiry: (session cookies only / none dated)');
-        }
-
-        $missingCritical = array_values(array_filter(
-            self::CRITICAL,
-            fn (string $name) => ! in_array($name, $parsed['names'], true),
-        ));
-
-        // LOGIN_INFO + one of the PSID/SID family is the usual bar.
-        $hasLogin = in_array('LOGIN_INFO', $parsed['names'], true);
-        $hasSid = (bool) array_intersect(
-            ['SID', '__Secure-1PSID', '__Secure-3PSID'],
-            $parsed['names'],
+        $names = array_column($cookies, 'name');
+        $sessionName = collect(self::SESSION_COOKIES)->first(
+            fn (string $name) => in_array($name, $names, true),
         );
 
-        if (! $hasLogin || ! $hasSid) {
-            $this->warn('Missing typical logged-in session cookies: '.implode(', ', $missingCritical));
-            $this->warn('File may be from a logged-out browser — expect no_formats on Forge.');
+        $this->newLine();
+        $this->info('session');
+
+        if ($sessionName === null) {
+            $this->warn('  no SID / __Secure-1PSID / __Secure-3PSID — likely logged out');
+        } else {
+            $session = collect($cookies)->firstWhere('name', $sessionName);
+            $this->line("  cookie:  {$sessionName}");
+            $this->line('  expires: '.$this->formatExpiry($session['expires']));
         }
 
         if ($this->option('probe')) {
@@ -143,17 +128,40 @@ class CheckYtDlp extends Command
     }
 
     /**
-     * @return array{count: int, names: list<string>, earliest_expiry: ?int}
+     * @param  array{name: string, expires: int}  $cookie
+     */
+    private function formatCookieRow(array $cookie, int $nameWidth): string
+    {
+        return sprintf("%-{$nameWidth}s  %s", $cookie['name'], $this->formatExpiry($cookie['expires']));
+    }
+
+    private function formatExpiry(int $expires): string
+    {
+        if ($expires === 0) {
+            return 'session';
+        }
+
+        $label = gmdate('Y-m-d\TH:i:s\Z', $expires);
+
+        if ($expires < time()) {
+            return "EXPIRED {$label}";
+        }
+
+        $days = round(($expires - time()) / 86400, 1);
+
+        return "{$label} (in {$days} days)";
+    }
+
+    /**
+     * @return list<array{name: string, expires: int}>
      */
     private function parseNetscape(string $path): array
     {
-        $names = [];
-        $earliest = null;
-
+        $cookies = [];
         $handle = fopen($path, 'r');
 
         if ($handle === false) {
-            return ['count' => 0, 'names' => [], 'earliest_expiry' => null];
+            return [];
         }
 
         try {
@@ -182,24 +190,16 @@ class CheckYtDlp extends Command
                     continue;
                 }
 
-                // Names only — never touch $parts[6] (the value).
-                $names[] = $name;
-
-                $exp = (int) $expiration;
-
-                // 0 = session cookie; ignore for "earliest expiry".
-                if ($exp > 0 && ($earliest === null || $exp < $earliest)) {
-                    $earliest = $exp;
-                }
+                // Names + expiry only — never touch $parts[6] (the value).
+                $cookies[] = [
+                    'name' => $name,
+                    'expires' => (int) $expiration,
+                ];
             }
         } finally {
             fclose($handle);
         }
 
-        return [
-            'count' => count($names),
-            'names' => array_values(array_unique($names)),
-            'earliest_expiry' => $earliest,
-        ];
+        return $cookies;
     }
 }
