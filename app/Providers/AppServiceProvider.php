@@ -11,8 +11,11 @@ use App\Sources\YouTubeSource;
 use App\Sources\YtDlp;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Discord\Provider as DiscordProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +40,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('discord', DiscordProvider::class);
+        });
+
         // POST /api/download — short burst + daily ceiling, both per IP.
         RateLimiter::for('downloads', function (Request $request) {
             $ip = $request->ip();

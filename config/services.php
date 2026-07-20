@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    'discord' => [
+        'client_id' => env('DISCORD_CLIENT_ID'),
+        'client_secret' => env('DISCORD_CLIENT_SECRET'),
+        'redirect' => env('DISCORD_REDIRECT_URI'),
+    ],
+
     'ytdlp' => [
         // Absolute path: the queue worker daemon may not inherit a PATH
         // containing homebrew.

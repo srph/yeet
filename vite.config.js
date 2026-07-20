@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
             // Bind all interfaces; advertise APP_URL's host so the browser
             // doesn't try to fetch assets from http://0.0.0.0:5173.
             host: '0.0.0.0',
+            // Page is :8000, Vite is :5173 — always cross-origin. Needed when
+            // browsing via MagicDNS / another hostname than APP_URL.
+            cors: true,
             hmr: {
                 host: appHost,
             },

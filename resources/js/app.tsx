@@ -8,11 +8,18 @@ import { createRoot } from "react-dom/client";
 createInertiaApp({
   title: (title) => (title ? `${title} - Yeet` : "Yeet"),
 
-  resolve: (name) =>
-    resolvePageComponent(
-      `./home/${name}.tsx`,
-      import.meta.glob("./home/**/*.tsx"),
-    ),
+  resolve: (name) => {
+    // Home stays under ./home (name "home" → ./home/home.tsx). Dashboard
+    // pages use a folder prefix (e.g. "dashboard/dashboard-login").
+    const path = name.includes("/")
+      ? `./${name}.tsx`
+      : `./home/${name}.tsx`;
+
+    return resolvePageComponent(
+      path,
+      import.meta.glob(["./home/**/*.tsx", "./dashboard/**/*.tsx"]),
+    );
+  },
 
   setup({ el, App, props }) {
     // Was providers.tsx. React Query still owns all data fetching — Inertia
