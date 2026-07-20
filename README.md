@@ -84,6 +84,16 @@ YTDLP_COOKIES=/home/forge/yeet.kierb.com/storage/app/yt-dlp-cookies.txt
 Restart PHP and the `downloads` queue workers so they pick up the env. The
 path is gitignored locally as `storage/app/yt-dlp-cookies.txt` — never commit it.
 
+### Inspect on the server
+
+```sh
+php artisan ytdlp:check          # file path, age, session cookie names (no values)
+php artisan ytdlp:check --probe  # also live-probe a public video for streams
+```
+
+Exit non-zero if the file is missing/unreadable, has no YouTube cookies, or
+`--probe` gets `no_formats` / bot-check.
+
 ### When it breaks again
 
 Cookies go stale or YouTube invalidates the session. Re-export from the same
