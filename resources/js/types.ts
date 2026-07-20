@@ -20,17 +20,23 @@ export const DownloadMetaSchema = z.object({
   // the API returned it. Adding it back.
   format: z.enum(["mp3", "mp4"]),
 
-  // "expired" is new. In practice the UI won't see it — dedupe skips expired
-  // rows, so a poll can only end at complete/failed — but zod throws on an
-  // unlisted value, so it belongs here.
-  status: z.enum(["queued", "processing", "complete", "failed", "expired"]),
+  // "probing" = yt-dlp metadata (title/thumb/duration). "expired" is rarely
+  // seen here — dedupe skips expired rows — but zod throws on unlisted values.
+  status: z.enum([
+    "queued",
+    "probing",
+    "processing",
+    "complete",
+    "failed",
+    "expired",
+  ]),
 
   download_url: z.string().nullable(), // appended accessor, presigned per-read
   storage_file_name: z.string().nullable(),
   reason: z.string().nullable(),
   expires_at: z.string().nullable(),
   // Set when the job settles (complete or failed). Null while queued/
-  // processing, and for rows created before the column existed.
+  // probing/processing, and for rows created before the column existed.
   fulfilled_at: z.string().nullable(),
   // no expired_at — the column is gone; no storage_key — it's $hidden.
   created_at: z.string(),

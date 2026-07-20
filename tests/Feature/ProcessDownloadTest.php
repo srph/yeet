@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\DownloadFailed;
+use App\Exceptions\SourceUnavailable;
 use App\Jobs\ProcessDownload;
 use App\Models\Download;
 use App\Sources\YtDlp;
@@ -9,15 +10,25 @@ use Illuminate\Support\Facades\Storage;
 // The job is tested against a faked disk and a faked YtDlp — real extraction
 // and real S3 are covered by manual verification, not here.
 
-it('uploads the file and completes the row', function () {
+it('probes then uploads the file and completes the row', function () {
     Storage::fake('s3');
 
     $tmp = tempnam(sys_get_temp_dir(), 'yeet').'.mp4';
     file_put_contents($tmp, 'fake video bytes');
 
-    $this->mock(YtDlp::class, fn ($m) => $m->shouldReceive('download')->once()->andReturn($tmp));
+    $this->mock(YtDlp::class, function ($m) use ($tmp) {
+        $m->shouldReceive('probe')->once()->andReturn([
+            'title' => 'Never Gonna Give You Up',
+            'thumbnail' => 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+            'duration' => 213.0,
+        ]);
+        $m->shouldReceive('download')->once()->andReturn($tmp);
+    });
 
-    $download = Download::factory()->create();
+    $download = Download::factory()->create([
+        'source_title' => 'Untitled',
+        'duration' => null,
+    ]);
 
     (new ProcessDownload($download))->handle(app(YtDlp::class));
 
@@ -26,6 +37,8 @@ it('uploads the file and completes the row', function () {
     $key = config('services.storage.base_directory').'/youtube/dQw4w9WgXcQ.mp4';
 
     expect($download->status)->toBe('complete')
+        ->and($download->source_title)->toBe('Never Gonna Give You Up')
+        ->and($download->duration)->toBe(213)
         ->and($download->storage_key)->toBe($key)
         ->and($download->storage_file_name)->toBe('dQw4w9WgXcQ.mp4')
         ->and($download->expires_at)->not->toBeNull()
@@ -38,13 +51,71 @@ it('uploads the file and completes the row', function () {
     expect(file_exists($tmp))->toBeFalse();
 });
 
+it('skips probe on retry when already processing', function () {
+    Storage::fake('s3');
+
+    $tmp = tempnam(sys_get_temp_dir(), 'yeet').'.mp4';
+    file_put_contents($tmp, 'fake video bytes');
+
+    $this->mock(YtDlp::class, function ($m) use ($tmp) {
+        // Prior attempt already probed — status=processing is the skip signal.
+        $m->shouldReceive('probe')->never();
+        $m->shouldReceive('download')->once()->andReturn($tmp);
+    });
+
+    $download = Download::factory()->create([
+        'status' => 'processing',
+        'source_title' => 'Never Gonna Give You Up',
+        'duration' => 213,
+    ]);
+
+    (new ProcessDownload($download))->handle(app(YtDlp::class));
+
+    $download->refresh();
+
+    expect($download->status)->toBe('complete')
+        ->and($download->source_title)->toBe('Never Gonna Give You Up');
+});
+
+it('re-probes when a prior attempt died during probing', function () {
+    Storage::fake('s3');
+
+    $tmp = tempnam(sys_get_temp_dir(), 'yeet').'.mp4';
+    file_put_contents($tmp, 'fake video bytes');
+
+    $this->mock(YtDlp::class, function ($m) use ($tmp) {
+        $m->shouldReceive('probe')->once()->andReturn([
+            'title' => 'Recovered title',
+            'thumbnail' => 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+            'duration' => 100.0,
+        ]);
+        $m->shouldReceive('download')->once()->andReturn($tmp);
+    });
+
+    $download = Download::factory()->create([
+        'status' => 'probing',
+        'source_title' => 'Untitled',
+    ]);
+
+    (new ProcessDownload($download))->handle(app(YtDlp::class));
+
+    expect($download->refresh()->source_title)->toBe('Recovered title');
+});
+
 it('partitions the storage key by source', function () {
     Storage::fake('s3');
 
     $tmp = tempnam(sys_get_temp_dir(), 'yeet').'.mp4';
     file_put_contents($tmp, 'fake video bytes');
 
-    $this->mock(YtDlp::class, fn ($m) => $m->shouldReceive('download')->andReturn($tmp));
+    $this->mock(YtDlp::class, function ($m) use ($tmp) {
+        $m->shouldReceive('probe')->andReturn([
+            'title' => 'A post',
+            'thumbnail' => null,
+            'duration' => null,
+        ]);
+        $m->shouldReceive('download')->andReturn($tmp);
+    });
 
     $download = Download::factory()->create([
         'source' => 'x',
@@ -56,6 +127,29 @@ it('partitions the storage key by source', function () {
     Storage::disk('s3')->assertExists(
         config('services.storage.base_directory').'/x/1732824684683784516.mp4',
     );
+});
+
+it('fails without downloading when probe finds no streams', function () {
+    // Used to be a 422 on POST. Probe moved into the job so the HTTP path
+    // stays fast; bot-checked / private videos fail here instead.
+    $this->mock(YtDlp::class, function ($m) {
+        $m->shouldReceive('probe')->once()->andThrow(new SourceUnavailable(
+            'YouTube isn\'t serving a downloadable stream for this video right now.'
+        ));
+        $m->shouldReceive('download')->never();
+    });
+
+    $download = Download::factory()->create(['source_title' => 'Untitled']);
+
+    (new ProcessDownload($download))->handle(app(YtDlp::class));
+
+    $download->refresh();
+
+    expect($download->status)->toBe('failed')
+        ->and($download->reason)->toBe(
+            'YouTube isn\'t serving a downloadable stream for this video right now.'
+        )
+        ->and($download->fulfilled_at)->not->toBeNull();
 });
 
 it('is configured to raise on storage write failures', function () {

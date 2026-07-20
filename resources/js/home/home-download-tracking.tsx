@@ -157,8 +157,10 @@ export const HomeDownloadTracking = ({
   const { status } = meta;
 
   const isSettled = status === "complete";
-  const isWaiting = status === "queued" || status === "processing";
+  const isWaiting =
+    status === "queued" || status === "probing" || status === "processing";
   const isDead = status === "failed" || status === "expired";
+  const isActive = status === "probing" || status === "processing";
 
   const duration = meta.duration === null ? null : formatDuration(meta.duration);
   const took =
@@ -302,8 +304,8 @@ export const HomeDownloadTracking = ({
             </div>
           )}
 
-          {/* scanlines while it cooks */}
-          {status === "processing" && (
+          {/* scanlines while probe/cook is actively running */}
+          {isActive && (
             <span className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(234,179,8,0.055)_0_1px,transparent_1px_4px)]" />
           )}
 
@@ -312,7 +314,7 @@ export const HomeDownloadTracking = ({
             <span className="pointer-events-none absolute inset-0 overflow-hidden">
               <span
                 className={`absolute inset-y-0 w-[38%] ${
-                  status === "processing"
+                  isActive
                     ? "animate-sweep bg-linear-to-r from-transparent via-blue-200/40 to-transparent"
                     : "animate-sweep-slow bg-linear-to-r from-transparent via-white/[0.14] to-transparent"
                 }`}

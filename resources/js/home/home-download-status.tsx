@@ -5,6 +5,7 @@ type Status = DownloadMeta["status"];
 
 const STATUS_LABEL: Record<Status, string> = {
   queued: "In line",
+  probing: "Grabbing Metadata",
   processing: "Cooking",
   complete: "Ready",
   failed: "Burnt",
@@ -15,6 +16,10 @@ const STATUS_TONE: Record<Status, { text: string; dot: string }> = {
   queued: {
     text: "text-neutral-500",
     dot: "bg-neutral-600 animate-blink-slow",
+  },
+  probing: {
+    text: "text-blue-200",
+    dot: "bg-blue-200 shadow-[0_0_8px_var(--color-blue-200)] animate-blink",
   },
   processing: {
     text: "text-blue-200",

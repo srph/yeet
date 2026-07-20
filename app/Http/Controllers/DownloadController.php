@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Jobs\ProcessDownload;
 use App\Models\Download;
 use App\Sources\SourceResolver;
-use App\Sources\YtDlp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -17,7 +16,7 @@ class DownloadController extends Controller
      * POST /api/download — same URL and JSON shape the frontend already posts
      * to, so mutations.ts needs no change beyond field names.
      */
-    public function store(Request $request, SourceResolver $resolver, YtDlp $ytdlp)
+    public function store(Request $request, SourceResolver $resolver)
     {
         // Was zod. Laravel returns 422 with a comparable field-error shape.
         $data = $request->validate([
@@ -48,9 +47,9 @@ class DownloadController extends Controller
         // The branch was dead and every submit re-downloaded.
         //
         // Keying off status alone is what dropping expired_at buys us: a row is
-        // reusable unless it's terminal-and-useless. 'queued'/'processing' means
-        // someone already started this exact job — join it rather than dispatch
-        // a duplicate. 'complete' means the file is in the bucket.
+        // reusable unless it's terminal-and-useless. queued/probing/processing
+        // means someone already started this exact job — join it rather than
+        // dispatch a duplicate. 'complete' means the file is in the bucket.
         $existing = Download::query()
             ->where('source', $source->key())
             ->where('source_id', $sourceId)
@@ -72,16 +71,18 @@ class DownloadController extends Controller
             return $existing;
         }
 
-        $meta = $ytdlp->probe($fetchUrl);
-
+        // Don't probe here — yt-dlp --dump-json blocked POST for ~10s+ on the
+        // server. Title/thumb/duration land in the job under status=probing.
+        // YouTube gets a predictable thumb so the UI isn't blank meanwhile.
         $download = Download::create([
             'source' => $source->key(),
             'source_url' => $fetchUrl,
             'source_id' => $sourceId,
-            'source_title' => $meta['title'],
-            'source_thumbnail' => $meta['thumbnail'],
-            // probe() hands back a float; the column is whole seconds.
-            'duration' => isset($meta['duration']) ? (int) round($meta['duration']) : null,
+            'source_title' => 'Untitled',
+            'source_thumbnail' => $source->key() === 'youtube'
+                ? "https://i.ytimg.com/vi/{$sourceId}/hqdefault.jpg"
+                : null,
+            'duration' => null,
             'format' => $data['format'],
             'status' => 'queued',
         ]);

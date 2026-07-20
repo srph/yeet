@@ -44,7 +44,7 @@ export function HomeDownloadCta({
     >
       <AnimatePresence initial={false}>
         <motion.span
-          key={isSettled ? "ready" : status === "queued" ? "waiting" : "processing"}
+          key={isSettled ? "ready" : status === "queued" ? "waiting" : "busy"}
           initial={{ y: 8 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.25 }}
@@ -60,7 +60,7 @@ export function HomeDownloadCta({
           ) : (
             <>
               <LoaderCircleIcon className="size-[15px] animate-[spin_0.5s_linear_infinite]" />
-              Processing
+              {status === "probing" ? "Grabbing metadata" : "Processing"}
             </>
           )}
         </motion.span>
