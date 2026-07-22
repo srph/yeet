@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
+import { Tooltip, TooltipProvider } from "@/components/tooltip/tooltip";
 import { useNow } from "@/hooks/use-now";
 
 type DownloadRow = {
@@ -91,7 +92,7 @@ function formatCreatedAgo(iso: string, now: number) {
   return plural(Math.floor(elapsed / SECOND), "second");
 }
 
-/** "(GMT + 8) dd m, y hh:mm:ss" */
+/** "(GMT+8) dd m, y hh:mm:ss" — mono zone label, sans for the timestamp. */
 function formatGmt8Tooltip(iso: string) {
   const parts = Object.fromEntries(
     gmt8Parts
@@ -100,7 +101,15 @@ function formatGmt8Tooltip(iso: string) {
       .map((part) => [part.type, part.value]),
   );
 
-  return `(GMT + 8) ${parts.day} ${parts.month}, ${parts.year} ${parts.hour}:${parts.minute}:${parts.second}`;
+  return (
+    <>
+      <span className="font-mono">(GMT+8)</span>{" "}
+      <span>
+        {parts.day} {parts.month}, {parts.year} {parts.hour}:{parts.minute}:
+        {parts.second}
+      </span>
+    </>
+  );
 }
 
 function formatDuration(seconds: number | null) {
@@ -170,194 +179,195 @@ export function DashboardDownloadsTable({
   );
 
   return (
-    <section className="min-w-0">
-      <div className="mb-3 mt-6 flex flex-wrap items-center justify-between gap-3 px-0.5">
-        <h3 className="text-[15px] font-semibold tracking-[-0.02em]">
-          Recently
-        </h3>
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter downloads">
-          {FILTERS.map((chip) => {
-            const on = filter === chip.id;
-            return (
-              <button
-                key={chip.id}
-                type="button"
-                onClick={() => setFilter(chip.id)}
-                aria-pressed={on}
-                className={`rounded-full border px-3.5 py-1 text-xs font-semibold tracking-[-0.01em] transition focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
-                  on
-                    ? "border-transparent bg-neutral-800 text-white"
-                    : "border-neutral-800 text-neutral-500 hover:text-neutral-300"
-                }`}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {downloads.length === 0 ? (
-        <div className="grid min-h-48 place-items-center text-center">
-          <div>
-            <p className="font-medium">No downloads yet</p>
-            <p className="mt-1 text-sm text-neutral-600">
-              New requests will appear here.
-            </p>
+    <TooltipProvider>
+      <section className="min-w-0">
+        <div className="mb-3 mt-6 flex flex-wrap items-center justify-between gap-3 px-0.5">
+          <h3 className="text-[15px] font-semibold tracking-[-0.02em]">
+            Recently
+          </h3>
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter downloads">
+            {FILTERS.map((chip) => {
+              const on = filter === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  onClick={() => setFilter(chip.id)}
+                  aria-pressed={on}
+                  className={`rounded-full border px-3.5 py-1 text-xs font-semibold tracking-[-0.01em] transition focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
+                    on
+                      ? "border-transparent bg-neutral-800 text-white"
+                      : "border-neutral-800 text-neutral-500 hover:text-neutral-300"
+                  }`}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
           </div>
         </div>
-      ) : (
-        <>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] table-fixed border-collapse">
-              <colgroup>
-                <col style={{ width: COLUMN_WIDTHS.status }} />
-                <col style={{ width: COLUMN_WIDTHS.format }} />
-                <col />
-                <col style={{ width: COLUMN_WIDTHS.source }} />
-                <col style={{ width: COLUMN_WIDTHS.length }} />
-                <col style={{ width: COLUMN_WIDTHS.created }} />
-              </colgroup>
-              <thead>
-                <tr className="border-b border-neutral-800">
-                  <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
-                    Status
-                  </th>
-                  <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
-                    Format
-                  </th>
-                  <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
-                    Title
-                  </th>
-                  <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
-                    Source
-                  </th>
-                  <th className="px-1 py-2.5 text-right text-[11px] font-medium text-neutral-600">
-                    Length
-                  </th>
-                  <th className="px-1 py-2.5 text-right text-[11px] font-medium text-neutral-600">
-                    Created
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-1 py-10 text-center text-sm text-neutral-600"
-                    >
-                      No downloads match this filter.
-                    </td>
+
+        {downloads.length === 0 ? (
+          <div className="grid min-h-48 place-items-center text-center">
+            <div>
+              <p className="font-medium">No downloads yet</p>
+              <p className="mt-1 text-sm text-neutral-600">
+                New requests will appear here.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] table-fixed border-collapse">
+                <colgroup>
+                  <col style={{ width: COLUMN_WIDTHS.status }} />
+                  <col style={{ width: COLUMN_WIDTHS.format }} />
+                  <col />
+                  <col style={{ width: COLUMN_WIDTHS.source }} />
+                  <col style={{ width: COLUMN_WIDTHS.length }} />
+                  <col style={{ width: COLUMN_WIDTHS.created }} />
+                </colgroup>
+                <thead>
+                  <tr className="border-b border-neutral-800">
+                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                      Status
+                    </th>
+                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                      Format
+                    </th>
+                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                      Title
+                    </th>
+                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                      Source
+                    </th>
+                    <th className="px-1 py-2.5 text-right text-[11px] font-medium text-neutral-600">
+                      Length
+                    </th>
+                    <th className="px-1 py-2.5 text-right text-[11px] font-medium text-neutral-600">
+                      Created
+                    </th>
                   </tr>
-                ) : (
-                  rows.map((download) => {
-                    const tone =
-                      STATUS_TONE[download.status] ?? STATUS_TONE.expired;
-
-                    return (
-                      <tr
-                        key={download.id}
-                        className="border-b border-neutral-800/60 last:border-b-0 hover:bg-white/[0.015]"
+                </thead>
+                <tbody>
+                  {rows.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-1 py-10 text-center text-sm text-neutral-600"
                       >
-                        <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-2 text-[12.5px] font-semibold ${tone.text}`}
-                          >
-                            <span
-                              className={`size-[7px] shrink-0 rounded-full ${tone.dot}`}
-                              aria-hidden
-                            />
-                            {statusLabel(download.status)}
-                          </span>
-                        </td>
-                        <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                          <span className="rounded-full bg-neutral-800 px-2.5 py-0.5 text-[10.5px] font-bold text-neutral-300">
-                            {download.format.toUpperCase()}
-                          </span>
-                        </td>
-                        <td className="overflow-hidden px-1 py-3 align-middle">
-                          <span className="block truncate text-[13.5px] font-semibold tracking-[-0.02em]">
-                            {download.status === "complete" &&
-                            download.download_url ? (
-                              <a
-                                href={download.download_url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="transition hover:text-blue-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                              >
-                                {download.source_title}
-                              </a>
-                            ) : (
-                              download.source_title
-                            )}
-                            {download.reason ? (
-                              <>
-                                {" "}
-                                <span className="font-normal text-neutral-600">
-                                  ·
-                                </span>{" "}
-                                <span className="font-normal text-red-400">
-                                  {download.reason}
-                                </span>
-                              </>
-                            ) : null}
-                          </span>
-                        </td>
-                        <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                          <a
-                            href={download.source_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="group inline-flex max-w-full items-center gap-1.5 text-xs text-neutral-500 transition hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                          >
-                            <span
-                              className={`grid size-4 shrink-0 place-items-center rounded-[5px] text-white ${SOURCE_BADGE[download.source] ?? "bg-neutral-800"}`}
-                            >
-                              <SourceIcon source={download.source} />
-                            </span>
-                            <span className="truncate">
-                              {SOURCE_HOST[download.source] ?? download.source}
-                            </span>
-                            <ArrowUpRight
-                              size={12}
-                              strokeWidth={2.25}
-                              className="shrink-0 text-blue-200 opacity-0 group-hover:opacity-100"
-                            />
-                          </a>
-                        </td>
-                        <td className="overflow-hidden px-1 py-3 text-right align-middle text-[12.5px] whitespace-nowrap tabular-nums text-neutral-300">
-                          {formatDuration(download.duration)}
-                        </td>
-                        <td className="overflow-hidden px-1 py-3 text-right align-middle text-xs whitespace-nowrap tabular-nums text-neutral-600">
-                          <span
-                            className="cursor-default"
-                            title={formatGmt8Tooltip(download.created_at)}
-                          >
-                            {formatCreatedAgo(download.created_at, now)}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                        No downloads match this filter.
+                      </td>
+                    </tr>
+                  ) : (
+                    rows.map((download) => {
+                      const tone =
+                        STATUS_TONE[download.status] ?? STATUS_TONE.expired;
 
-          <div className="mt-1 flex items-center justify-between border-t border-neutral-800 px-1 pt-3 text-xs text-neutral-600">
-            <span>
-              <span className="font-semibold text-neutral-300">
-                {downloads.length}
-              </span>{" "}
-              total downloads
-            </span>
-            <span className="tabular-nums">
-              Last updated {formatRelative(loadedAt, now)}
-            </span>
-          </div>
-        </>
-      )}
-    </section>
+                      return (
+                        <tr
+                          key={download.id}
+                          className="border-b border-neutral-800/60 last:border-b-0 hover:bg-white/[0.015]"
+                        >
+                          <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center gap-2 text-[12.5px] font-semibold ${tone.text}`}
+                            >
+                              <span
+                                className={`size-[7px] shrink-0 rounded-full ${tone.dot}`}
+                                aria-hidden
+                              />
+                              {statusLabel(download.status)}
+                            </span>
+                          </td>
+                          <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
+                            <span className="rounded-full bg-neutral-800 px-2.5 py-0.5 text-[10.5px] font-bold text-neutral-300">
+                              {download.format.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="overflow-hidden px-1 py-3 align-middle">
+                            <span className="block truncate text-[13.5px] font-semibold tracking-[-0.02em]">
+                              {download.status === "complete" &&
+                              download.download_url ? (
+                                <a
+                                  href={download.download_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="transition hover:text-blue-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                                >
+                                  {download.source_title}
+                                </a>
+                              ) : (
+                                download.source_title
+                              )}
+                              {download.reason ? (
+                                <>
+                                  {" "}
+                                  <span className="font-normal text-neutral-600">
+                                    ·
+                                  </span>{" "}
+                                  <span className="font-normal text-red-400">
+                                    {download.reason}
+                                  </span>
+                                </>
+                              ) : null}
+                            </span>
+                          </td>
+                          <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
+                            <a
+                              href={download.source_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="group inline-flex max-w-full items-center gap-1.5 text-xs text-neutral-500 transition hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                            >
+                              <span
+                                className={`grid size-4 shrink-0 place-items-center rounded-[5px] text-white ${SOURCE_BADGE[download.source] ?? "bg-neutral-800"}`}
+                              >
+                                <SourceIcon source={download.source} />
+                              </span>
+                              <span className="truncate">
+                                {SOURCE_HOST[download.source] ?? download.source}
+                              </span>
+                              <ArrowUpRight
+                                size={12}
+                                strokeWidth={2.25}
+                                className="shrink-0 text-blue-200 opacity-0 group-hover:opacity-100"
+                              />
+                            </a>
+                          </td>
+                          <td className="overflow-hidden px-1 py-3 text-right align-middle text-[12.5px] whitespace-nowrap tabular-nums text-neutral-300">
+                            {formatDuration(download.duration)}
+                          </td>
+                          <td className="overflow-hidden px-1 py-3 text-right align-middle text-xs whitespace-nowrap tabular-nums text-neutral-600">
+                            <Tooltip content={formatGmt8Tooltip(download.created_at)}>
+                              <span className="cursor-default">
+                                {formatCreatedAgo(download.created_at, now)}
+                              </span>
+                            </Tooltip>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-1 flex items-center justify-between border-t border-neutral-800 px-1 pt-3 text-xs text-neutral-600">
+              <span>
+                <span className="font-semibold text-neutral-300">
+                  {downloads.length}
+                </span>{" "}
+                total downloads
+              </span>
+              <span className="tabular-nums">
+                Last updated {formatRelative(loadedAt, now)}
+              </span>
+            </div>
+          </>
+        )}
+      </section>
+    </TooltipProvider>
   );
 }
