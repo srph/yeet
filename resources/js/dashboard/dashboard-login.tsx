@@ -10,7 +10,7 @@ export default function Login() {
 
   return (
     <>
-      <Head title="Internal access" />
+      <Head title="Login" />
       <main className="fixed inset-0 overflow-y-auto bg-neutral-950 font-sans text-white">
         <div
           aria-hidden

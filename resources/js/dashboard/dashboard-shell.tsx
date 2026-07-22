@@ -20,7 +20,7 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
 
   return (
     <>
-      <Head title="Control room" />
+      <Head title="Control Panel" />
       <div className="fixed inset-0 overflow-y-auto bg-neutral-950 font-sans text-neutral-50 tracking-[-0.011em] antialiased">
         <header className="mx-auto flex max-w-[960px] items-center gap-3 px-[26px] py-4">
           <div className="flex items-center gap-2.5">
