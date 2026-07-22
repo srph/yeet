@@ -129,7 +129,7 @@ export function DashboardCookieBanner({
             Cookie Health
           </span>
           <Chip variant={chipVariant}>
-            {isHealthy ? <Check size={12} strokeWidth={3} /> : null}
+            {isHealthy ? <Check size={10} strokeWidth={3} /> : null}
             {statusLabel}
           </Chip>
         </div>
