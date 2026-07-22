@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
+import { EnterFadeUp } from "@/components/enter-fade-up/enter-fade-up";
 import { IconButton } from "@/components/icon-button/icon-button";
 
 const platforms = [
@@ -95,25 +96,29 @@ export default function About() {
         </div>
 
         <article className="w-full max-w-[440px]">
-          <h1 className="mt-5 text-center text-[33px] font-semibold leading-[1.05] tracking-[-0.04em]">
-            Paste a link,{" "}
-            <span className="text-blue-200">get a file.</span>
-          </h1>
-          <p className="mt-3 text-center text-[15px] leading-normal text-neutral-400">
-            A personal project of{" "}
-            <a
-              href="https://kierb.com"
-              target="_blank"
-              rel="noreferrer"
-              className="text-neutral-300 underline decoration-wavy decoration-blue-200 underline-offset-[3px] transition-colors duration-150 hover:text-white hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-            >
-              mine
-            </a>{" "}
-            to download silly videos from different websites. Please go easy on
-            it; there are rate limits so it stays up for everyone.
-          </p>
+          <EnterFadeUp delay={0.04}>
+            <h1 className="mt-5 text-center text-[33px] font-semibold leading-[1.05] tracking-[-0.04em]">
+              Paste a link,{" "}
+              <span className="text-blue-200">get a file.</span>
+            </h1>
+          </EnterFadeUp>
+          <EnterFadeUp delay={0.11}>
+            <p className="mt-3 text-center text-[15px] leading-normal text-neutral-400">
+              A personal project of{" "}
+              <a
+                href="https://kierb.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-neutral-300 underline decoration-wavy decoration-blue-200 underline-offset-[3px] transition-colors duration-150 hover:text-white hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+              >
+                mine
+              </a>{" "}
+              to download silly videos from different websites. Please go easy on
+              it; there are rate limits so it stays up for everyone.
+            </p>
+          </EnterFadeUp>
 
-          <section className="mt-[38px]">
+          <EnterFadeUp delay={0.18} className="mt-[38px]">
             <SectionHead no="01" title="Supported" />
             <div className="flex flex-wrap gap-2">
               {platforms.map((platform) => (
@@ -129,9 +134,9 @@ export default function About() {
               Audio as <span className="font-semibold text-white">MP3</span>,
               video as <span className="font-semibold text-white">MP4</span>.
             </p>
-          </section>
+          </EnterFadeUp>
 
-          <section className="mt-[38px]">
+          <EnterFadeUp delay={0.25} className="mt-[38px]">
             <SectionHead no="02" title="Limits" />
             <dl>
               {limits.map((limit) => (
@@ -143,9 +148,9 @@ export default function About() {
                 />
               ))}
             </dl>
-          </section>
+          </EnterFadeUp>
 
-          <section className="mt-[38px]">
+          <EnterFadeUp delay={0.32} className="mt-[38px]">
             <SectionHead no="03" title="Feedback" />
             <div className="flex flex-col gap-2">
               {feedback.map((row) => (
@@ -168,7 +173,7 @@ export default function About() {
                 </a>
               ))}
             </div>
-          </section>
+          </EnterFadeUp>
         </article>
 
         <div className="fixed inset-x-0 bottom-0 px-4 py-5">
