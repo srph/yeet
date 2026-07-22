@@ -1,4 +1,5 @@
 import { Head, usePage } from "@inertiajs/react";
+import { Button } from "@/components/button/button";
 
 type LoginProps = {
   flash: { error?: string };
@@ -16,7 +17,7 @@ export default function Login() {
           className="pointer-events-none fixed left-[40%] top-1/2 size-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(191,219,254,0.08),transparent_66%)]"
         />
 
-        <div className="relative mx-auto flex min-h-full max-w-[460px] flex-col items-start justify-center px-7 py-10 text-left">
+        <div className="relative mx-auto flex min-h-full max-w-[460px] flex-col items-start justify-center p-6 text-left">
           <img
             src="/logo.svg"
             alt=""
@@ -36,13 +37,14 @@ export default function Login() {
             </p>
           ) : null}
 
-          <a
-            href="/auth/discord"
-            className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-full bg-blue-200 px-[22px] py-[13px] text-sm font-bold text-blue-950 transition-[filter,transform] duration-150 hover:-translate-y-px hover:brightness-[1.06] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 max-md:absolute max-md:inset-x-7 max-md:bottom-10 max-md:mt-0"
-          >
-            <DiscordMark />
-            Continue with Discord
-          </a>
+          <div className="mt-8 max-md:absolute max-md:inset-x-6 max-md:bottom-6 max-md:mt-0">
+            <Button asChild className="w-full px-[22px]">
+              <a href="/auth/discord">
+                <DiscordMark />
+                Continue with Discord
+              </a>
+            </Button>
+          </div>
         </div>
       </main>
     </>

@@ -1,5 +1,6 @@
 import { LoaderCircleIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { Button } from "@/components/button/button";
 import type { DownloadMeta } from "../types";
 
 /** Lucide arrow-down-to-line, split so the arrow can ease toward the tray. */
@@ -35,12 +36,12 @@ export function HomeDownloadCta({
   const isSettled = status === "complete";
 
   return (
-    <button
+    <Button
       type="button"
       disabled={!isSettled}
       onClick={onDownload}
       aria-label={isSettled ? "Download Now" : "Processing Download"}
-      className="group relative h-11 w-full overflow-hidden rounded-full bg-blue-200 text-[14.5px] font-semibold tracking-[-0.02em] text-blue-950 transition-colors hover:bg-blue-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 disabled:cursor-not-allowed disabled:border disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-600 disabled:hover:bg-transparent"
+      className="group relative w-full overflow-hidden"
     >
       <AnimatePresence initial={false}>
         <motion.span
@@ -65,6 +66,6 @@ export function HomeDownloadCta({
           )}
         </motion.span>
       </AnimatePresence>
-    </button>
+    </Button>
   );
 }
