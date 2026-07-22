@@ -193,7 +193,7 @@ class CheckYtDlp extends Command
                 // Names + expiry only — never touch $parts[6] (the value).
                 $cookies[] = [
                     'name' => $name,
-                    'expires' => (int) $expiration,
+                    'expires' => $this->parseExpires($expiration),
                 ];
             }
         } finally {
@@ -201,5 +201,23 @@ class CheckYtDlp extends Command
         }
 
         return $cookies;
+    }
+
+    /**
+     * @see CookieHealthInspector::parseExpires()
+     */
+    private function parseExpires(string $raw): int
+    {
+        if (! ctype_digit($raw)) {
+            return 0;
+        }
+
+        $max = '253402300799';
+
+        if (strlen($raw) > strlen($max) || (strlen($raw) === strlen($max) && $raw > $max)) {
+            return 0;
+        }
+
+        return (int) $raw;
     }
 }

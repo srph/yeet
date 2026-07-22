@@ -122,7 +122,7 @@ class CookieHealthInspector
 
                 $cookies[] = [
                     'name' => $parts[5],
-                    'expires' => (int) $parts[4],
+                    'expires' => $this->parseExpires($parts[4]),
                 ];
             }
         } finally {
@@ -130,5 +130,27 @@ class CookieHealthInspector
         }
 
         return $cookies;
+    }
+
+    /**
+     * Netscape expiry is unix seconds. Chrome often writes UINT64_MAX
+     * (18446744073709551615) as a session sentinel — casting that to int
+     * overflows to PHP_INT_MAX and Carbon::createFromTimestampUTC throws
+     * "Unexpected data found. Trailing data".
+     */
+    private function parseExpires(string $raw): int
+    {
+        if (! ctype_digit($raw)) {
+            return 0;
+        }
+
+        // 9999-12-31 23:59:59 UTC — beyond what we bother treating as real.
+        $max = '253402300799';
+
+        if (strlen($raw) > strlen($max) || (strlen($raw) === strlen($max) && $raw > $max)) {
+            return 0;
+        }
+
+        return (int) $raw;
     }
 }

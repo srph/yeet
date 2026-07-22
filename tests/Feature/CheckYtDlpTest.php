@@ -89,6 +89,22 @@ it('parses HttpOnly-prefixed rows', function () {
     unlink($path);
 });
 
+it('treats chrome UINT64_MAX expiry as session', function () {
+    $path = writeCookies(
+        '.youtube.com	TRUE	/	TRUE	18446744073709551615	__Secure-3PSID	redacted'.PHP_EOL
+    );
+
+    config(['services.ytdlp.cookies' => $path]);
+
+    // formatExpiry(0) → "session"; overflow must not become year 292277026596.
+    test()->artisan('ytdlp:check')
+        ->expectsOutputToContain('__Secure-3PSID  session')
+        ->doesntExpectOutputToContain('292277026596')
+        ->assertSuccessful();
+
+    unlink($path);
+});
+
 it('fails when the file has no youtube cookies', function () {
     $path = writeCookies(netscapeLine('.google.com', 'NID'));
 
