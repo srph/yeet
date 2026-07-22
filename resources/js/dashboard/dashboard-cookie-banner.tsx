@@ -1,6 +1,7 @@
 import { router } from "@inertiajs/react";
 import { Check, RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Chip } from "@/components/chip/chip";
 
 type CookieHealth = {
   status: "healthy" | "unhealthy";
@@ -112,8 +113,13 @@ export function DashboardCookieBanner({
   const statusLabel = cookieHealth
     ? isHealthy
       ? "Active"
-      : "Needs attention"
+      : "Needs Attention"
     : "Not checked";
+  const chipVariant = cookieHealth
+    ? isHealthy
+      ? "success"
+      : "danger"
+    : "default";
 
   return (
     <section>
@@ -122,10 +128,10 @@ export function DashboardCookieBanner({
           <span className="text-[12.5px] font-medium text-neutral-500">
             Cookie Health
           </span>
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[rgba(191,219,254,0.14)] px-2.5 py-0.5 text-[11px] font-bold tracking-[-0.01em] text-blue-200">
+          <Chip variant={chipVariant}>
             {isHealthy ? <Check size={12} strokeWidth={3} /> : null}
             {statusLabel}
-          </span>
+          </Chip>
         </div>
 
         <dl className="grid flex-1 grid-cols-1 gap-x-8 gap-y-0.5 sm:grid-cols-2">
