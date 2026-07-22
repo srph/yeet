@@ -96,13 +96,21 @@ export default function About() {
 
         <article className="w-full max-w-[440px]">
           <h1 className="mt-5 text-center text-[33px] font-semibold leading-[1.05] tracking-[-0.04em]">
-            Grab any video,{" "}
-            <span className="text-blue-200">gone in seconds.</span>
+            Paste a link,{" "}
+            <span className="text-blue-200">get a file.</span>
           </h1>
           <p className="mt-3 text-center text-[15px] leading-normal text-neutral-400">
-            Yeet is the fast, no-nonsense way to pull a video off the web and
-            keep it as an MP3 or MP4. No account, no clutter — paste a link and
-            go.
+            A personal project of{" "}
+            <a
+              href="https://kierb.com"
+              target="_blank"
+              rel="noreferrer"
+              className="text-neutral-300 underline decoration-wavy decoration-blue-200 underline-offset-[3px] transition-colors duration-150 hover:text-white hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+            >
+              mine
+            </a>{" "}
+            to download silly videos from different websites. Please go easy on
+            it; there are rate limits so it stays up for everyone.
           </p>
 
           <section className="mt-[38px]">
