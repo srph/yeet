@@ -3,11 +3,11 @@ import { Head, Link } from "@inertiajs/react";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 const platforms = [
-  { label: "YouTube", swatch: "bg-red-600" },
-  { label: "X", swatch: "bg-neutral-200" },
-  { label: "Facebook", swatch: "bg-blue-600" },
-  { label: "TikTok", swatch: "bg-rose-500" },
-  { label: "Douyin", swatch: "bg-orange-600" },
+  { label: "YouTube", className: "bg-red-950 text-red-300" },
+  { label: "X", className: "bg-neutral-800 text-neutral-200" },
+  { label: "Facebook", className: "bg-blue-950 text-blue-300" },
+  { label: "TikTok", className: "bg-rose-950 text-rose-300" },
+  { label: "Douyin", className: "bg-orange-950 text-orange-300" },
 ] as const;
 
 const limits: { label: string; value: string; bright?: boolean }[] = [
@@ -81,10 +81,9 @@ export default function About() {
         <Link
           href="/"
           aria-label="Back to Yeet"
-          className="fixed top-0 left-0 z-20 inline-flex items-center gap-1.5 px-[18px] py-5 text-sm font-medium text-neutral-500 transition-colors duration-150 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+          className="fixed top-4 left-4 z-20 grid size-9 place-items-center rounded-full bg-white text-neutral-950 transition-[filter,transform] duration-150 hover:-translate-y-px hover:brightness-[1.06] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
         >
           <ArrowLeft size={16} strokeWidth={2.2} />
-          Back
         </Link>
 
         <div className="fixed inset-x-0 top-0 z-10 flex items-center justify-center gap-2.5 px-4 py-5">
@@ -109,11 +108,8 @@ export default function About() {
               {platforms.map((platform) => (
                 <span
                   key={platform.label}
-                  className="inline-flex items-center gap-[7px] rounded-full bg-neutral-800 px-3 py-1 text-[13px] font-semibold text-neutral-200"
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-semibold ${platform.className}`}
                 >
-                  <span
-                    className={`size-[5px] rounded-full ${platform.swatch}`}
-                  />
                   {platform.label}
                 </span>
               ))}
