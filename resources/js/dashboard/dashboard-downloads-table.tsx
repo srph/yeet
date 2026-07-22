@@ -66,15 +66,15 @@ const DAY = 24 * HOUR;
 const MONTH = 30 * DAY;
 const YEAR = 365 * DAY;
 
-const gmt8Parts = new Intl.DateTimeFormat("en-GB", {
+const gmt8Parts = new Intl.DateTimeFormat("en-US", {
   timeZone: "Asia/Manila",
   day: "2-digit",
   month: "short",
   year: "numeric",
-  hour: "2-digit",
+  hour: "numeric",
   minute: "2-digit",
   second: "2-digit",
-  hour12: false,
+  hour12: true,
 });
 
 function plural(count: number, unit: string) {
@@ -92,7 +92,7 @@ function formatCreatedAgo(iso: string, now: number) {
   return plural(Math.floor(elapsed / SECOND), "second");
 }
 
-/** "(GMT+8) dd m, y hh:mm:ss" — mono zone label, sans for the timestamp. */
+/** "(GMT+8) dd m, y h:mm:ss AM/PM" — mono zone label, sans for the timestamp. */
 function formatGmt8Tooltip(iso: string) {
   const parts = Object.fromEntries(
     gmt8Parts
@@ -106,7 +106,7 @@ function formatGmt8Tooltip(iso: string) {
       <span className="font-mono">(GMT+8)</span>{" "}
       <span>
         {parts.day} {parts.month}, {parts.year} {parts.hour}:{parts.minute}:
-        {parts.second}
+        {parts.second} {parts.dayPeriod}
       </span>
     </>
   );
