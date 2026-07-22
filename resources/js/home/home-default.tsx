@@ -40,6 +40,7 @@ export function HomeDefault({
             value={url}
             onChange={(e) => onUrlChange(e.target.value)}
             placeholder="https://youtu.be/IBDhuu7CoMI"
+            autoFocus
             className="w-full rounded-full border border-neutral-700 bg-neutral-800 py-3 pl-4 pr-[112px] text-sm font-medium outline-none transition placeholder:text-neutral-500 focus:border-blue-200 focus:ring-1 focus:ring-blue-200"
           />
           <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-2">
