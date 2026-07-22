@@ -2,6 +2,8 @@ import { Fragment } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
+import { IconButton } from "@/components/icon-button/icon-button";
+
 const platforms = [
   { label: "YouTube", className: "bg-red-950 text-red-300" },
   { label: "X", className: "bg-neutral-800 text-neutral-200" },
@@ -78,13 +80,14 @@ export default function About() {
       <Head title="About" />
 
       <div className="grid min-h-full place-items-center px-4 pt-20 pb-16">
-        <Link
-          href="/"
-          aria-label="Back to Yeet"
-          className="fixed top-4 left-4 z-20 grid size-9 place-items-center rounded-full bg-white text-neutral-950 transition-[filter,transform] duration-150 hover:-translate-y-px hover:brightness-[1.06] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+        <IconButton
+          asChild
+          className="fixed top-4 left-4 z-20 size-9 bg-white text-neutral-950 hover:bg-neutral-200"
         >
-          <ArrowLeft size={16} strokeWidth={2.2} />
-        </Link>
+          <Link href="/" aria-label="Back to Yeet">
+            <ArrowLeft size={16} strokeWidth={2.2} />
+          </Link>
+        </IconButton>
 
         <div className="fixed inset-x-0 top-0 z-10 flex items-center justify-center gap-2.5 px-4 py-5">
           <img src="/logo.svg" alt="" className="h-7 w-auto" />
