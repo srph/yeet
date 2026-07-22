@@ -1,4 +1,4 @@
-import { DecryptedText } from "@/components/decrypted-text";
+import { DecryptedText } from "@/components/decrypted-text/decrypted-text";
 import { DownloadMeta } from "../types";
 
 type Status = DownloadMeta["status"];
