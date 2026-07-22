@@ -109,7 +109,7 @@ export default function About() {
               {platforms.map((platform) => (
                 <span
                   key={platform.label}
-                  className="inline-flex items-center gap-[7px] rounded-full bg-neutral-800 px-3 py-[7px] text-[13px] font-semibold text-neutral-200"
+                  className="inline-flex items-center gap-[7px] rounded-full bg-neutral-800 px-3 py-1 text-[13px] font-semibold text-neutral-200"
                 >
                   <span
                     className={`size-[5px] rounded-full ${platform.swatch}`}
