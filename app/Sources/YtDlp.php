@@ -58,7 +58,7 @@ class YtDlp
         }
 
         try {
-            $json = json_decode($result->output(), true, flags: JSON_THROW_ON_ERROR);
+            $json = $this->decodeProbeJson($result->output());
         } catch (JsonException $e) {
             Log::warning('ytdlp.probe.fail', [
                 'url' => $url,
@@ -209,6 +209,10 @@ class YtDlp
         $args = [
             $this->binary,
             '--no-playlist', // a playlist URL must not fan out
+            // X quote/retweet posts with their own media still dump every
+            // attached video as a playlist. Item 1 is the media on the URL
+            // we were given (the quote/retweet), not the original.
+            '--playlist-items', '1',
             '--no-warnings',
             '--js-runtimes', 'node',
             '--remote-components', 'ejs:github',
@@ -223,16 +227,40 @@ class YtDlp
     }
 
     /**
+     * Multi-video X posts dump one JSON object per line. Take the first —
+     * that matches --playlist-items 1 (the media on the submitted URL).
+     *
+     * @return array<string, mixed>
+     */
+    private function decodeProbeJson(string $output): array
+    {
+        $line = trim(Str::before(ltrim($output), "\n"));
+
+        return json_decode($line, true, flags: JSON_THROW_ON_ERROR);
+    }
+
+    /**
      * Storyboards (mhtml/images) don't count — those are what YouTube leaves
      * behind when it refuses to serve media to a bot-checked IP.
+     *
+     * Twitter GIFs often omit vcodec/acodec entirely but still set
+     * video_ext to mp4 — treat that as downloadable too.
      */
     private function hasDownloadableFormats(array $json): bool
     {
         foreach ($json['formats'] ?? [] as $format) {
-            $vcodec = $format['vcodec'] ?? 'none';
-            $acodec = $format['acodec'] ?? 'none';
+            $vcodec = $format['vcodec'] ?? null;
+            $acodec = $format['acodec'] ?? null;
 
-            if ($vcodec !== 'none' || $acodec !== 'none') {
+            if (($vcodec !== null && $vcodec !== 'none')
+                || ($acodec !== null && $acodec !== 'none')) {
+                return true;
+            }
+
+            $videoExt = $format['video_ext'] ?? 'none';
+            $audioExt = $format['audio_ext'] ?? 'none';
+
+            if ($videoExt !== 'none' || $audioExt !== 'none') {
                 return true;
             }
         }

@@ -32,6 +32,8 @@ it('passes --cookies when a cookies path is configured', function () {
     Process::assertRan(fn ($process) => $process->command === [
         'yt-dlp',
         '--no-playlist',
+        '--playlist-items',
+        '1',
         '--no-warnings',
         '--js-runtimes',
         'node',
@@ -56,6 +58,8 @@ it('omits --cookies when none are configured', function () {
     Process::assertRan(fn ($process) => $process->command === [
         'yt-dlp',
         '--no-playlist',
+        '--playlist-items',
+        '1',
         '--no-warnings',
         '--js-runtimes',
         'node',
@@ -87,6 +91,55 @@ it('rejects probe results that only have storyboard formats', function () {
             App\Exceptions\SourceUnavailable::class,
             'No downloadable stream is available for this video right now.',
         );
+});
+
+it('accepts twitter gif formats that omit codecs but set video_ext', function () {
+    Process::fake([
+        '*' => Process::result(output: fakeProbeJson([
+            'title' => 'GIFs Out Of Context',
+            'formats' => [
+                [
+                    'format_id' => 'http',
+                    'ext' => 'mp4',
+                    'video_ext' => 'mp4',
+                    'audio_ext' => 'none',
+                    // Twitter leaves these null on tweet_video GIFs.
+                    'vcodec' => null,
+                    'acodec' => null,
+                ],
+            ],
+        ])),
+    ]);
+
+    $ytdlp = new YtDlp('yt-dlp');
+
+    expect($ytdlp->probe('https://x.com/GIFOOC/status/2079837045657366748'))
+        ->toMatchArray(['title' => 'GIFs Out Of Context']);
+});
+
+it('probes the first entry when yt-dlp dumps multi-video NDJSON', function () {
+    $first = fakeProbeJson([
+        'title' => 'Retweet video',
+        'duration' => 10.4,
+        'id' => '1',
+    ]);
+    $second = fakeProbeJson([
+        'title' => 'Original video',
+        'duration' => 26.0,
+        'id' => '2',
+    ]);
+
+    Process::fake([
+        '*' => Process::result(output: $first."\n".$second."\n"),
+    ]);
+
+    $ytdlp = new YtDlp('yt-dlp');
+
+    expect($ytdlp->probe('https://x.com/PlipThePlop/status/2079759713407779142'))
+        ->toMatchArray([
+            'title' => 'Retweet video',
+            'duration' => 10.4,
+        ]);
 });
 
 it('passes --max-filesize on download', function () {
