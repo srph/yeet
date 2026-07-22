@@ -1,5 +1,5 @@
 import { Head, router } from "@inertiajs/react";
-import { Download, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 
 type DashboardShellProps = {
@@ -14,55 +14,56 @@ type DashboardShellProps = {
 };
 
 export function DashboardShell({ user, flash, children }: DashboardShellProps) {
+  const handle = user.discord_handle
+    ? `@${user.discord_handle}`
+    : user.name;
+
   return (
     <>
       <Head title="Control room" />
-      <div className="fixed inset-0 overflow-y-auto bg-[#090b10] text-[#e9edf4]">
-        <div className="mx-auto min-h-full max-w-[1500px] px-5 py-6 sm:px-8 lg:px-12">
-          <header className="flex items-center justify-between border-b border-white/10 pb-5">
-            <div className="flex items-center gap-3">
-              <div className="grid size-9 place-items-center rounded-full bg-[#ffcf5c] text-black">
-                <Download size={17} strokeWidth={2.5} />
-              </div>
-              <div>
-                <p className="font-mono text-[10px] tracking-[0.24em] text-[#8791a3] uppercase">
-                  Yeet operations
-                </p>
-                <h1 className="font-playfair text-xl leading-none">
-                  Control room
-                </h1>
-              </div>
-            </div>
+      <div className="fixed inset-0 overflow-y-auto bg-neutral-950 font-sans text-neutral-50 tracking-[-0.011em] antialiased">
+        <header className="mx-auto flex max-w-[960px] items-center gap-3 px-[26px] py-4">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.svg" alt="" className="h-7 w-auto" />
+            <span className="text-[19px] font-semibold tracking-[-0.02em]">
+              Yeet Control Room
+            </span>
+          </div>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden text-right sm:block">
-                <p className="text-sm font-medium">{user.name}</p>
-                <p className="text-xs text-[#8791a3]">
-                  {user.discord_handle
-                    ? `@${user.discord_handle}`
-                    : user.email}
-                </p>
-              </div>
+          <div className="flex-1" />
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {user.discord_avatar ? (
                 <img
                   src={user.discord_avatar}
                   alt=""
-                  className="size-9 rounded-full bg-white/10"
+                  className="size-[30px] rounded-full bg-neutral-800"
                 />
-              ) : null}
-              <button
-                type="button"
-                onClick={() => router.post("/logout")}
-                aria-label="Log out"
-                className="grid size-9 place-items-center rounded-full border border-white/10 text-[#8791a3] transition hover:border-white/25 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-              >
-                <LogOut size={16} />
-              </button>
+              ) : (
+                <span
+                  aria-hidden
+                  className="size-[30px] rounded-full bg-linear-to-br from-[#5865f2] to-neutral-700"
+                />
+              )}
+              <span className="hidden text-[12.5px] font-medium text-neutral-400 sm:inline">
+                {handle}
+              </span>
             </div>
-          </header>
+            <button
+              type="button"
+              onClick={() => router.post("/logout")}
+              aria-label="Log out"
+              className="grid size-8 place-items-center rounded-full border border-neutral-800 text-neutral-500 transition hover:border-neutral-700 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
+        </header>
 
+        <div className="mx-auto max-w-[960px] px-[26px] pt-5 pb-14">
           {flash.success ? (
-            <div className="mt-5 border-l-2 border-[#ffcf5c] bg-[#ffcf5c]/8 px-4 py-3 text-sm text-[#f6d98d]">
+            <div className="mb-5 border-l-2 border-blue-200 bg-blue-200/8 px-4 py-3 text-sm text-blue-200">
               {flash.success}
             </div>
           ) : null}

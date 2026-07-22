@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import { Activity, Clock3, RefreshCw, ShieldCheck } from "lucide-react";
+import { Check, RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type CookieHealth = {
@@ -21,6 +21,38 @@ const dateTime = new Intl.DateTimeFormat(undefined, {
 
 function formatDate(value: string | null) {
   return value ? dateTime.format(new Date(value)) : "—";
+}
+
+function formatRelative(value: string | null) {
+  if (!value) return "—";
+
+  const seconds = Math.round((Date.now() - new Date(value).getTime()) / 1000);
+  if (seconds < 60) return `${Math.max(0, seconds)}s ago`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return formatDate(value);
+}
+
+function Spec({
+  label,
+  value,
+  bright,
+}: {
+  label: string;
+  value: string;
+  bright?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline gap-2.5 py-1 text-[12.5px]">
+      <dt className="whitespace-nowrap text-neutral-600">{label}</dt>
+      <span className="h-px flex-1 self-center bg-[repeating-linear-gradient(90deg,var(--color-neutral-800)_0_2px,transparent_2px_5px)]" />
+      <dd
+        className={`whitespace-nowrap tabular-nums ${bright ? "text-white" : "text-neutral-400"}`}
+      >
+        {value}
+      </dd>
+    </div>
+  );
 }
 
 export function DashboardCookieBanner({
@@ -76,112 +108,67 @@ export function DashboardCookieBanner({
   }, [waitingForCheck]);
 
   const checkInProgress = submittingCheck || waitingForCheck;
+  const isHealthy = cookieHealth?.status === "healthy";
+  const statusLabel = cookieHealth
+    ? isHealthy
+      ? "Active"
+      : "Needs attention"
+    : "Not checked";
 
   return (
-    <aside>
-      <div className="sticky top-6 overflow-hidden rounded-xl border border-white/10 bg-[#11151e]">
-        <div className="relative border-b border-white/10 px-5 py-5">
-          <div
-            className={`absolute inset-y-0 left-0 w-1 ${
-              cookieHealth?.status === "healthy"
-                ? "bg-emerald-300"
-                : cookieHealth
-                  ? "bg-rose-300"
-                  : "bg-[#697386]"
-            }`}
+    <section>
+      <div className="flex flex-col gap-5 rounded-2xl bg-neutral-900 px-[18px] py-4 sm:flex-row sm:items-center sm:gap-5">
+        <div className="flex min-w-[200px] flex-col gap-2">
+          <span className="text-[12.5px] font-medium text-neutral-500">
+            Cookie Health
+          </span>
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[rgba(191,219,254,0.14)] px-2.5 py-0.5 text-[11px] font-bold tracking-[-0.01em] text-blue-200">
+            {isHealthy ? <Check size={12} strokeWidth={3} /> : null}
+            {statusLabel}
+          </span>
+        </div>
+
+        <dl className="grid flex-1 grid-cols-1 gap-x-8 gap-y-0.5 sm:grid-cols-2">
+          <Spec
+            label="Last checked"
+            value={formatRelative(cookieHealth?.checked_at ?? null)}
+            bright
           />
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.2em] text-[#697386] uppercase">
-                Credential signal
-              </p>
-              <h2 className="mt-1 text-lg font-semibold">YouTube cookies</h2>
-            </div>
-            <div
-              className={`grid size-9 place-items-center rounded-full ${
-                cookieHealth?.status === "healthy"
-                  ? "bg-emerald-300/15 text-emerald-300"
-                  : cookieHealth
-                    ? "bg-rose-300/15 text-rose-300"
-                    : "bg-white/5 text-[#697386]"
-              }`}
-            >
-              {cookieHealth?.status === "healthy" ? (
-                <ShieldCheck size={18} />
-              ) : (
-                <Activity size={18} />
-              )}
-            </div>
-          </div>
-        </div>
+          <Spec
+            label="Session expiry"
+            value={formatDate(cookieHealth?.session_expires_at ?? null)}
+          />
+          <Spec
+            label="Cookies found"
+            value={cookieHealth?.cookie_count?.toString() ?? "—"}
+          />
+          <Spec
+            label="Fingerprint"
+            value={
+              cookieHealth?.cookie_file_fingerprint
+                ? cookieHealth.cookie_file_fingerprint.slice(0, 10)
+                : "—"
+            }
+          />
+        </dl>
 
-        <div className="px-5 py-5">
-          <p className="text-3xl font-semibold tracking-tight">
-            {cookieHealth
-              ? cookieHealth.status === "healthy"
-                ? "Active"
-                : "Needs attention"
-              : "Not checked"}
-          </p>
-          <p className="mt-2 min-h-10 text-sm leading-5 text-[#9aa4b5]">
-            {cookieHealth?.message ??
-              "Queue the first live probe to establish cookie health."}
-          </p>
-
-          <dl className="mt-6 divide-y divide-white/[0.07] border-y border-white/[0.07]">
-            {[
-              ["Last checked", formatDate(cookieHealth?.checked_at ?? null)],
-              [
-                "File updated",
-                formatDate(cookieHealth?.file_modified_at ?? null),
-              ],
-              [
-                "File fingerprint",
-                cookieHealth?.cookie_file_fingerprint
-                  ? cookieHealth.cookie_file_fingerprint.slice(0, 12)
-                  : "—",
-              ],
-              [
-                "Session expiry",
-                formatDate(cookieHealth?.session_expires_at ?? null),
-              ],
-              ["Cookies found", cookieHealth?.cookie_count?.toString() ?? "—"],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="flex items-center justify-between gap-4 py-3"
-              >
-                <dt className="text-xs text-[#697386]">{label}</dt>
-                <dd className="max-w-48 text-right font-mono text-[11px] text-[#c1c8d3]">
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-
-          <button
-            type="button"
-            onClick={queueHealthcheck}
-            disabled={checkInProgress}
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#ffcf5c] px-4 py-3 text-sm font-bold text-[#17130a] transition hover:bg-[#ffda7c] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-          >
-            <RefreshCw
-              size={15}
-              className={checkInProgress ? "animate-spin" : ""}
-            />
-            {submittingCheck
-              ? "Queueing…"
-              : waitingForCheck
-                ? "Waiting for worker…"
-                : "Check now"}
-          </button>
-
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-[#697386]">
-            <Clock3 size={12} />
-            Runs Mondays at 03:00
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={queueHealthcheck}
+          disabled={checkInProgress}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-blue-200 px-4 py-2.5 text-[13px] font-bold tracking-[-0.01em] text-blue-950 transition hover:bg-blue-300 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+        >
+          <RefreshCw
+            size={14}
+            className={checkInProgress ? "animate-spin" : ""}
+          />
+          {submittingCheck
+            ? "Queueing…"
+            : waitingForCheck
+              ? "Waiting…"
+              : "Run probe"}
+        </button>
       </div>
-    </aside>
+    </section>
   );
 }

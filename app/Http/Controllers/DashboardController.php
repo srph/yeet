@@ -19,6 +19,7 @@ class DashboardController extends Controller
             ->get([
                 'id',
                 'source',
+                'source_url',
                 'source_title',
                 'format',
                 'status',
@@ -26,6 +27,8 @@ class DashboardController extends Controller
                 'duration',
                 'fulfilled_at',
                 'created_at',
+                // Needed for the download_url accessor; $hidden, so not in JSON.
+                'storage_key',
             ]);
 
         return Inertia::render('dashboard/dashboard', [

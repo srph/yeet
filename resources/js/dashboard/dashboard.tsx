@@ -6,11 +6,13 @@ import { DashboardShell } from "./dashboard-shell";
 type DownloadRow = {
   id: string;
   source: string;
+  source_url: string;
   source_title: string;
   format: "mp3" | "mp4";
   status: string;
   reason: string | null;
   duration: number | null;
+  download_url: string | null;
   fulfilled_at: string | null;
   created_at: string;
 };
@@ -46,9 +48,9 @@ export default function Dashboard() {
 
   return (
     <DashboardShell user={auth.user} flash={flash}>
-      <main className="grid gap-6 py-7 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <DashboardDownloadsTable downloads={downloads} />
+      <main className="grid gap-1">
         <DashboardCookieBanner cookieHealth={cookieHealth} />
+        <DashboardDownloadsTable downloads={downloads} />
       </main>
     </DashboardShell>
   );
