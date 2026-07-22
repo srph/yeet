@@ -38,7 +38,7 @@ export default function Login() {
 
           <a
             href="/auth/discord"
-            className="mt-8 inline-flex items-center gap-2.5 rounded-full bg-blue-200 px-[22px] py-[13px] text-sm font-bold text-blue-950 transition-[filter,transform] duration-150 hover:-translate-y-px hover:brightness-[1.06] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+            className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-full bg-blue-200 px-[22px] py-[13px] text-sm font-bold text-blue-950 transition-[filter,transform] duration-150 hover:-translate-y-px hover:brightness-[1.06] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 max-md:absolute max-md:inset-x-7 max-md:bottom-10 max-md:mt-0"
           >
             <DiscordMark />
             Continue with Discord
