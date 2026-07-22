@@ -8,6 +8,7 @@ use Inertia\Inertia;
 // Inertia is only rendering the view — no props. All data flows through
 // React Query against /api/download, exactly as it did under Next.js.
 Route::get('/', fn () => Inertia::render('home'))->name('home');
+Route::get('/about', fn () => Inertia::render('about'))->name('about');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', fn () => Inertia::render('dashboard/dashboard-login'))->name('login');

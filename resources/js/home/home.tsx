@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
-import { Head } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { useYeetMutation } from "../mutations";
 import { useDownloadMeta } from "../queries";
 import invariant from "tiny-invariant";
@@ -106,13 +106,13 @@ export default function Home() {
         </AnimatePresence>
       </MotionConfig>
 
-      <div className="fixed inset-x-0 bottom-0 grid place-items-center px-4 py-5">
-        <div className="flex w-full items-center justify-between gap-6 text-sm leading-none sm:w-auto sm:justify-center">
+      <div className="fixed inset-x-0 bottom-0 px-4 py-5">
+        <div className="flex w-full items-center justify-between gap-6 text-sm leading-none">
           <span className="text-neutral-600">
             Crafted by{" "}
             <a
               href="https://kierb.com"
-              className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+              className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
               target="_blank"
             >
               Kier Borromeo
@@ -124,13 +124,22 @@ export default function Home() {
                 {i > 0 && (
                   <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
                 )}
-                <a
-                  href={link.href}
-                  className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                  target="_blank"
-                >
-                  {link.label}
-                </a>
+                {link.external ? (
+                  <a
+                    href={link.href}
+                    className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                    target="_blank"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                  >
+                    {link.label}
+                  </Link>
+                )}
               </Fragment>
             ))}
           </div>
@@ -142,11 +151,18 @@ export default function Home() {
 
 const links = [
   {
+    label: "About",
+    href: "/about",
+    external: false,
+  },
+  {
     label: "GitHub",
     href: "https://github.com/srph",
+    external: true,
   },
   {
     label: "Twitter",
     href: "https://twitter.com/_srph",
+    external: true,
   },
 ];
