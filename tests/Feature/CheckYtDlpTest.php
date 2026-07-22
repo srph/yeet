@@ -149,7 +149,7 @@ it('fails the command when --probe hits no_formats', function () {
 
     $this->mock(YtDlp::class, function ($m) {
         $m->shouldReceive('probe')->once()->andThrow(new SourceUnavailable(
-            'YouTube isn\'t serving a downloadable stream for this video right now.'
+            'No downloadable stream is available for this video right now.'
         ));
     });
 

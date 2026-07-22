@@ -83,7 +83,10 @@ it('rejects probe results that only have storyboard formats', function () {
     $ytdlp = new YtDlp('yt-dlp');
 
     expect(fn () => $ytdlp->probe('https://youtu.be/dQw4w9WgXcQ'))
-        ->toThrow(App\Exceptions\SourceUnavailable::class);
+        ->toThrow(
+            App\Exceptions\SourceUnavailable::class,
+            'No downloadable stream is available for this video right now.',
+        );
 });
 
 it('passes --max-filesize on download', function () {

@@ -84,7 +84,7 @@ class YtDlp
             ]);
 
             throw new SourceUnavailable(
-                'YouTube isn\'t serving a downloadable stream for this video right now.'
+                'No downloadable stream is available for this video right now.'
             );
         }
 

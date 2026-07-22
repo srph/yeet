@@ -134,7 +134,7 @@ it('fails without downloading when probe finds no streams', function () {
     // stays fast; bot-checked / private videos fail here instead.
     $this->mock(YtDlp::class, function ($m) {
         $m->shouldReceive('probe')->once()->andThrow(new SourceUnavailable(
-            'YouTube isn\'t serving a downloadable stream for this video right now.'
+            'No downloadable stream is available for this video right now.'
         ));
         $m->shouldReceive('download')->never();
     });
@@ -147,7 +147,7 @@ it('fails without downloading when probe finds no streams', function () {
 
     expect($download->status)->toBe('failed')
         ->and($download->reason)->toBe(
-            'YouTube isn\'t serving a downloadable stream for this video right now.'
+            'No downloadable stream is available for this video right now.'
         )
         ->and($download->fulfilled_at)->not->toBeNull();
 });
