@@ -181,12 +181,24 @@ it('presigns the download url on read rather than storing it', function () {
     Storage::fake('s3');
     Storage::disk('s3')->put('yeet/youtube/dQw4w9WgXcQ.mp4', 'bytes');
 
+    $seenOptions = null;
+    Storage::disk('s3')->buildTemporaryUrlsUsing(function ($path, $expiration, $options = []) use (&$seenOptions) {
+        $seenOptions = $options;
+
+        return 'https://example.test/'.$path.'?expiration='.$expiration->getTimestamp();
+    });
+
     $download = Download::factory()->complete()->create();
 
     // The old app stored a presigned URL in the DB, so it started decaying the
     // moment it was written: a 1hr link against a 7-day expires_at.
     expect($download->download_url)->not->toBeNull();
     expect(array_key_exists('download_url', $download->getAttributes()))->toBeFalse();
+
+    // Without attachment disposition, browsers open mp3/mp4 instead of saving.
+    expect($seenOptions['ResponseContentDisposition'] ?? null)
+        ->toContain('attachment')
+        ->toContain('dQw4w9WgXcQ.mp4');
 });
 
 it('has no download url once the object is gone', function () {

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Throwable;
 
 class Download extends Model
@@ -63,7 +64,20 @@ class Download extends Model
             }
 
             try {
-                return Storage::disk('s3')->temporaryUrl($this->storage_key, now()->addHour());
+                // Cross-origin S3 URLs ignore <a download>, so browsers will
+                // play mp3/mp4 inline unless S3 itself sends attachment.
+                $filename = $this->storage_file_name ?: basename($this->storage_key);
+
+                return Storage::disk('s3')->temporaryUrl(
+                    $this->storage_key,
+                    now()->addHour(),
+                    [
+                        'ResponseContentDisposition' => HeaderUtils::makeDisposition(
+                            HeaderUtils::DISPOSITION_ATTACHMENT,
+                            $filename,
+                        ),
+                    ],
+                );
             } catch (Throwable $e) {
                 Log::error('storage.presign.fail', [
                     'download_id' => $this->id,

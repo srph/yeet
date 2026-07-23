@@ -292,8 +292,6 @@ export function DashboardDownloadsTable({
                               download.download_url ? (
                                 <a
                                   href={download.download_url}
-                                  target="_blank"
-                                  rel="noreferrer"
                                   className="transition hover:text-blue-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
                                 >
                                   {download.source_title}
