@@ -53,3 +53,7 @@
 body {
     @apply bg-neutral-950 overflow-hidden;
 }
+
+::selection {
+    @apply bg-blue-200 text-blue-950;
+}
