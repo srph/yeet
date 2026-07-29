@@ -13,4 +13,13 @@ interface Source
      * doesn't recognize the URL.
      */
     public function extractId(string $url): ?string;
+
+    /**
+     * yt-dlp flags this source needs to get past whatever it puts in the way —
+     * bot checks, cookie jars, headers. Empty for sources that just work.
+     * Flags that apply to every source live in YtDlp, not here.
+     *
+     * @return list<string>
+     */
+    public function ytdlpArgs(): array;
 }

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\DouyinCookies;
 use App\Sources\DouyinSource;
 use App\Sources\FacebookSource;
 use App\Sources\SourceResolver;
@@ -21,21 +22,28 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(YtDlp::class, fn () => new YtDlp(
-            config('services.ytdlp.binary'),
-            config('services.ytdlp.cookies') ?: null,
+        $this->app->singleton(DouyinCookies::class, fn () => new DouyinCookies(
+            config('services.ytdlp.douyin_cookies'),
         ));
 
         // The source registry. Adding a source is one class and one line here.
         // Order only matters if two adapters could claim the same URL — they
         // can't today, but keep the most specific first as a habit.
-        $this->app->singleton(SourceResolver::class, fn () => new SourceResolver([
-            new YouTubeSource,
+        //
+        // Constructor args are the price of each adapter owning its own
+        // yt-dlp flags; a source with nothing to get past stays a bare `new`.
+        $this->app->singleton(SourceResolver::class, fn ($app) => new SourceResolver([
+            new YouTubeSource(config('services.ytdlp.cookies') ?: null),
             new XSource,
             new FacebookSource,
             new TikTokSource,
-            new DouyinSource,
+            new DouyinSource($app->make(DouyinCookies::class)),
         ]));
+
+        $this->app->singleton(YtDlp::class, fn ($app) => new YtDlp(
+            config('services.ytdlp.binary'),
+            $app->make(SourceResolver::class),
+        ));
     }
 
     public function boot(): void

@@ -18,7 +18,7 @@ class YtDlp
 {
     public function __construct(
         private string $binary,
-        private ?string $cookies = null,
+        private SourceResolver $resolver,
     ) {}
 
     /**
@@ -37,7 +37,7 @@ class YtDlp
         // downloadable format and dies with "Requested format is not available"
         // before we can read title/thumbnail — or tell the user why.
         $result = Process::timeout(30)->run([
-            ...$this->baseArgs(),
+            ...$this->baseArgs($url),
             '--dump-json',
             '--ignore-no-formats-error',
             $url,
@@ -130,7 +130,7 @@ class YtDlp
         // --max-filesize aborts when yt-dlp knows the remote size; the
         // post-download check below covers unknown/merged sizes.
         $result = Process::timeout(3500)->run([
-            ...$this->baseArgs(),
+            ...$this->baseArgs($url),
             ...$args,
             '--max-filesize', (string) $maxBytes,
             '-o', "{$dir}/media.%(ext)s", // yt-dlp fills in the real extension
@@ -193,20 +193,20 @@ class YtDlp
     }
 
     /**
-     * Shared flags.
+     * The flags every source gets, plus whatever that source asks for.
      *
-     * - --js-runtimes node: YouTube serves JS challenges; yt-dlp needs a
-     *   runtime to solve them. Deno is yt-dlp's default, but we always have
-     *   Node 22 on Forge/local, so force that.
-     * - --remote-components ejs:github: the challenge solver scripts. Bundled
-     *   in some yt-dlp installs, missing in others — fetch if needed.
-     * - --cookies: datacenter IPs still get bot-checked even with a runtime.
+     * --no-playlist and --playlist-items 1 stay here on purpose: "exactly one
+     * video" is an app-wide rule, not a per-source quirk, even though it was
+     * an X quote/retweet that made us notice. Everything else — bot checks,
+     * cookie jars, spoofed headers — belongs to the adapter that needs it.
      *
      * @return list<string>
      */
-    private function baseArgs(): array
+    private function baseArgs(string $url): array
     {
-        $args = [
+        $source = $this->resolver->resolve($url)[0] ?? null;
+
+        return [
             $this->binary,
             '--no-playlist', // a playlist URL must not fan out
             // X quote/retweet posts with their own media still dump every
@@ -214,16 +214,10 @@ class YtDlp
             // we were given (the quote/retweet), not the original.
             '--playlist-items', '1',
             '--no-warnings',
-            '--js-runtimes', 'node',
-            '--remote-components', 'ejs:github',
+            // Null only for URLs no adapter claims — the controller 422s
+            // those, so in practice this is always a real source.
+            ...$source?->ytdlpArgs() ?? [],
         ];
-
-        if ($this->cookies) {
-            $args[] = '--cookies';
-            $args[] = $this->cookies;
-        }
-
-        return $args;
     }
 
     /**

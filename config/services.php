@@ -48,6 +48,9 @@ return [
         // Netscape cookies.txt. YouTube bot-checks bare datacenter IPs;
         // export from a logged-in browser and point this at the file.
         'cookies' => env('YTDLP_COOKIES'),
+        // Douyin needs its own jar — different domain, and nothing to export.
+        // `php artisan ytdlp:douyin` writes it; see App\Services\DouyinCookies.
+        'douyin_cookies' => env('DOUYIN_COOKIES', storage_path('app/douyin-cookies.txt')),
     ],
 
     'downloads' => [

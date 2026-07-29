@@ -19,6 +19,25 @@ php artisan queue:work --queue=downloads   # jobs
 - **Extraction:** `yt-dlp` + `ffmpeg`
 - **Storage:** S3-compatible object storage
 
+## Cookies
+
+Two jars, both files on disk, both pointed at by env.
+
+| | `YTDLP_COOKIES` | `DOUYIN_COOKIES` |
+| --- | --- | --- |
+| Covers | everything except Douyin | Douyin only |
+| Written by | browser export, throwaway account | `php artisan ytdlp:douyin` |
+| Inspect | `php artisan ytdlp:check` | `php artisan ytdlp:douyin` (no-op when present) |
+
+Neither is minted at request time — a missing Douyin jar throws, naming the
+command. `App\Services\DouyinCookies` has the why.
+
+Each jar belongs to its adapter's `Source::ytdlpArgs()`, not to `YtDlp`.
+`YtDlp` contributes only what every source gets (`--no-playlist`,
+`--playlist-items 1`, `--no-warnings`) and appends whatever the resolved
+source asks for — bot-check workarounds, cookies, spoofed headers. Adding a
+source with a new quirk should never mean editing `YtDlp`.
+
 ## Endpoints
 
 | Method | Path                       | Notes                                                                                                          |

@@ -16,4 +16,10 @@ class XSource implements Source
     {
         return preg_match(self::PATTERN, $url, $m) ? $m[1] : null;
     }
+
+    /** Nothing special — yt-dlp handles this one unaided. */
+    public function ytdlpArgs(): array
+    {
+        return [];
+    }
 }

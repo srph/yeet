@@ -27,6 +27,11 @@ class YouTubeSource implements Source
         '~youtube\.com/shorts/([a-zA-Z0-9_-]{11})'.self::BOUNDARY.'~',
     ];
 
+    public function __construct(
+        /** Netscape jar from YTDLP_COOKIES; null is fine on IPs YouTube trusts. */
+        private readonly ?string $cookies = null,
+    ) {}
+
     public function key(): string
     {
         return 'youtube';
@@ -41,5 +46,23 @@ class YouTubeSource implements Source
         }
 
         return null;
+    }
+
+    /**
+     * - --js-runtimes node: YouTube serves JS challenges; yt-dlp needs a
+     *   runtime to solve them. Deno is yt-dlp's default, but we always have
+     *   Node 22 on Forge/local, so force that.
+     * - --remote-components ejs:github: the challenge solver scripts. Bundled
+     *   in some yt-dlp installs, missing in others — fetch if needed.
+     * - --cookies: datacenter IPs still get bot-checked even with a runtime.
+     *   See the README on exporting them.
+     */
+    public function ytdlpArgs(): array
+    {
+        return [
+            '--js-runtimes', 'node',
+            '--remote-components', 'ejs:github',
+            ...$this->cookies ? ['--cookies', $this->cookies] : [],
+        ];
     }
 }

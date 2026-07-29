@@ -31,4 +31,10 @@ class FacebookSource implements Source
 
         return null;
     }
+
+    /** Nothing special — yt-dlp handles this one unaided. */
+    public function ytdlpArgs(): array
+    {
+        return [];
+    }
 }

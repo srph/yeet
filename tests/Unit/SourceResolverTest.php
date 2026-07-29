@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\DouyinCookies;
 use App\Sources\DouyinSource;
 use App\Sources\FacebookSource;
 use App\Sources\SourceResolver;
@@ -16,7 +17,8 @@ beforeEach(function () {
         new XSource,
         new FacebookSource,
         new TikTokSource,
-        new DouyinSource,
+        // Only ytdlpArgs() touches the jar, and nothing here calls it.
+        new DouyinSource(new DouyinCookies('/tmp/unused.txt')),
     ]);
 });
 

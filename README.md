@@ -100,3 +100,22 @@ Exit non-zero if the file is missing/unreadable, has no YouTube cookies, or
 Cookies go stale or YouTube invalidates the session. Re-export from the same
 throwaway profile, replace the server file, no code change needed. Also keep
 yt-dlp updated (`yt-dlp -U`).
+
+## Douyin cookies
+
+Douyin needs its own cookie jar. `YTDLP_COOKIES` is a youtube.com file and
+yt-dlp only sends cookies matching the request host, so it never reaches
+Douyin. There's no browser export and no account here — one command writes it:
+
+```sh
+php artisan ytdlp:douyin
+```
+
+Lands in `storage/app/douyin-cookies.txt` (override with `DOUYIN_COOKIES`).
+Run it once per machine — `composer setup` covers local, so this is mainly a
+one-off on the server. Without it, Douyin downloads throw and the exception
+names this command.
+
+Re-run with `--force` if Douyin starts refusing the cookie; it isn't routine
+upkeep, the cookie's own expiry is a year out. `App\Services\DouyinCookies`
+explains what Douyin is actually checking for.
