@@ -39,6 +39,12 @@ const samples: Sample[] = [
     duration: "5:18",
     url: "https://www.douyin.com/video/7490329970397482290",
   },
+  {
+    source: "x",
+    title: "capybara gunpoint",
+    duration: "0:14",
+    url: "https://x.com/PaataNahiYar/status/2083475364651889030",
+  },
 ];
 
 export function HomeDefaultSourceTags({
