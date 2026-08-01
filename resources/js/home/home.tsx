@@ -90,7 +90,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="w-full max-w-[360px] min-w-0"
+              className="w-full max-w-[480px] min-w-0"
             >
               <HomeDefault
                 url={url}

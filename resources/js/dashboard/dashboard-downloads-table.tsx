@@ -1,7 +1,9 @@
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
+import { SourceIcon } from "@/components/source-icon/source-icon";
 import { Tooltip, TooltipProvider } from "@/components/tooltip/tooltip";
 import { useNow } from "@/hooks/use-now";
+import { isSource, SOURCES } from "@/sources";
 
 type DownloadRow = {
   id: string;
@@ -26,22 +28,6 @@ const STATUS_TONE: Record<string, { text: string; dot: string }> = {
   probing: { text: "text-sky-300", dot: "bg-sky-300" },
   queued: { text: "text-neutral-400", dot: "bg-neutral-400" },
   expired: { text: "text-neutral-600", dot: "bg-neutral-600" },
-};
-
-const SOURCE_BADGE: Record<string, string> = {
-  youtube: "bg-red-700",
-  x: "bg-neutral-950 border border-neutral-700",
-  facebook: "bg-blue-600",
-  tiktok: "bg-rose-600",
-  douyin: "bg-orange-600",
-};
-
-const SOURCE_HOST: Record<string, string> = {
-  youtube: "youtube.com",
-  x: "x.com",
-  facebook: "facebook.com",
-  tiktok: "tiktok.com",
-  douyin: "douyin.com",
 };
 
 const FILTERS: { id: Filter; label: string }[] = [
@@ -145,26 +131,6 @@ function matchesFilter(status: string, filter: Filter) {
   return status === filter;
 }
 
-function SourceIcon({ source }: { source: string }) {
-  if (source === "youtube") {
-    return (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="size-2.5" aria-hidden>
-        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
-      </svg>
-    );
-  }
-
-  if (source === "x") {
-    return (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="size-2.5" aria-hidden>
-        <path d="M18.2 2.2h3.4l-7.4 8.5L23 21.8h-6.8l-5.3-7-6.1 7H1.4l7.9-9.1L1 2.2h7l4.8 6.4 5.4-6.4Zm-1.2 17.6h1.9L7.1 4.1H5.1l11.9 15.7Z" />
-      </svg>
-    );
-  }
-
-  return null;
-}
-
 export function DashboardDownloadsTable({
   downloads,
 }: {
@@ -264,6 +230,11 @@ export function DashboardDownloadsTable({
                     rows.map((download) => {
                       const tone =
                         STATUS_TONE[download.status] ?? STATUS_TONE.expired;
+                      // Rows come off Inertia as loose strings, so narrow
+                      // before indexing rather than trusting the column.
+                      const source = isSource(download.source)
+                        ? SOURCES[download.source]
+                        : null;
 
                       return (
                         <tr
@@ -320,12 +291,17 @@ export function DashboardDownloadsTable({
                               className="group inline-flex max-w-full items-center gap-1.5 text-xs text-neutral-500 transition hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
                             >
                               <span
-                                className={`grid size-4 shrink-0 place-items-center rounded-[5px] text-white ${SOURCE_BADGE[download.source] ?? "bg-neutral-800"}`}
+                                className={`grid size-4 shrink-0 place-items-center rounded-[5px] text-white ${source?.badge ?? "bg-neutral-800"}`}
                               >
-                                <SourceIcon source={download.source} />
+                                {isSource(download.source) && (
+                                  <SourceIcon
+                                    source={download.source}
+                                    className="size-2.5"
+                                  />
+                                )}
                               </span>
                               <span className="truncate">
-                                {SOURCE_HOST[download.source] ?? download.source}
+                                {source?.host ?? download.source}
                               </span>
                               <ArrowUpRight
                                 size={12}

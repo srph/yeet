@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SOURCE_IDS } from "./sources";
 
 // Snake_case throughout — this is Eloquent's serialization, consumed as-is.
 // The schema is a 1:1 mirror of the Download model's JSON, which is the upside
@@ -6,7 +7,7 @@ import { z } from "zod";
 export const DownloadMetaSchema = z.object({
   id: z.string(),
 
-  source: z.enum(["youtube", "x", "facebook", "tiktok", "douyin"]),
+  source: z.enum(SOURCE_IDS),
   source_url: z.string(),
   source_id: z.string(),
   source_title: z.string(),

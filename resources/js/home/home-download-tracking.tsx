@@ -6,6 +6,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { DownloadMeta } from "../types";
 import { Button } from "@/components/button/button";
+import { SOURCES } from "@/sources";
 import { HomeDownloadCta } from "./home-download-cta";
 import { HomeDownloadStatus } from "./home-download-status";
 
@@ -18,24 +19,6 @@ import { HomeDownloadStatus } from "./home-download-status";
  * plausible-looking "1920x1080 · 60fps" that doesn't reflect the actual file
  * is worse than an absent row.
  */
-
-// The open badge is the one piece of source-specific chrome. lucide dropped
-// brand glyphs in v1, so the source reads through colour rather than a logo.
-const SOURCE_BADGE: Record<DownloadMeta["source"], string> = {
-  youtube: "bg-red-700",
-  x: "bg-neutral-950",
-  facebook: "bg-blue-600",
-  tiktok: "bg-rose-600",
-  douyin: "bg-orange-600",
-};
-
-const SOURCE_LABEL: Record<DownloadMeta["source"], string> = {
-  youtube: "YouTube",
-  x: "X",
-  facebook: "Facebook",
-  tiktok: "TikTok",
-  douyin: "Douyin",
-};
 
 const formatDuration = (seconds: number) => {
   const total = Math.max(0, Math.round(seconds));
@@ -331,14 +314,14 @@ export const HomeDownloadTracking = ({
             <>
               <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_100%_0%,rgba(0,0,0,0.45)_0%,transparent_60%)] opacity-0 transition-opacity duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:opacity-100" />
               <span
-                className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg ${SOURCE_BADGE[meta.source]}`}
+                className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg ${SOURCES[meta.source].badge}`}
               >
                 <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:max-w-[12rem]">
                   <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
-                    Watch on {SOURCE_LABEL[meta.source]}
+                    Watch on {SOURCES[meta.source].label}
                   </span>
                   <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0">
-                    Watch on {SOURCE_LABEL[meta.source]}
+                    Watch on {SOURCES[meta.source].label}
                   </span>
                 </span>
                 <span className="grid size-9 shrink-0 place-items-center text-white">

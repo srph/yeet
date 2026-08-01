@@ -4,14 +4,7 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import { EnterFadeUp } from "@/components/enter-fade-up/enter-fade-up";
 import { IconButton } from "@/components/icon-button/icon-button";
-
-const platforms = [
-  { label: "YouTube", className: "bg-red-950 text-red-300" },
-  { label: "X", className: "bg-neutral-800 text-neutral-200" },
-  { label: "Facebook", className: "bg-blue-950 text-blue-300" },
-  { label: "TikTok", className: "bg-rose-950 text-rose-300" },
-  { label: "Douyin", className: "bg-orange-950 text-orange-300" },
-] as const;
+import { SOURCE_LIST } from "@/sources";
 
 const limits: { label: string; value: string; bright?: boolean }[] = [
   { label: "Max file size", value: "200 MiB", bright: true },
@@ -121,12 +114,12 @@ export default function About() {
           <EnterFadeUp delay={0.18} className="mt-[38px]">
             <SectionHead no="01" title="Supported" />
             <div className="flex flex-wrap gap-2">
-              {platforms.map((platform) => (
+              {SOURCE_LIST.map((source) => (
                 <span
-                  key={platform.label}
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-semibold ${platform.className}`}
+                  key={source.id}
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-semibold ${source.chip}`}
                 >
-                  {platform.label}
+                  {source.label}
                 </span>
               ))}
             </div>

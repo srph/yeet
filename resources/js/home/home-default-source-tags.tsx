@@ -1,4 +1,5 @@
-type Source = "youtube" | "x";
+import { SourceIcon } from "@/components/source-icon/source-icon";
+import type { Source } from "@/sources";
 
 type Sample = {
   source: Source;
@@ -11,7 +12,7 @@ const samples: Sample[] = [
   {
     source: "youtube",
     title: "【Ado】踊 (Odo)",
-    duration: "0:19",
+    duration: "3:28",
     url: "https://youtu.be/YnSW8ian29w",
   },
   {
@@ -28,28 +29,17 @@ const samples: Sample[] = [
   },
   {
     source: "x",
-    title: "breaking bad high five",
+    title: "valorant breaking bad high five",
     duration: "1:04",
     url: "https://x.com/earlygamegg/status/1562452934469685248/video/1",
   },
+  {
+    source: "douyin",
+    title: "sandman tutorial",
+    duration: "5:18",
+    url: "https://www.douyin.com/video/7490329970397482290",
+  },
 ];
-
-/** lucide dropped brand glyphs — keep these marks inline. */
-function SourceIcon({ source }: { source: Source }) {
-  if (source === "youtube") {
-    return (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5" aria-hidden>
-        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5" aria-hidden>
-      <path d="M18.2 2.2h3.4l-7.4 8.5L23 21.8h-6.8l-5.3-7-6.1 7H1.4l7.9-9.1L1 2.2h7l4.8 6.4 5.4-6.4Zm-1.2 17.6h1.9L7.1 4.1H5.1l11.9 15.7Z" />
-    </svg>
-  );
-}
 
 export function HomeDefaultSourceTags({
   onSelect,
@@ -71,7 +61,7 @@ export function HomeDefaultSourceTags({
         >
           <span className="flex min-w-0 flex-1 items-center gap-2.5 transition-transform duration-150 ease-out group-hover:translate-x-1">
             <span className="shrink-0 text-neutral-600 transition-colors group-hover:text-blue-200">
-              <SourceIcon source={sample.source} />
+              <SourceIcon source={sample.source} className="size-3.5" />
             </span>
             <span className="truncate">{sample.title}</span>
           </span>

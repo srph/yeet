@@ -33,7 +33,7 @@ export function HomeDefault({
     <>
       <HomeDefaultRolldown />
 
-      <div className="h-4"></div>
+      <div className="h-7"></div>
 
       <form onSubmit={onSubmit}>
         <div className="relative">
