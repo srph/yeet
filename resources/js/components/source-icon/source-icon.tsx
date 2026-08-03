@@ -50,7 +50,11 @@ export function SourceIcon({
       aria-hidden
       className={className}
       style={{
-        display: "inline-block",
+        // `block`, not `inline-block` — an inline box sits on the text
+        // baseline and reserves descender space beneath itself, which lifts
+        // the mark off the centre of the line beside it. Tailwind's preflight
+        // gives svg the same treatment; a span isn't covered by that rule.
+        display: "block",
         background: "currentColor",
         mask,
         WebkitMask: mask,
