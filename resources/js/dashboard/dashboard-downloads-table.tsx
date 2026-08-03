@@ -1,6 +1,10 @@
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { SourceIcon } from "@/components/source-icon/source-icon";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/toggle-group/toggle-group";
 import { Tooltip, TooltipProvider } from "@/components/tooltip/tooltip";
 import { useNow } from "@/hooks/use-now";
 import { isSource, SOURCES } from "@/sources";
@@ -151,26 +155,19 @@ export function DashboardDownloadsTable({
           <h3 className="text-[15px] font-semibold tracking-[-0.02em]">
             Recently
           </h3>
-          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter downloads">
-            {FILTERS.map((chip) => {
-              const on = filter === chip.id;
-              return (
-                <button
-                  key={chip.id}
-                  type="button"
-                  onClick={() => setFilter(chip.id)}
-                  aria-pressed={on}
-                  className={`rounded-full border px-3.5 py-1 text-xs font-semibold tracking-[-0.01em] transition focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
-                    on
-                      ? "border-transparent bg-neutral-800 text-white"
-                      : "border-neutral-800 text-neutral-500 hover:text-neutral-300"
-                  }`}
-                >
-                  {chip.label}
-                </button>
-              );
-            })}
-          </div>
+          <ToggleGroup
+            value={[filter]}
+            // Unpressing the active filter would empty the group and leave
+            // nothing to anchor the pill to, so hold the last one.
+            onValueChange={([next]) => next && setFilter(next)}
+            aria-label="Filter downloads"
+          >
+            {FILTERS.map((chip) => (
+              <ToggleGroupItem key={chip.id} value={chip.id}>
+                {chip.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
         </div>
 
         {downloads.length === 0 ? (
