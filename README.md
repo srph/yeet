@@ -1,5 +1,7 @@
 # Yeet
 
+![Yeet](docs/screenshot.png)
+
 Download videos from YouTube, X, Facebook, TikTok and Douyin.
 
 Laravel + Inertia + React. Extraction via [yt-dlp](https://github.com/yt-dlp/yt-dlp).
