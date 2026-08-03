@@ -28,6 +28,9 @@ class DownloadFactory extends Factory
             'status' => 'complete',
             'storage_key' => 'yeet/youtube/dQw4w9WgXcQ.mp4',
             'storage_file_name' => 'dQw4w9WgXcQ.mp4',
+            // A complete row owns an object, so it owns a size. ~48MB — a
+            // realistic 3-minute 1080p mp4.
+            'storage_file_size' => 48_234_496,
             'expires_at' => now()->addDays(7),
             'fulfilled_at' => now(),
         ]);

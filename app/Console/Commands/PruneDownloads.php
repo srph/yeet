@@ -63,6 +63,13 @@ class PruneDownloads extends Command
                         'status' => 'expired',
                         'storage_key' => null,       // the object is gone; don't
                         'storage_file_name' => null, // pretend otherwise
+                        // storage_file_size deliberately survives. The two
+                        // above are pointers to an object that no longer
+                        // exists — keeping them would hand out a key to
+                        // nothing. A size is a fact about a file that did
+                        // exist, and stays true after deletion, same as
+                        // duration and source_title. The tracking rail gates
+                        // the row on status anyway.
                     ]);
                 }
             });

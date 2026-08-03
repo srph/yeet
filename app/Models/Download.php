@@ -34,6 +34,9 @@ class Download extends Model
             // Without this the column comes back as a JSON string on some
             // drivers, and the frontend schema types it as a number.
             'duration' => 'integer',
+            // Same story, and more likely here: bigint columns come back as
+            // strings on more drivers than int ones do.
+            'storage_file_size' => 'integer',
         ];
     }
 

@@ -93,7 +93,9 @@ class ProcessDownload implements ShouldQueue
             format: $this->download->format,
         );
 
-        $bytes = filesize($tmp) ?: 0;
+        // false on a stat failure — kept as null rather than coerced to 0, so
+        // the UI omits the Size row instead of claiming an empty file.
+        $bytes = filesize($tmp) ?: null;
         $contentType = $this->download->format === 'mp3'
             ? 'audio/mpeg'
             : 'video/mp4';
@@ -130,6 +132,10 @@ class ProcessDownload implements ShouldQueue
             'status' => 'complete',
             'storage_key' => $key,
             'storage_file_name' => $fileName,
+            // Same write as storage_key, deliberately: size and object
+            // existence must never disagree. Measured on the scratch file
+            // before upload — exact, and free next to a HeadObject round trip.
+            'storage_file_size' => $bytes,
             'expires_at' => now()->addDays(7),
             'fulfilled_at' => now(),
         ]);

@@ -41,6 +41,9 @@ it('probes then uploads the file and completes the row', function () {
         ->and($download->duration)->toBe(213)
         ->and($download->storage_key)->toBe($key)
         ->and($download->storage_file_name)->toBe('dQw4w9WgXcQ.mp4')
+        // strlen('fake video bytes') — asserted against the fixture rather
+        // than a magic number, so it moves if the fixture does.
+        ->and($download->storage_file_size)->toBe(strlen('fake video bytes'))
         ->and($download->expires_at)->not->toBeNull()
         ->and($download->fulfilled_at)->not->toBeNull();
 
@@ -149,6 +152,9 @@ it('fails without downloading when probe finds no streams', function () {
         ->and($download->reason)->toBe(
             'No downloadable stream is available for this video right now.'
         )
+        // The invariant the tracking rail leans on: a size means a file
+        // exists. Nothing uploaded here, so there is nothing to report.
+        ->and($download->storage_file_size)->toBeNull()
         ->and($download->fulfilled_at)->not->toBeNull();
 });
 

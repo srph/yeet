@@ -34,6 +34,11 @@ export const DownloadMetaSchema = z.object({
 
   download_url: z.string().nullable(), // appended accessor, presigned per-read
   storage_file_name: z.string().nullable(),
+  // Exact byte count of the stored file, stat'd by the job before upload.
+  // Null while the file doesn't exist yet, on rows that predate the column,
+  // and if stat failed — every one of those means "we don't know", which the
+  // rail renders by omitting the row rather than guessing.
+  storage_file_size: z.number().nullable(),
   reason: z.string().nullable(),
   expires_at: z.string().nullable(),
   // Set when the job settles (complete or failed). Null while queued/

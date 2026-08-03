@@ -6,6 +6,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { DownloadMeta } from "../types";
 import { Button } from "@/components/button/button";
+import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
 import { HomeDownloadCta } from "./home-download-cta";
 import { HomeDownloadStatus } from "./home-download-status";
@@ -14,10 +15,14 @@ import { HomeDownloadStatus } from "./home-download-status";
  * The post-submit screen: a narrow spec rail against a big thumbnail.
  *
  * Rail rows that are real columns: format, file name, expiry, media duration,
- * and fulfilled_at (shown as "Took"). Resolution, codec and file size were in
- * the design too and are NOT rendered: nothing captures them, and a
- * plausible-looking "1920x1080 · 60fps" that doesn't reflect the actual file
- * is worse than an absent row.
+ * storage_file_size, and fulfilled_at (shown as "Took"). storage_file_size
+ * joined that list once the job started persisting the filesize() it had
+ * always computed and thrown away — an exact stat of the uploaded file, not an
+ * estimate, which is the only reason it earns a row at all.
+ *
+ * Resolution and codec were in the design too and are still NOT rendered:
+ * nothing captures them, and a plausible-looking "1920x1080 · 60fps" that
+ * doesn't reflect the actual file is worse than an absent row.
  */
 
 const formatDuration = (seconds: number) => {
@@ -152,6 +157,14 @@ export const HomeDownloadTracking = ({
       ? null
       : formatElapsed(meta.created_at, meta.fulfilled_at);
 
+  // Gated on isSettled, not just on the value: the number describes a file in
+  // the bucket, so it has no business appearing next to a failed row or an
+  // expired tombstone whose object prune already deleted.
+  const size =
+    isSettled && meta.storage_file_size !== null
+      ? formatFileSize(meta.storage_file_size)
+      : null;
+
   return (
     // viewport-relative, not 100%: the parent is a centred grid item and so is
     // shrink-to-fit, which a percentage width would resolve against.
@@ -180,6 +193,8 @@ export const HomeDownloadTracking = ({
           {duration && <Spec label="Length" value={duration} />}
 
           {took && <Spec label="Took" value={took} />}
+
+          {size && <Spec label="File size" value={size} bright />}
 
           {meta.storage_file_name && (
             <Spec

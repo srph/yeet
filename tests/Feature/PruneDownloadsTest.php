@@ -16,7 +16,11 @@ it('deletes the object and tombstones the row', function () {
     expect($download->status)->toBe('expired')
         ->and($download->storage_key)->toBeNull()
         ->and($download->storage_file_name)->toBeNull()
-        ->and($download->download_url)->toBeNull();
+        ->and($download->download_url)->toBeNull()
+        // The pointers go; the historical fact stays. Deliberate — see the
+        // comment on the update() in PruneDownloads. Pinned here so a future
+        // tidy-up of that inconsistency has something to argue with.
+        ->and($download->storage_file_size)->toBe(48_234_496);
 
     Storage::disk('s3')->assertMissing('yeet/youtube/dQw4w9WgXcQ.mp4');
 });
