@@ -293,6 +293,7 @@ export function DashboardDownloadsTable({
                                 {isSource(download.source) && (
                                   <SourceIcon
                                     source={download.source}
+                                    variant="badge"
                                     className="size-2.5"
                                   />
                                 )}
