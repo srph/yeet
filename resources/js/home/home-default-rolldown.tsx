@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useInterval } from "../hooks/use-interval";
+import { useRolldownMeasure } from "./use-rolldown-measure";
 import { SOURCE_LIST } from "@/sources";
 
 const sources = SOURCE_LIST;
@@ -31,41 +32,11 @@ export function HomeDefaultRolldown() {
   const [sourceIndex, setSourceIndex] = useState(0);
   const reduceMotion = useReducedMotion();
 
-  const sizerRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const [widths, setWidths] = useState<number[] | null>(null);
+  const { refs, widths } = useRolldownMeasure();
 
   useInterval(() => {
     setSourceIndex((index) => (index + 1) % sources.length);
   }, HOLD_MS);
-
-  /**
-   * Every label is measured up front, off-screen. Measuring only the label
-   * that happens to be mounted reports its width a frame *after* it mounts, so
-   * the mask starts widening a beat behind the word and clips it on the way in
-   * — worst on the big jumps, like X to Facebook.
-   */
-  useLayoutEffect(() => {
-    const measure = () =>
-      setWidths(
-        sizerRefs.current.map((node) =>
-          // Round up: the mask clips, and a fractional shortfall eats the edge
-          // of the last glyph.
-          node ? Math.ceil(node.getBoundingClientRect().width) : 0,
-        ),
-      );
-
-    measure();
-
-    // The two things that move these numbers are the clamped font size
-    // tracking the viewport and the webfont landing after first paint. Both
-    // show up as a resize of the sizers themselves.
-    const observer = new ResizeObserver(measure);
-    for (const node of sizerRefs.current) {
-      if (node) observer.observe(node);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   const source = sources[sourceIndex];
   const transition = reduceMotion ? FADE : ROLL;
@@ -119,7 +90,7 @@ export function HomeDefaultRolldown() {
               <span
                 key={candidate.id}
                 ref={(node) => {
-                  sizerRefs.current[index] = node;
+                  refs.current[index] = node;
                 }}
                 className="inline-block whitespace-nowrap"
               >
