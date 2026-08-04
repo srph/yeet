@@ -157,7 +157,7 @@ const links = [
   },
   {
     label: "GitHub",
-    href: "https://github.com/srph",
+    href: "https://github.com/srph/yeet",
     external: true,
   },
   {

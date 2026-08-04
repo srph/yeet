@@ -20,8 +20,8 @@ const feedback = [
   },
   {
     kind: "Open an issue",
-    value: "github.com/srph",
-    href: "https://github.com/srph",
+    value: "github.com/srph/yeet",
+    href: "https://github.com/srph/yeet",
   },
   {
     kind: "DM on Discord",
@@ -32,7 +32,7 @@ const feedback = [
 
 const footerLinks = [
   { label: "Home", href: "/", external: false },
-  { label: "GitHub", href: "https://github.com/srph", external: true },
+  { label: "GitHub", href: "https://github.com/srph/yeet", external: true },
   { label: "Twitter", href: "https://twitter.com/_srph", external: true },
 ] as const;
 
