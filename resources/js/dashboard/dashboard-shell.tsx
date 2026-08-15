@@ -33,20 +33,20 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2.5">
+            <div className="flex select-none items-center gap-2.5 rounded-full border border-neutral-800 p-1 pr-3">
               {user.discord_avatar ? (
                 <img
                   src={user.discord_avatar}
                   alt=""
-                  className="size-[30px] rounded-full bg-neutral-800"
+                  className="size-5.5 rounded-full bg-neutral-800"
                 />
               ) : (
                 <span
                   aria-hidden
-                  className="size-[30px] rounded-full bg-linear-to-br from-[#5865f2] to-neutral-700"
+                  className="size-5.5 rounded-full bg-linear-to-br from-[#5865f2] to-neutral-700"
                 />
               )}
-              <span className="hidden text-[12.5px] font-medium text-neutral-400 sm:inline">
+              <span className="hidden text-[12.5px] font-medium text-white sm:inline">
                 {handle}
               </span>
             </div>

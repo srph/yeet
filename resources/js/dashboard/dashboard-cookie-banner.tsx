@@ -2,6 +2,11 @@ import { router } from "@inertiajs/react";
 import { Check, RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Chip } from "@/components/chip/chip";
+import {
+  LayerCard,
+  LayerCardContent,
+  LayerCardSecondary,
+} from "@/components/layer-card/layer-card";
 
 type CookieHealth = {
   status: "healthy" | "unhealthy";
@@ -45,10 +50,10 @@ function Spec({
 }) {
   return (
     <div className="flex items-baseline gap-2.5 py-1 text-[12.5px]">
-      <dt className="whitespace-nowrap text-neutral-600">{label}</dt>
-      <span className="h-px flex-1 self-center bg-[repeating-linear-gradient(90deg,var(--color-neutral-800)_0_2px,transparent_2px_5px)]" />
+      <dt className="whitespace-nowrap text-neutral-500">{label}</dt>
+      <span className="h-px flex-1 self-center bg-[repeating-linear-gradient(90deg,var(--color-neutral-700)_0_2px,transparent_2px_5px)]" />
       <dd
-        className={`whitespace-nowrap tabular-nums ${bright ? "text-white" : "text-neutral-400"}`}
+        className={`whitespace-nowrap tabular-nums ${bright ? "text-white" : "text-neutral-300"}`}
       >
         {value}
       </dd>
@@ -123,58 +128,66 @@ export function DashboardCookieBanner({
 
   return (
     <section>
-      <div className="flex flex-col gap-5 rounded-2xl bg-neutral-900 px-[18px] py-4 sm:flex-row sm:items-center sm:gap-5">
-        <div className="flex min-w-[200px] flex-col gap-2">
-          <span className="text-[12.5px] font-medium text-neutral-500">
-            Cookie Health
-          </span>
-          <Chip variant={chipVariant}>
-            {isHealthy ? <Check size={10} strokeWidth={3} /> : null}
-            {statusLabel}
-          </Chip>
-        </div>
+      <LayerCard>
+        <LayerCardSecondary className="flex flex-wrap items-center justify-between gap-3 px-3 py-2.5">
+          <div className="flex items-center gap-2.5">
+            <span className="text-[12.5px] font-medium text-white">
+              Cookie Health
+            </span>
+            <Chip variant={chipVariant}>
+              {isHealthy ? <Check size={10} strokeWidth={3} /> : null}
+              {statusLabel}
+            </Chip>
+          </div>
 
-        <dl className="grid flex-1 grid-cols-1 gap-x-8 gap-y-0.5 sm:grid-cols-2">
-          <Spec
-            label="Last checked"
-            value={formatRelative(cookieHealth?.checked_at ?? null)}
-            bright
-          />
-          <Spec
-            label="Session expiry"
-            value={formatDate(cookieHealth?.session_expires_at ?? null)}
-          />
-          <Spec
-            label="Cookies found"
-            value={cookieHealth?.cookie_count?.toString() ?? "—"}
-          />
-          <Spec
-            label="Fingerprint"
-            value={
-              cookieHealth?.cookie_file_fingerprint
-                ? cookieHealth.cookie_file_fingerprint.slice(0, 10)
-                : "—"
-            }
-          />
-        </dl>
+          <button
+            type="button"
+            onClick={queueHealthcheck}
+            disabled={checkInProgress}
+            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-blue-200 px-3 py-1.5 text-[12px] font-bold tracking-[-0.01em] text-blue-950 transition hover:bg-blue-300 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+          >
+            <RefreshCw
+              size={12}
+              className={
+                checkInProgress
+                  ? "animate-spin"
+                  : "group-hover:animate-spin-once group-focus-visible:animate-spin-once"
+              }
+            />
+            {submittingCheck
+              ? "Queueing…"
+              : waitingForCheck
+                ? "Waiting…"
+                : "Run probe"}
+          </button>
+        </LayerCardSecondary>
 
-        <button
-          type="button"
-          onClick={queueHealthcheck}
-          disabled={checkInProgress}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-blue-200 px-4 py-2.5 text-[13px] font-bold tracking-[-0.01em] text-blue-950 transition hover:bg-blue-300 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-        >
-          <RefreshCw
-            size={14}
-            className={checkInProgress ? "animate-spin" : ""}
-          />
-          {submittingCheck
-            ? "Queueing…"
-            : waitingForCheck
-              ? "Waiting…"
-              : "Run probe"}
-        </button>
-      </div>
+        <LayerCardContent>
+          <dl className="grid grid-cols-1 gap-x-8 gap-y-0.5 px-1 py-1 sm:grid-cols-2">
+            <Spec
+              label="Last checked"
+              value={formatRelative(cookieHealth?.checked_at ?? null)}
+              bright
+            />
+            <Spec
+              label="Session expiry"
+              value={formatDate(cookieHealth?.session_expires_at ?? null)}
+            />
+            <Spec
+              label="Cookies found"
+              value={cookieHealth?.cookie_count?.toString() ?? "—"}
+            />
+            <Spec
+              label="Fingerprint"
+              value={
+                cookieHealth?.cookie_file_fingerprint
+                  ? cookieHealth.cookie_file_fingerprint.slice(0, 10)
+                  : "—"
+              }
+            />
+          </dl>
+        </LayerCardContent>
+      </LayerCard>
     </section>
   );
 }

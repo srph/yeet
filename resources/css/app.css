@@ -23,11 +23,17 @@
        `sweep` is the shimmer crossing the thumbnail while a download cooks.
        It slides a gradient band across, so it animates `left` against a
        clipped parent rather than transform: the band starts fully offscreen
-       and the overflow-hidden frame does the masking. */
+       and the overflow-hidden frame does the masking.
+
+       `spin-once` reuses Tailwind's built-in `spin` keyframe but caps it at
+       a single lap — a hover/focus flourish on an icon, not a loading spinner.
+       Its default fill-mode is `none`, so the icon springs back to 0deg once
+       the lap finishes rather than freezing wherever the animation ended. */
     --animate-blink: blink 1.2s ease-in-out infinite;
     --animate-blink-slow: blink 2.2s ease-in-out infinite;
     --animate-sweep: sweep 2.1s cubic-bezier(0.19, 1, 0.22, 1) infinite;
     --animate-sweep-slow: sweep 3.2s cubic-bezier(0.19, 1, 0.22, 1) infinite;
+    --animate-spin-once: spin 0.5s ease-in-out 1;
 
     @keyframes blink {
         0%,
