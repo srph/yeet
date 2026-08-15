@@ -41,7 +41,7 @@ function ToggleGroup<Value extends string>({
     <BaseToggleGroup
       data-slot="toggle-group"
       className={cn(
-        "relative isolate inline-flex items-center rounded-full border border-neutral-800 p-0.5 [anchor-scope:--toggle-group-item]",
+        "relative isolate inline-flex items-center rounded-full bg-neutral-900 [anchor-scope:--toggle-group-item]",
         className,
       )}
       {...props}
@@ -50,7 +50,7 @@ function ToggleGroup<Value extends string>({
       <span
         aria-hidden
         data-slot="toggle-group-indicator"
-        className="pointer-events-none absolute z-0 rounded-full bg-neutral-800 transition-[top,right,bottom,left] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] [position-anchor:--toggle-group-item] [top:anchor(top)] [right:anchor(right)] [bottom:anchor(bottom)] [left:anchor(left)] motion-reduce:transition-none"
+        className="pointer-events-none absolute z-0 rounded-full bg-neutral-700 transition-[top,right,bottom,left] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] [position-anchor:--toggle-group-item] [top:anchor(top)] [right:anchor(right)] [bottom:anchor(bottom)] [left:anchor(left)] motion-reduce:transition-none"
       />
     </BaseToggleGroup>
   );
@@ -75,7 +75,7 @@ function ToggleGroupItem<Value extends string>({
     <Toggle
       data-slot="toggle-group-item"
       className={cn(
-        "relative z-10 cursor-pointer select-none rounded-full px-3.5 py-1 text-xs font-semibold tracking-[-0.01em] text-neutral-500 transition-colors hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 data-pressed:text-white data-pressed:[anchor-name:--toggle-group-item] data-disabled:cursor-not-allowed data-disabled:text-neutral-700",
+        "relative z-10 cursor-pointer select-none rounded-full px-3.5 py-1 text-xs font-semibold tracking-[-0.01em] text-neutral-300 transition-colors hover:text-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 data-pressed:text-white data-pressed:[anchor-name:--toggle-group-item] data-disabled:cursor-not-allowed data-disabled:text-neutral-700",
         className,
       )}
       {...props}
