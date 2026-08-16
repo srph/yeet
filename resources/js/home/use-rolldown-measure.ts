@@ -47,7 +47,7 @@ export function useRolldownMeasure() {
     // `load` is used over the softer `fonts.ready` deliberately — ready only
     // covers faces the browser has already decided it needs, so it can resolve
     // early if layout hasn't requested this one yet. This demands it outright.
-    document.fonts.load('600 48px "DM Sans Variable"').then(() => {
+    document.fonts.load('600 48px "Switzer"').then(() => {
       if (cancelled) {
         return;
       }
