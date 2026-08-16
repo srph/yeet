@@ -64,3 +64,5 @@ Icons from [simple-icons](https://simpleicons.org) (CC0-1.0) and
 ## CSS
 
 - **Focus:** Interactive links/buttons get `focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200` applied per element (not globally). Text inputs use their own border/ring focus styles.
+- **Control size:** Baseline size for control elements (input/button) starts at 32px.
+- **Metadata/stats:** `font-mono` optionally, unless specified otherwise.
