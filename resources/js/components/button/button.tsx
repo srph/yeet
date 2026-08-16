@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex h-11 select-none items-center justify-center gap-2.5 rounded-full text-[14.5px] font-semibold tracking-[-0.02em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 disabled:cursor-not-allowed",
+  "inline-flex select-none items-center justify-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 disabled:cursor-not-allowed",
   {
     variants: {
       variant: {
@@ -14,9 +14,15 @@ const buttonVariants = cva(
         outline:
           "border-2 border-neutral-800 bg-transparent text-neutral-400 hover:border-neutral-700 hover:text-neutral-200 disabled:opacity-50",
       },
+      size: {
+        xs: "h-6 gap-1.5 px-3 text-xs font-bold tracking-[-0.01em]",
+        md: "h-8 gap-2 px-4 text-[13px] font-semibold tracking-[-0.02em]",
+        lg: "h-11 gap-2.5 px-6 text-[14.5px] font-semibold tracking-[-0.02em]",
+      },
     },
     defaultVariants: {
       variant: "default",
+      size: "md",
     },
   },
 );
@@ -24,6 +30,7 @@ const buttonVariants = cva(
 function Button({
   className,
   variant = "default",
+  size = "md",
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
@@ -36,7 +43,8 @@ function Button({
     <Comp
       data-slot="button"
       data-variant={variant}
-      className={cn(buttonVariants({ variant }), className)}
+      data-size={size}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   );

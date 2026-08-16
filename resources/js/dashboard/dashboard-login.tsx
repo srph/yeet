@@ -38,7 +38,7 @@ export default function Login() {
           ) : null}
 
           <div className="mt-8 max-md:absolute max-md:inset-x-6 max-md:bottom-6 max-md:mt-0">
-            <Button asChild className="w-full px-5.5">
+            <Button asChild size="lg" className="w-full px-5.5">
               <a href="/auth/discord">
                 <DiscordMark />
                 Continue with Discord

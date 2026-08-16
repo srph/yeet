@@ -1,6 +1,7 @@
 import { router } from "@inertiajs/react";
 import { Check, RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/button/button";
 import { Chip } from "@/components/chip/chip";
 import {
   LayerCard,
@@ -50,10 +51,12 @@ function Spec({
 }) {
   return (
     <div className="flex items-baseline gap-2.5 py-1 text-[12.5px]">
-      <dt className="whitespace-nowrap text-neutral-500">{label}</dt>
+      <dt className="font-mono whitespace-nowrap uppercase tracking-wide text-neutral-500">
+        {label}
+      </dt>
       <span className="h-px flex-1 self-center bg-[repeating-linear-gradient(90deg,var(--color-neutral-700)_0_2px,transparent_2px_5px)]" />
       <dd
-        className={`whitespace-nowrap tabular-nums ${bright ? "text-white" : "text-neutral-300"}`}
+        className={`whitespace-nowrap font-mono uppercase tracking-wide tabular-nums ${bright ? "text-white" : "text-neutral-300"}`}
       >
         {value}
       </dd>
@@ -140,11 +143,12 @@ export function DashboardCookieBanner({
             </Chip>
           </div>
 
-          <button
+          <Button
             type="button"
+            size="xs"
             onClick={queueHealthcheck}
             disabled={checkInProgress}
-            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-blue-200 px-3 py-1.5 text-xs font-bold tracking-[-0.01em] text-blue-950 transition hover:bg-blue-300 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+            className="group shrink-0"
           >
             <RefreshCw
               size={12}
@@ -159,7 +163,7 @@ export function DashboardCookieBanner({
               : waitingForCheck
                 ? "Waiting…"
                 : "Run probe"}
-          </button>
+          </Button>
         </LayerCardSecondary>
 
         <LayerCardContent>

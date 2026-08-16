@@ -38,6 +38,7 @@ export function HomeDownloadCta({
   return (
     <Button
       type="button"
+      size="lg"
       disabled={!isSettled}
       onClick={onDownload}
       aria-label={isSettled ? "Download Now" : "Processing Download"}

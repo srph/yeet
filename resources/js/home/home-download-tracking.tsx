@@ -261,6 +261,7 @@ export const HomeDownloadTracking = ({
                   <Button
                     type="button"
                     variant="outline"
+                    size="lg"
                     onClick={onDownloadAnother}
                     className="mt-1.5 w-full"
                   >

@@ -193,22 +193,22 @@ export function DashboardDownloadsTable({
                 </colgroup>
                 <thead>
                   <tr className="border-b border-neutral-800">
-                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                    <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
                       Status
                     </th>
-                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                    <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
                       Format
                     </th>
-                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                    <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
                       Title
                     </th>
-                    <th className="px-1 py-2.5 text-left text-[11px] font-medium text-neutral-600">
+                    <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
                       Source
                     </th>
-                    <th className="px-1 py-2.5 text-right text-[11px] font-medium text-neutral-600">
+                    <th className="px-1 py-2.5 text-right text-xs font-medium text-neutral-600">
                       Length
                     </th>
-                    <th className="px-1 py-2.5 text-right text-[11px] font-medium text-neutral-600">
+                    <th className="px-1 py-2.5 text-right text-xs font-medium text-neutral-600">
                       Created
                     </th>
                   </tr>
