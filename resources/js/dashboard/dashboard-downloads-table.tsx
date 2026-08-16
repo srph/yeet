@@ -308,7 +308,7 @@ export function DashboardDownloadsTable({
                               />
                             </a>
                           </td>
-                          <td className="overflow-hidden px-1 py-3 text-right align-middle text-[12.5px] whitespace-nowrap tabular-nums text-neutral-300">
+                          <td className="overflow-hidden px-1 py-3 text-right align-middle font-mono text-[12.5px] whitespace-nowrap tabular-nums text-neutral-300">
                             {formatDuration(download.duration)}
                           </td>
                           <td className="overflow-hidden px-1 py-3 text-right align-middle text-xs whitespace-nowrap tabular-nums text-neutral-600">

@@ -101,19 +101,24 @@ const Spec = ({
   value,
   bright,
   title,
+  uppercase = true,
 }: {
   label: string;
   value: string;
   bright?: boolean;
   /** The untruncated value, surfaced on hover. */
   title?: string;
+  /** Filenames are case-sensitive — pass false to keep the value as typed. */
+  uppercase?: boolean;
 }) => (
   <div className="flex items-baseline gap-2 py-[5.5px] text-xs">
-    <dt className="whitespace-nowrap text-neutral-600">{label}</dt>
+    <dt className="font-mono whitespace-nowrap uppercase tracking-wide text-neutral-600">
+      {label}
+    </dt>
     <span className="h-px flex-1 -translate-y-[3px] bg-[repeating-linear-gradient(90deg,var(--color-neutral-800)_0_2px,transparent_2px_5px)]" />
     <dd
       title={title}
-      className={`whitespace-nowrap tabular-nums ${bright ? "text-white" : "text-neutral-400"}`}
+      className={`whitespace-nowrap font-mono tracking-wide tabular-nums ${uppercase ? "uppercase" : "normal-case"} ${bright ? "text-white" : "text-neutral-400"}`}
     >
       {value}
     </dd>
@@ -202,6 +207,7 @@ export const HomeDownloadTracking = ({
               value={truncateFileName(meta.storage_file_name)}
               title={meta.storage_file_name}
               bright={isSettled}
+              uppercase={false}
             />
           )}
 
@@ -347,7 +353,7 @@ export const HomeDownloadTracking = ({
           )}
 
           {duration && (
-            <span className="absolute right-3 bottom-3 rounded-md bg-neutral-950/70 px-2.5 py-1.5 text-[11.5px] font-semibold tracking-normal tabular-nums backdrop-blur-md">
+            <span className="absolute right-3 bottom-3 rounded-md bg-neutral-950/70 px-2.5 py-1.5 font-mono text-[11.5px] font-semibold tracking-normal tabular-nums backdrop-blur-md">
               {duration}
             </span>
           )}
