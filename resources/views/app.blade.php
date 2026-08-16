@@ -44,7 +44,7 @@
 </head>
 
 {{-- Class list lifted from the old layout.tsx <body>. --}}
-<body class="font-sans tracking-tighter">
+<body class="font-sans">
     @inertia
 </body>
 </html>
