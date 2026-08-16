@@ -22,7 +22,7 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
     <>
       <Head title="Control Panel" />
       <div className="fixed inset-0 overflow-y-auto bg-neutral-950 font-sans text-neutral-50 tracking-[-0.011em] antialiased">
-        <header className="mx-auto flex max-w-[960px] items-center gap-3 px-[26px] py-4">
+        <header className="mx-auto flex max-w-240 items-center gap-3 px-6.5 py-4">
           <div className="flex items-center gap-2.5">
             <img src="/logo.svg" alt="" className="h-7 w-auto" />
             <span className="text-[19px] font-semibold tracking-[-0.02em]">
@@ -61,7 +61,7 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
           </div>
         </header>
 
-        <div className="mx-auto max-w-[960px] px-[26px] pt-5 pb-14">
+        <div className="mx-auto max-w-240 px-6.5 pt-5 pb-14">
           {flash.success ? (
             <div className="mb-5 border-l-2 border-blue-200 bg-blue-200/8 px-4 py-3 text-sm text-blue-200">
               {flash.success}

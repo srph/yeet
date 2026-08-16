@@ -182,7 +182,7 @@ export function DashboardDownloadsTable({
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] table-fixed border-collapse">
+              <table className="w-full min-w-180 table-fixed border-collapse">
                 <colgroup>
                   <col style={{ width: COLUMN_WIDTHS.status }} />
                   <col style={{ width: COLUMN_WIDTHS.format }} />

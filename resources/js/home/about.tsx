@@ -88,7 +88,7 @@ export default function About() {
           <span className="font-sans text-xl font-semibold text-white">Yeet</span>
         </div>
 
-        <article className="w-full max-w-[440px]">
+        <article className="w-full max-w-110">
           <EnterFadeUp delay={0.04}>
             <h1 className="mt-5 text-center text-[33px] font-semibold leading-[1.05] tracking-[-0.04em]">
               Paste a link,{" "}
@@ -111,7 +111,7 @@ export default function About() {
             </p>
           </EnterFadeUp>
 
-          <EnterFadeUp delay={0.18} className="mt-[38px]">
+          <EnterFadeUp delay={0.18} className="mt-9.5">
             <SectionHead no="01" title="Supported" />
             <div className="flex flex-wrap gap-2">
               {SOURCE_LIST.map((source) => (
@@ -129,7 +129,7 @@ export default function About() {
             </p>
           </EnterFadeUp>
 
-          <EnterFadeUp delay={0.25} className="mt-[38px]">
+          <EnterFadeUp delay={0.25} className="mt-9.5">
             <SectionHead no="02" title="Limits" />
             <dl>
               {limits.map((limit) => (
@@ -143,7 +143,7 @@ export default function About() {
             </dl>
           </EnterFadeUp>
 
-          <EnterFadeUp delay={0.32} className="mt-[38px]">
+          <EnterFadeUp delay={0.32} className="mt-9.5">
             <SectionHead no="03" title="Feedback" />
             <div className="flex flex-col gap-2">
               {feedback.map((row) => (

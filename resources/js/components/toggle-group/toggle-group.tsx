@@ -50,7 +50,7 @@ function ToggleGroup<Value extends string>({
       <span
         aria-hidden
         data-slot="toggle-group-indicator"
-        className="pointer-events-none absolute z-0 rounded-full bg-neutral-700 transition-[top,right,bottom,left] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] [position-anchor:--toggle-group-item] [top:anchor(top)] [right:anchor(right)] [bottom:anchor(bottom)] [left:anchor(left)] motion-reduce:transition-none"
+        className="pointer-events-none absolute z-0 rounded-full bg-neutral-700 transition-[top,right,bottom,left] duration-300 ease-swoop [position-anchor:--toggle-group-item] [top:anchor(top)] [right:anchor(right)] [bottom:anchor(bottom)] [left:anchor(left)] motion-reduce:transition-none"
       />
     </BaseToggleGroup>
   );

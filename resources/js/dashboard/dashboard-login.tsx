@@ -14,17 +14,17 @@ export default function Login() {
       <main className="fixed inset-0 overflow-y-auto bg-neutral-950 font-sans text-white">
         <div
           aria-hidden
-          className="pointer-events-none fixed left-[40%] top-1/2 size-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(191,219,254,0.08),transparent_66%)]"
+          className="pointer-events-none fixed left-[40%] top-1/2 size-140 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(191,219,254,0.08),transparent_66%)]"
         />
 
-        <div className="relative mx-auto flex min-h-full max-w-[460px] flex-col items-start justify-center p-6 text-left">
+        <div className="relative mx-auto flex min-h-full max-w-115 flex-col items-start justify-center p-6 text-left">
           <img
             src="/logo.svg"
             alt=""
-            className="h-[46px] w-auto drop-shadow-[0_16px_40px_-16px_rgba(191,219,254,0.6)]"
+            className="h-11.5 w-auto drop-shadow-[0_16px_40px_-16px_rgba(191,219,254,0.6)]"
           />
 
-          <h1 className="mt-10 max-w-[19ch] text-[30px] font-semibold leading-[1.22] tracking-[-0.02em]">
+          <h1 className="mt-10 max-w-[19ch] text-3xl font-semibold leading-[1.22] tracking-[-0.02em]">
             Welcome back, homie.{" "}
             <span className="font-medium text-neutral-400">
               Wait a second, are you sure you're supposed to be here?
@@ -38,7 +38,7 @@ export default function Login() {
           ) : null}
 
           <div className="mt-8 max-md:absolute max-md:inset-x-6 max-md:bottom-6 max-md:mt-0">
-            <Button asChild className="w-full px-[22px]">
+            <Button asChild className="w-full px-5.5">
               <a href="/auth/discord">
                 <DiscordMark />
                 Continue with Discord

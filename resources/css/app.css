@@ -47,6 +47,12 @@
     --font-playfair: 'Playfair Display', ui-serif, Georgia, serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
+    /* The house easing curve — a fast-out, gentle-settle swoop used for
+       hover/reveal transitions throughout, and for the `sweep` animation
+       below. Named so call sites read `ease-swoop` instead of repeating the
+       raw cubic-bezier. */
+    --ease-swoop: cubic-bezier(0.19, 1, 0.22, 1);
+
     /* The post-submit screen's two idle motions. Tailwind's built-in
        animate-pulse is close to `blink` but bottoms out at opacity .5, which
        reads as a glow rather than a status light — hence the custom pair.
@@ -62,8 +68,8 @@
        the lap finishes rather than freezing wherever the animation ended. */
     --animate-blink: blink 1.2s ease-in-out infinite;
     --animate-blink-slow: blink 2.2s ease-in-out infinite;
-    --animate-sweep: sweep 2.1s cubic-bezier(0.19, 1, 0.22, 1) infinite;
-    --animate-sweep-slow: sweep 3.2s cubic-bezier(0.19, 1, 0.22, 1) infinite;
+    --animate-sweep: sweep 2.1s var(--ease-swoop) infinite;
+    --animate-sweep-slow: sweep 3.2s var(--ease-swoop) infinite;
     --animate-spin-once: spin 0.5s ease-in-out 1;
 
     @keyframes blink {

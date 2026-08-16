@@ -224,7 +224,7 @@ export const HomeDownloadTracking = ({
           )}
         </dl>
 
-        <div className="mt-[22px]">
+        <div className="mt-5.5">
           <AnimatePresence mode="popLayout" initial={false}>
             {isDead ? (
               <motion.div
@@ -289,7 +289,7 @@ export const HomeDownloadTracking = ({
             <img
               src={meta.source_thumbnail}
               alt=""
-              className={`size-full object-cover transition-[filter] duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+              className={`size-full object-cover transition-[filter] duration-700 ease-swoop ${
                 isWaiting ? "brightness-50 grayscale-[0.85]" : ""
               } ${isDead ? "brightness-[0.3] grayscale" : ""} ${
                 isSettled ? "scale-[1.02]" : ""
@@ -333,15 +333,15 @@ export const HomeDownloadTracking = ({
               that isn't there. */}
           {!isWaiting && meta.source_thumbnail && (
             <>
-              <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_100%_0%,rgba(0,0,0,0.45)_0%,transparent_60%)] opacity-0 transition-opacity duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:opacity-100" />
+              <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_100%_0%,rgba(0,0,0,0.45)_0%,transparent_60%)] opacity-0 transition-opacity duration-300 ease-swoop group-hover:opacity-100" />
               <span
                 className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg ${SOURCES[meta.source].badge}`}
               >
-                <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:max-w-[12rem]">
+                <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-swoop group-hover:max-w-48">
                   <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
                     Watch on {SOURCES[meta.source].label}
                   </span>
-                  <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0">
+                  <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-swoop group-hover:translate-y-0">
                     Watch on {SOURCES[meta.source].label}
                   </span>
                 </span>

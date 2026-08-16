@@ -144,7 +144,7 @@ export function DashboardCookieBanner({
             type="button"
             onClick={queueHealthcheck}
             disabled={checkInProgress}
-            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-blue-200 px-3 py-1.5 text-[12px] font-bold tracking-[-0.01em] text-blue-950 transition hover:bg-blue-300 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-blue-200 px-3 py-1.5 text-xs font-bold tracking-[-0.01em] text-blue-950 transition hover:bg-blue-300 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
           >
             <RefreshCw
               size={12}
