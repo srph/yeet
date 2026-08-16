@@ -54,10 +54,6 @@ export function HomeDefaultSourceTags({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="px-2.5 pb-1.5 text-[10px] font-medium uppercase tracking-[0.09em] text-neutral-600">
-        Try one
-      </span>
-
       {samples.map((sample) => (
         <button
           key={sample.url}
@@ -71,7 +67,7 @@ export function HomeDefaultSourceTags({
             </span>
             <span className="truncate">{sample.title}</span>
           </span>
-          <span className="shrink-0 text-[11px] tabular-nums text-neutral-600">
+          <span className="shrink-0 font-mono text-[11px] tabular-nums text-neutral-600">
             {sample.duration}
           </span>
         </button>
