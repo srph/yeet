@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
+            // Counts public page views. Terminable, so it contributes nothing
+            // to response time; the class itself carries what it skips and why.
+            \App\Http\Middleware\CountView::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

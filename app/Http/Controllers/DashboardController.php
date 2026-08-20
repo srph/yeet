@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Jobs\CheckCookieHealth;
 use App\Models\CookieHealthCheck;
 use App\Models\Download;
+use App\Services\SiteViewSummary;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(): Response
+    public function index(SiteViewSummary $summary): Response
     {
         $downloads = Download::query()
             ->latest()
@@ -34,6 +35,7 @@ class DashboardController extends Controller
         return Inertia::render('dashboard/dashboard', [
             'downloads' => $downloads,
             'cookieHealth' => CookieHealthCheck::query()->latest('checked_at')->first(),
+            'analytics' => $summary(),
         ]);
     }
 

@@ -2,6 +2,7 @@ import { usePage } from "@inertiajs/react";
 import { DashboardCookieBanner } from "./dashboard-cookie-banner";
 import { DashboardDownloadsTable } from "./dashboard-downloads-table";
 import { DashboardShell } from "./dashboard-shell";
+import { DashboardViewsCard } from "./dashboard-views-card";
 
 type DownloadRow = {
   id: string;
@@ -29,9 +30,17 @@ type CookieHealth = {
   checked_at: string;
 };
 
+type Analytics = {
+  total: number;
+  month: number;
+  previous_month: number | null;
+  since: string | null;
+};
+
 type PageProps = {
   downloads: DownloadRow[];
   cookieHealth: CookieHealth | null;
+  analytics: Analytics;
   auth: {
     user: {
       name: string;
@@ -44,11 +53,13 @@ type PageProps = {
 };
 
 export default function Dashboard() {
-  const { downloads, cookieHealth, auth, flash } = usePage<PageProps>().props;
+  const { downloads, cookieHealth, analytics, auth, flash } =
+    usePage<PageProps>().props;
 
   return (
     <DashboardShell user={auth.user} flash={flash}>
       <main className="grid gap-1">
+        <DashboardViewsCard analytics={analytics} />
         <DashboardCookieBanner cookieHealth={cookieHealth} />
         <DashboardDownloadsTable downloads={downloads} />
       </main>
