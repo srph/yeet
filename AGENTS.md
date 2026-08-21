@@ -94,22 +94,32 @@ Icons from [simple-icons](https://simpleicons.org) (CC0-1.0) and
 
 `dashboard-traffic-chart.tsx` is the first and only chart. It is DOM, not SVG,
 and there is no charting dependency — a bar height is `views / max`, a stack is
-a flex column, and the dot field behind each column is a masked pseudo-element.
+a flex column, and the dot field behind each column is a masked element.
 SVG buys cleaner rotated labels and a simpler segment gap, but needs a measured
 pixel width plus a resize observer to hold 10.5px text at 10.5px; flex is
 responsive for nothing. Revisit on the second chart, when a shared scale/axis
 vocabulary (`d3-scale`, or `visx` if it goes SVG) starts paying for itself.
 
-Shared pieces live in `resources/css/app.css` next to the keyframes, for the same
-reason those do — Tailwind can't express them without a 200-character arbitrary
-value:
+Only tokens live in `resources/css/app.css`; everything else is ordinary
+utilities on the component. Tailwind expresses all of it — reach for an
+arbitrary value rather than a global class:
 
 | | |
 | --- | --- |
 | `--color-chart-track` | the dot field. Above the `neutral-800` sheet, below the quietest bar |
 | `--chart-dot` / `--chart-gap` | one dot cell; gap between columns |
-| `.chart-track` | the masked dot field, width rounded **down** to whole dot cells and re-centred so the last column of dots is never sliced |
-| `.chart-label` | axis label rotated `-90deg` about its bottom-left corner |
+
+- The rotated axis label is `origin-bottom-left translate-x-[5.5px] -rotate-90`.
+  Tailwind v4 sets `rotate` and `translate` as individual properties, which the
+  spec applies translate-then-rotate — the same as the longhand it replaces.
+- The dot track's width is
+  `w-[round(down,calc(100%-var(--chart-gap)),var(--chart-dot))]`, trimming it to
+  whole dot cells before it's centred so the right-hand column of dots is never
+  sliced. `round()` is fine to use unguarded.
+- The mask tile is a data URI, so it goes in a custom property on the plot
+  (`--chart-dot-tile`) and the track picks it up with `mask-(--chart-dot-tile)`.
+  It's a chart internal rather than a design token, which is why it's inline on
+  the component and not in `@theme`.
 
 Rules that came out of building it, and are cheap to get wrong:
 

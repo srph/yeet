@@ -14,7 +14,7 @@ type Column = DailyViews & { label: string };
 /**
  * Drawn in DOM rather than SVG, and with no charting dependency: a bar height
  * is `views / max`, a stack is a flex column, and the dot field behind each
- * column is a masked pseudo-element (`.chart-track` in app.css). SVG would give
+ * column is a masked element. SVG would give
  * cleaner rotated labels and a simpler segment gap, but it needs a measured
  * pixel width plus a resize observer to keep 10.5px text at 10.5px. Flex is
  * responsive for nothing, which wins at this size.
@@ -127,7 +127,12 @@ export function DashboardTrafficChart({ daily }: { daily: DailyViews[] }) {
         {columns.map((column, index) => (
           <span key={column.date} className="relative min-w-0 flex-1">
             {(last - index) % LABEL_EVERY === 0 ? (
-              <i className="chart-label absolute bottom-0 left-1/2 w-max max-w-18 font-mono text-[10.5px] leading-none tracking-[0.06em] whitespace-nowrap text-neutral-400 uppercase not-italic">
+              // Rotated about its bottom-left corner so it reads up out of the
+              // chart, which costs ~11px of column width against ~40px for
+              // horizontal text — the only reason 30 columns can be labelled at
+              // all. The nudge is half the line box: after rotating, the text
+              // band sits entirely left of its anchor. It tracks font-size.
+              <i className="absolute bottom-0 left-1/2 w-max max-w-18 origin-bottom-left translate-x-[5.5px] -rotate-90 font-mono text-[10.5px] leading-none tracking-[0.06em] whitespace-nowrap text-neutral-400 uppercase not-italic">
                 {column.label}
               </i>
             ) : null}
@@ -135,7 +140,19 @@ export function DashboardTrafficChart({ daily }: { daily: DailyViews[] }) {
         ))}
       </div>
 
-      <div ref={setPlot} className="relative flex h-22">
+      <div
+        ref={setPlot}
+        className="relative flex h-22"
+        // Declared once here and inherited by every column's track. It's a
+        // chart internal rather than a design token, so it stays local instead
+        // of going in @theme.
+        style={
+          {
+            "--chart-dot-tile":
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0H2V2H0V0Z' fill='black'/%3E%3C/svg%3E\")",
+          } as CSSProperties
+        }
+      >
         {columns.map((column, index) => (
           // The column is the hit target, not the bar: on a quiet day the bar
           // is a few pixels tall and near-impossible to point at. Being a real
@@ -151,9 +168,19 @@ export function DashboardTrafficChart({ daily }: { daily: DailyViews[] }) {
             aria-label={`${column.label}: ${number.format(column.views)} views`}
             className="group relative min-w-0 flex-1 cursor-crosshair focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
           >
+            {/* The dot field standing in for gridlines: a flat fill masked by
+                a tile holding one 2px square, so what shows above each bar is
+                the headroom it didn't use.
+
+                `round(down, …)` trims the track to a whole number of dot cells
+                before centring it, so the right-hand column of dots is never
+                sliced in half — without it every bar's field ends slightly
+                differently. `mask-position: … top` anchors the rows to the top
+                edge so the grid lines up across all thirty columns whatever
+                each bar's height. */}
             <span
               aria-hidden
-              className="chart-track absolute inset-y-0 left-1/2 -translate-x-1/2 transition-colors group-hover:bg-neutral-600 group-focus-visible:bg-neutral-600"
+              className="absolute inset-y-0 left-1/2 w-[round(down,calc(100%-var(--chart-gap)),var(--chart-dot))] -translate-x-1/2 bg-chart-track mask-(--chart-dot-tile) mask-position-[2px_top] mask-repeat mask-size-[var(--chart-dot)_var(--chart-dot)] transition-colors group-hover:bg-neutral-600 group-focus-visible:bg-neutral-600"
             />
 
             {/* A day with no traffic gets no bar at all, just its column of

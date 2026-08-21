@@ -104,9 +104,10 @@
        dots from being sliced in half. */
     --chart-dot: 6px;
 
-    /* Gap between columns. Bars are inset by half of it on each side, which is
-       what lets the columns stay contiguous — adjacent hover/selection bands
-       then meet with no seam. */
+    /* Gap between columns. The bar is inset by half of it on each side, so the
+       columns themselves stay contiguous and adjacent hover states meet with no
+       seam. Also the amount trimmed off the dot track before it's rounded down
+       to whole cells. */
     --chart-gap: 4px;
 }
 
@@ -119,53 +120,4 @@ body {
 
 ::selection {
     @apply bg-blue-200 text-blue-950;
-}
-
-/* ---------------------------------------------------------------------------
-   Chart internals
-
-   Three things Tailwind can't express as utilities without a 200-character
-   arbitrary value, so they live here next to the keyframes for the same reason
-   those do. Everything else about the chart is ordinary utility classes on the
-   component.
-   --------------------------------------------------------------------------- */
-
-/* The dot field behind every column, standing in for gridlines. A flat fill
-   masked by a tile holding one 2px square, so what shows above each bar is the
-   headroom it didn't use — a y-axis you read as texture.
-
-   `mask-position: … top` anchors the rows to the top edge, so the grid lines up
-   across all thirty columns regardless of how tall each bar is. Without it the
-   field reads as thirty separate patterns rather than one. */
-.chart-track {
-    width: calc(100% - var(--chart-gap));
-    background: var(--color-chart-track);
-    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0H2V2H0V0Z' fill='black'/%3E%3C/svg%3E");
-    mask-size: var(--chart-dot) var(--chart-dot);
-    mask-repeat: repeat;
-    mask-position: 2px top;
-}
-
-/* Round the track down to a whole number of dot cells and re-centre it, so the
-   last column of dots is never sliced mid-square. Without this every bar's
-   field ends slightly differently and the chart looks subtly wrong in a way
-   that's hard to name. Progressive: browsers without round() get the unrounded
-   width from the rule above. */
-@supports (width: round(down, 100%, 1px)) {
-    .chart-track {
-        width: round(down, calc(100% - var(--chart-gap)), var(--chart-dot));
-    }
-}
-
-/* Axis labels rotated to read up out of the chart. Rotating costs about 11px of
-   column width against roughly 40px for horizontal text, which is the only
-   reason a 30-column chart in a 640px card can label anything at all.
-
-   Rotating about the bottom-left corner puts the base of every label on one
-   line, level with the top of the dot track. The nudge is half the line box:
-   after rotating, the text band sits entirely left of its anchor, and this
-   re-centres it on its column. It tracks font-size — change one, change both. */
-.chart-label {
-    transform-origin: 0 100%;
-    transform: translateX(5.5px) rotate(-90deg);
 }
