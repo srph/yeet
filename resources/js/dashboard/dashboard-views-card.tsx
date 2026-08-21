@@ -3,97 +3,75 @@ import {
   LayerCardContent,
   LayerCardSecondary,
 } from "@/components/layer-card/layer-card";
+import { cn } from "@/lib/utils";
+import {
+  DashboardTrafficChart,
+  type DailyViews,
+} from "./dashboard-traffic-chart";
 
 type Analytics = {
   total: number;
   month: number;
   previous_month: number | null;
   since: string | null;
+  daily: DailyViews[];
 };
 
 const number = new Intl.NumberFormat();
-const monthName = new Intl.DateTimeFormat(undefined, { month: "long" });
-const sinceDate = new Intl.DateTimeFormat(undefined, {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
 
-/**
- * Big numbers rather than the cookie card's leader rows: these are the
- * headline figures on the page, not a spec sheet. font-mono per the stats
- * rule in AGENTS.md, tabular-nums so digits don't jitter between renders.
- */
-function Stat({
-  label,
-  value,
-  caption,
+export function DashboardViewsCard({
+  analytics,
+  className,
 }: {
-  label: string;
-  value: number;
-  caption?: string;
+  analytics: Analytics;
+  /** Spacing against its neighbours belongs to whoever lays this out. */
+  className?: string;
 }) {
-  return (
-    <div className="px-1 py-1">
-      <dt className="font-mono text-[12.5px] uppercase tracking-wide text-neutral-500">
-        {label}
-      </dt>
-      <dd className="mt-1.5 font-mono text-[28px] leading-none tracking-[-0.02em] tabular-nums text-white">
-        {number.format(value)}
-      </dd>
-      {caption ? (
-        <p className="mt-1.5 font-mono text-[11.5px] tracking-wide tabular-nums text-neutral-500">
-          {caption}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-export function DashboardViewsCard({ analytics }: { analytics: Analytics }) {
-  const now = new Date();
-  const previous = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const today = analytics.daily.at(-1);
 
   return (
-    <section>
+    <section className={cn(className)}>
       <LayerCard>
         <LayerCardSecondary className="flex flex-wrap items-center justify-between gap-3 px-3 py-2.5">
           <span className="text-[12.5px] font-medium text-white">Traffic</span>
-          {analytics.since ? (
-            // A total that started three weeks ago should never be mistaken
-            // for a lifetime figure — hence the date, in the header.
-            //
-            // Parsed as `${since}T00:00:00` rather than the bare YYYY-MM-DD:
-            // the bare form is spec'd as UTC midnight, which renders as the
-            // previous day for anyone west of Greenwich.
-            <span className="font-mono text-[11.5px] uppercase tracking-wide text-neutral-500">
-              since {sinceDate.format(new Date(`${analytics.since}T00:00:00`))}
-            </span>
-          ) : null}
+          {/* The window the chart is drawing — context for the title rather
+              than a figure, which is why it reads quieter and why every actual
+              number now sits together in the footer. */}
+          <span className="font-mono text-[11.5px] uppercase tracking-[0.05em] tabular-nums text-neutral-500">
+            {analytics.daily.length} days
+          </span>
         </LayerCardSecondary>
 
-        <LayerCardContent>
-          <dl className="grid grid-cols-1 gap-x-8 gap-y-4 px-1 py-1 sm:grid-cols-2">
-            <Stat label="Total views" value={analytics.total} />
-
-            {/* Labelled with the month name, not "This month" — it has to read
-                as a calendar month that resets, not a rolling 30 days.
-
-                The caption is a plain reference figure, not a % delta: a
-                percentage between a partial month and a complete one reads as
-                a ~90% collapse every 3rd of the month. An honest delta needs
-                same-day-of-month comparison, which is a third query. */}
-            <Stat
-              label={monthName.format(now)}
-              value={analytics.month}
-              caption={
-                analytics.previous_month === null
-                  ? undefined
-                  : `${number.format(analytics.previous_month)} in ${monthName.format(previous)}`
-              }
-            />
-          </dl>
+        <LayerCardContent className="p-3.5">
+          <DashboardTrafficChart daily={analytics.daily} />
         </LayerCardContent>
+
+        <LayerCardSecondary className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2">
+          {/* All-time first, month second, both plain reference figures. No
+              percentage: an honest month-over-month delta needs same-day-of-
+              month comparison, and the chart is where that comparison lives
+              now anyway. */}
+          <span className="font-mono text-[11.5px] uppercase tracking-[0.05em] tabular-nums text-neutral-500">
+            <span className="text-neutral-300">
+              {number.format(analytics.total)}
+            </span>{" "}
+            all time
+            <span className="px-1.5 text-neutral-700">·</span>
+            <span className="text-neutral-300">
+              {number.format(analytics.month)}
+            </span>{" "}
+            this month
+          </span>
+          {/* Value first, period after — the same shape as "8,833 all time"
+              beside it, so the three figures read as one row. This is the
+              card's only number at rest; the chart's readout needs a pointer. */}
+          <span className="font-mono text-[11.5px] uppercase tracking-[0.05em] tabular-nums text-neutral-500">
+            <span className="text-neutral-300">
+              {number.format(today?.views ?? 0)}
+            </span>{" "}
+            today
+          </span>
+        </LayerCardSecondary>
       </LayerCard>
     </section>
   );

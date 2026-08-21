@@ -35,6 +35,7 @@ type Analytics = {
   month: number;
   previous_month: number | null;
   since: string | null;
+  daily: { date: string; views: number; pages: Record<string, number> }[];
 };
 
 type PageProps = {
@@ -59,7 +60,9 @@ export default function Dashboard() {
   return (
     <DashboardShell user={auth.user} flash={flash}>
       <main className="grid gap-1">
-        <DashboardViewsCard analytics={analytics} />
+        {/* Traffic is a summary, not an operational card — mb-3 on top of the
+            grid's gap-1 sets it apart from the two cards you act on. */}
+        <DashboardViewsCard analytics={analytics} className="mb-3" />
         <DashboardCookieBanner cookieHealth={cookieHealth} />
         <DashboardDownloadsTable downloads={downloads} />
       </main>

@@ -66,6 +66,13 @@ reloads (`X-Inertia-Partial-Data` — the cookie card polls every 2s), prefetche
 (`Sec-Purpose`/`Purpose`), and self-identifying bots by user agent. `/api/*`
 and every POST fall out of the route-name gate on their own.
 
+The card also draws a 30-day chart, which costs one more query returning ~30
+rows. `SiteViewSummary` gap-fills it, so every day in the window has an entry
+whether or not anything was recorded, and keys `pages` off the union of
+`CountView::COUNTED` and whatever actually appears in the window — a route
+dropped from COUNTED still has history, and its views are already in the day's
+total.
+
 Counting runs in `terminate()`, after the response is on the wire — a failed
 write must never reach a page render. `docs/analytics.md` has the reasoning,
 including why the stored-counter and rollup-table shapes were rejected.
@@ -82,6 +89,56 @@ today just YouTube, whose tile nests badly on a badge.
 
 Icons from [simple-icons](https://simpleicons.org) (CC0-1.0) and
 [Font Awesome Free](https://fontawesome.com/license/free) (CC BY 4.0).
+
+## Charts
+
+`dashboard-traffic-chart.tsx` is the first and only chart. It is DOM, not SVG,
+and there is no charting dependency — a bar height is `views / max`, a stack is
+a flex column, and the dot field behind each column is a masked pseudo-element.
+SVG buys cleaner rotated labels and a simpler segment gap, but needs a measured
+pixel width plus a resize observer to hold 10.5px text at 10.5px; flex is
+responsive for nothing. Revisit on the second chart, when a shared scale/axis
+vocabulary (`d3-scale`, or `visx` if it goes SVG) starts paying for itself.
+
+Shared pieces live in `resources/css/app.css` next to the keyframes, for the same
+reason those do — Tailwind can't express them without a 200-character arbitrary
+value:
+
+| | |
+| --- | --- |
+| `--color-chart-track` | the dot field. Above the `neutral-800` sheet, below the quietest bar |
+| `--chart-dot` / `--chart-gap` | one dot cell; gap between columns |
+| `.chart-track` | the masked dot field, width rounded **down** to whole dot cells and re-centred so the last column of dots is never sliced |
+| `.chart-label` | axis label rotated `-90deg` about its bottom-left corner |
+
+Rules that came out of building it, and are cheap to get wrong:
+
+- **Scale to the window max**, never a padded round number — the dot field is
+  the visible ceiling, so the tallest bar has to reach it.
+- **The column is the hit target**, not the bar. A quiet day is a few pixels
+  tall. Columns are contiguous and the bar is inset by half the gap.
+- **Gap-fill the series server-side.** A chart handed only the days that have
+  rows compresses time, and a dead week reads as a busy one.
+- **A zero day gets no bar**, just its column of dots. A minimum-height stub
+  reads as "1 view".
+- **The readout sits beside the column, never over it.** `side="right"` with
+  `align="center"` against a full-height column anchor puts it on the plot's
+  vertical centre for free — no offset arithmetic, and it never moves
+  vertically while you scrub. `collisionAvoidance={{ side: 'flip', align:
+  'none' }}` flips it to the left near the end of the window.
+- **`align: 'none'` is load-bearing.** With `side: right` the align axis is
+  vertical, and the panel is a few pixels taller than the plot bounding it, so
+  `shift` nudged it down to fit and left it permanently 4px off-centre.
+- **The glide between columns is a CSS transition, not `motion`.** Floating UI
+  rewrites the positioner's inline transform on every reposition, so a JS
+  animation is overwritten on the next frame. Honour Base UI's `data-instant`
+  or the panel slides in from its last position when it reopens.
+
+`motion` earns its place on the column stagger and the popup scale. The hover
+state on the track stays a CSS colour transition: one property, one element.
+
+Headless Chrome screenshots of this card composite stale layers — the readout
+renders translucent and DOM edits don't repaint. Verify it headful.
 
 ## CSS
 

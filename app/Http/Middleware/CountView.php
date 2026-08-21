@@ -13,8 +13,12 @@ class CountView
      * Route *names*, not paths — these are also the values stored in the
      * `page` column, so the table keys off something that survives a URL
      * change.
+     *
+     * Public because SiteViewSummary zero-fills the dashboard's daily series
+     * against it: a page that is counted but had no traffic on a given day
+     * still needs a 0, not a missing key.
      */
-    private const COUNTED = ['home', 'about'];
+    public const COUNTED = ['home', 'about'];
 
     /**
      * The high-volume commercial crawlers all self-identify, so this catches
