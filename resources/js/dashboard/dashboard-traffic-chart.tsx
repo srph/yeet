@@ -314,7 +314,7 @@ export function DashboardTrafficChart({ daily }: { daily: DailyViews[] }) {
                     <span className="text-[10px] tracking-[0.06em] text-neutral-400 uppercase">
                       {payload?.label}
                     </span>
-                    <span className="text-[15px] font-medium tracking-[-0.01em] text-white">
+                    <span className="text-[12.5px] font-medium tracking-[0.02em] text-white">
                       {number.format(payload?.views ?? 0)}
                     </span>
                   </div>
