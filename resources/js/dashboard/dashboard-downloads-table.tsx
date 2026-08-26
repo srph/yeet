@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
+import { DownloadStatus } from "@/components/download-status/download-status";
 import { SourceIcon } from "@/components/source-icon/source-icon";
 import {
   ToggleGroup,
@@ -8,6 +9,7 @@ import {
 import { Tooltip, TooltipProvider } from "@/components/tooltip/tooltip";
 import { useNow } from "@/hooks/use-now";
 import { isSource, SOURCES } from "@/sources";
+import { isDownloadStatus } from "@/types";
 
 type DownloadRow = {
   id: string;
@@ -24,15 +26,6 @@ type DownloadRow = {
 };
 
 type Filter = "all" | "active" | "complete" | "failed";
-
-const STATUS_TONE: Record<string, { text: string; dot: string }> = {
-  complete: { text: "text-blue-200", dot: "bg-blue-200" },
-  failed: { text: "text-red-400", dot: "bg-red-400" },
-  processing: { text: "text-violet-300", dot: "bg-violet-300" },
-  probing: { text: "text-sky-300", dot: "bg-sky-300" },
-  queued: { text: "text-neutral-400", dot: "bg-neutral-400" },
-  expired: { text: "text-neutral-600", dot: "bg-neutral-600" },
-};
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
@@ -121,10 +114,6 @@ function formatRelative(from: number, now: number) {
   if (seconds < 60) return `${seconds}s ago`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   return `${Math.floor(seconds / 3600)}h ago`;
-}
-
-function statusLabel(status: string) {
-  return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 function matchesFilter(status: string, filter: Filter) {
@@ -225,8 +214,6 @@ export function DashboardDownloadsTable({
                     </tr>
                   ) : (
                     rows.map((download) => {
-                      const tone =
-                        STATUS_TONE[download.status] ?? STATUS_TONE.expired;
                       // Rows come off Inertia as loose strings, so narrow
                       // before indexing rather than trusting the column.
                       const source = isSource(download.source)
@@ -239,18 +226,22 @@ export function DashboardDownloadsTable({
                           className="border-b border-neutral-800/60 last:border-b-0 hover:bg-white/[0.015]"
                         >
                           <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center gap-2 text-[12.5px] font-semibold ${tone.text}`}
-                            >
-                              <span
-                                className={`size-[7px] shrink-0 rounded-full ${tone.dot}`}
-                                aria-hidden
-                              />
-                              {statusLabel(download.status)}
-                            </span>
+                            {isDownloadStatus(download.status) ? (
+                              <DownloadStatus status={download.status} />
+                            ) : (
+                              // A value the frontend doesn't know about is
+                              // worth showing verbatim rather than coercing
+                              // into the nearest tone.
+                              <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-neutral-500 uppercase">
+                                {download.status}
+                              </span>
+                            )}
                           </td>
                           <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                            <span className="rounded-full bg-neutral-800 px-2.5 py-0.5 text-[10.5px] font-bold text-neutral-300">
+                            {/* Same height, radius and face as the status
+                                tag beside it, one step quieter — the row
+                                reads as one system rather than two widgets. */}
+                            <span className="inline-flex h-[22px] items-center rounded-[4px] bg-neutral-500/14 px-2 font-mono text-[10px] font-bold tracking-[0.12em] text-neutral-400">
                               {download.format.toUpperCase()}
                             </span>
                           </td>

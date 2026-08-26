@@ -1,6 +1,26 @@
 import { z } from "zod";
 import { SOURCE_IDS } from "./sources";
 
+/**
+ * The lifecycle, in order. Lifted out of the schema below so the dashboard —
+ * which receives rows through Inertia as loose strings rather than through
+ * zod — can narrow before indexing a Record keyed by status. Same reason
+ * SOURCE_IDS sits beside the Source type in sources.ts.
+ */
+export const DOWNLOAD_STATUSES = [
+  "queued",
+  "probing",
+  "processing",
+  "complete",
+  "failed",
+  "expired",
+] as const;
+
+export type DownloadStatus = (typeof DOWNLOAD_STATUSES)[number];
+
+export const isDownloadStatus = (value: string): value is DownloadStatus =>
+  (DOWNLOAD_STATUSES as readonly string[]).includes(value);
+
 // Snake_case throughout — this is Eloquent's serialization, consumed as-is.
 // The schema is a 1:1 mirror of the Download model's JSON, which is the upside
 // of having no resource layer: one place to look, not two.
@@ -23,14 +43,7 @@ export const DownloadMetaSchema = z.object({
 
   // "probing" = yt-dlp metadata (title/thumb/duration). "expired" is rarely
   // seen here — dedupe skips expired rows — but zod throws on unlisted values.
-  status: z.enum([
-    "queued",
-    "probing",
-    "processing",
-    "complete",
-    "failed",
-    "expired",
-  ]),
+  status: z.enum(DOWNLOAD_STATUSES),
 
   download_url: z.string().nullable(), // appended accessor, presigned per-read
   storage_file_name: z.string().nullable(),

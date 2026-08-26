@@ -6,10 +6,10 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { DownloadMeta } from "../types";
 import { Button } from "@/components/button/button";
+import { DownloadStatus } from "@/components/download-status/download-status";
 import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
 import { HomeDownloadCta } from "./home-download-cta";
-import { HomeDownloadStatus } from "./home-download-status";
 
 /**
  * The post-submit screen: a narrow spec rail against a big thumbnail.
@@ -176,7 +176,7 @@ export const HomeDownloadTracking = ({
     <div className="grid w-[min(1000px,100vw_-_2rem)] grid-cols-1 items-center gap-6 min-[880px]:grid-cols-[274px_1fr] min-[880px]:gap-10">
       {/* ── the rail ── */}
       <section className="min-w-0">
-        <HomeDownloadStatus status={status} />
+        <DownloadStatus status={status} scramble className="mb-4" />
 
         <h1 className="text-[19px] leading-[1.28] font-semibold tracking-[-0.035em] text-white">
           {meta.source_title}
