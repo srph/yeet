@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
+import { ChipBadge } from "@/components/chip-toggle-button/chip-toggle-button";
 import { DownloadStatus } from "@/components/download-status/download-status";
 import { SourceIcon } from "@/components/source-icon/source-icon";
 import {
@@ -238,12 +239,10 @@ export function DashboardDownloadsTable({
                             )}
                           </td>
                           <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                            {/* Same height, radius and face as the status
-                                tag beside it, one step quieter — the row
-                                reads as one system rather than two widgets. */}
-                            <span className="inline-flex h-[22px] items-center rounded-[4px] bg-neutral-500/14 px-2 font-mono text-[10px] font-bold tracking-[0.12em] text-neutral-400">
-                              {download.format.toUpperCase()}
-                            </span>
+                            {/* Same pill the frontfacing format picker uses,
+                                just static — one badge face for MP3/MP4
+                                everywhere it shows up. */}
+                            <ChipBadge>{download.format.toUpperCase()}</ChipBadge>
                           </td>
                           <td className="overflow-hidden px-1 py-3 align-middle">
                             <span className="block truncate text-[13.5px] font-semibold tracking-[-0.02em]">
