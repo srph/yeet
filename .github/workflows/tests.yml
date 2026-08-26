@@ -2,8 +2,10 @@ name: Tests
 
 on:
   push:
+    # Fixes tests never running on push: the default branch is main, not
+    # the skeleton's master, so breakage only surfaced in the nightly cron.
     branches:
-      - master
+      - main
       - '*.x'
   pull_request:
   schedule:
