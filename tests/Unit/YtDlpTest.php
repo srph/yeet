@@ -69,12 +69,33 @@ it('passes --cookies when a cookies path is configured', function () {
         'node',
         '--remote-components',
         'ejs:github',
+        '--extractor-args',
+        'youtube:player_client=default,-android_vr,web_embedded',
         '--cookies',
         '/tmp/cookies.txt',
         '--dump-json',
         '--ignore-no-formats-error',
         'https://youtu.be/dQw4w9WgXcQ',
     ]);
+});
+
+it('drops android_vr and adds web_embedded for youtube', function () {
+    Process::fake([
+        '*' => Process::result(output: fakeProbeJson()),
+    ]);
+
+    ytdlp()->probe('https://youtu.be/dQw4w9WgXcQ');
+
+    // Pinned as a pair: android_vr wins format selection and then 403s
+    // without a PO token, and removing it alone leaves only web_safari's
+    // SABR-only formats, which carry no URL. See YouTubeSource::PLAYER_CLIENTS.
+    Process::assertRan(function ($process) {
+        $i = array_search('--extractor-args', $process->command, true);
+
+        return $i !== false
+            && ($process->command[$i + 1] ?? null)
+               === 'youtube:player_client=default,-android_vr,web_embedded';
+    });
 });
 
 it('omits --cookies when none are configured', function () {
@@ -95,6 +116,8 @@ it('omits --cookies when none are configured', function () {
         'node',
         '--remote-components',
         'ejs:github',
+        '--extractor-args',
+        'youtube:player_client=default,-android_vr,web_embedded',
         '--dump-json',
         '--ignore-no-formats-error',
         'https://youtu.be/dQw4w9WgXcQ',
