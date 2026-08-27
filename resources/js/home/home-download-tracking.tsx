@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   FilmIcon,
   ArrowUpRightIcon,
@@ -7,6 +8,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { DownloadMeta } from "../types";
 import { Button } from "@/components/button/button";
 import { DownloadStatus } from "@/components/download-status/download-status";
+import { SourceIcon } from "@/components/source-icon/source-icon";
 import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
 import { HomeDownloadCta } from "./home-download-cta";
@@ -57,17 +59,6 @@ const formatElapsed = (createdAt: string, fulfilledAt: string) => {
   return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
 };
 
-/** youtube.com/watch?v=x, x.com/user/status/1 — whatever the source happens to be. */
-const formatSourceUrl = (url: string) => {
-  try {
-    const { hostname, pathname, search } = new URL(url);
-
-    return `${hostname.replace(/^www\./, "")}${pathname}${search}`;
-  } catch {
-    return url; // not our job to validate; the server already accepted it
-  }
-};
-
 /**
  * Middle-truncate so the extension survives: the tail is the informative part
  * ("...mp3" vs "...mp4"), and source ids are long enough that a plain clip
@@ -104,7 +95,7 @@ const Spec = ({
   uppercase = true,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   bright?: boolean;
   /** The untruncated value, surfaced on hover. */
   title?: string;
@@ -176,23 +167,29 @@ export const HomeDownloadTracking = ({
     <div className="grid w-[min(1000px,100vw_-_2rem)] grid-cols-1 items-center gap-6 min-[880px]:grid-cols-[274px_1fr] min-[880px]:gap-10">
       {/* ── the rail ── */}
       <section className="min-w-0">
-        <DownloadStatus status={status} scramble className="mb-4" />
+        <DownloadStatus status={status} scramble className="mb-2" />
 
-        <h1 className="text-[19px] leading-[1.28] font-semibold tracking-[-0.035em] text-white">
+        <h1 className="text-xl leading-[1.28] font-semibold tracking-[-0.035em] text-white">
           {meta.source_title}
         </h1>
 
-        <a
-          href={meta.source_url}
-          target="_blank"
-          rel="noreferrer"
-          className="group mt-[7px] inline-flex max-w-full items-center gap-1.5 text-[11.5px] tracking-normal text-neutral-600 transition hover:text-blue-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-        >
-          <span className="truncate">{formatSourceUrl(meta.source_url)}</span>
-          <ArrowUpRightIcon className="size-2.5 shrink-0 transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px" />
-        </a>
+        <dl className="mt-4">
+          <Spec
+            label="Source"
+            value={
+              <a
+                href={meta.source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex max-w-full items-center gap-1.5 transition hover:text-blue-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+              >
+                <SourceIcon source={meta.source} className="size-3 shrink-0" />
+                <span className="truncate">{SOURCES[meta.source].label}</span>
+                <ArrowUpRightIcon className="size-2.5 shrink-0 transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px" />
+              </a>
+            }
+          />
 
-        <dl className="mt-5 border-t border-neutral-800 pt-3.5">
           <Spec label="Format" value={meta.format.toUpperCase()} bright />
 
           {duration && <Spec label="Length" value={duration} />}

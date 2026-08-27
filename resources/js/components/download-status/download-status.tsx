@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, ClockFading } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { DecryptedText } from "@/components/decrypted-text/decrypted-text";
@@ -35,7 +35,7 @@ import type { DownloadStatus as Status } from "@/types";
  * `expired` sits at neutral-400 rather than a darker grey because at 10.5px
  * neutral-600 measures 2.36:1 against its own tint and neutral-500 only 3.71:1
  * — both under 4.5:1. That makes it share a colour with `queued`, which is why
- * the marker carries the distinction instead: a circle against a filled ghost
+ * the marker carries the distinction instead: a circle against a clock face
  * is a shape difference, and survives a dim panel and a colour-blind reader in
  * a way a grey step does not.
  */
@@ -77,28 +77,6 @@ const Working = () => (
   </span>
 );
 
-/**
- * Filled, not stroked. Lucide is drawn on a 24px grid at a 2px stroke; at the
- * 10px this tag needs, that thins to 0.83px and the interior detail closes up
- * into a smudge. A solid silhouette has no strokes to lose, and a ghost is
- * legible by outline alone — so this is a local path rather than an import.
- *
- * The eyes are evenodd knockouts, roughly 1px holes at final size. If they
- * close up at devicePixelRatio 1, drop them: the dome-and-hem outline still
- * reads, which scaling the icon up would not preserve.
- */
-const GhostFilled = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    fillRule="evenodd"
-    className={className}
-    aria-hidden
-  >
-    <path d="M12 2.5c-4.14 0-7.5 3.36-7.5 7.5v11l2.5-2 2.5 2 2.5-2 2.5 2 2.5-2 2.5 2V10c0-4.14-3.36-7.5-7.5-7.5zM10.65 9.8a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 1 1 2.5 0zM15.85 9.8a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 1 1 2.5 0z" />
-  </svg>
-);
-
 const MARKER: Record<Status, ReactNode> = {
   queued: <span className="size-1.5 shrink-0 rounded-full bg-current/70" aria-hidden />,
   probing: <Working />,
@@ -115,7 +93,11 @@ const MARKER: Record<Status, ReactNode> = {
       !
     </span>
   ),
-  expired: <GhostFilled className="size-2.5 shrink-0" />,
+  // Imported rather than redrawn like the checkmark above: the fade —
+  // dashes trailing off around the rim — is the whole point of the shape,
+  // so it needs Lucide's own path rather than a filled silhouette that
+  // would flatten it back into a plain clock.
+  expired: <ClockFading className="size-2.5 shrink-0" strokeWidth={2.5} aria-hidden />,
 };
 
 export function DownloadStatus({

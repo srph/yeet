@@ -119,11 +119,8 @@ export default function Home() {
             </a>
           </span>
           <div className="flex items-center gap-2.5">
-            {links.map((link, i) => (
+            {links.map((link) => (
               <Fragment key={link.label}>
-                {i > 0 && (
-                  <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
-                )}
                 {link.external ? (
                   <a
                     href={link.href}
