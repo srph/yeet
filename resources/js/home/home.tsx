@@ -138,7 +138,7 @@ export default function Home() {
               Kier Borromeo
             </a>
           </span>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 md:gap-6">
             {links.map((link) => (
               <Fragment key={link.label}>
                 {link.external ? (
