@@ -53,7 +53,6 @@ export function HomeDownloadAudioPlayer({
       viewType="audio"
       streamType="on-demand"
       onError={onSourceError}
-      className="block w-full"
     >
       {/* No <Poster>: the cover below is an <img> so the missing-thumbnail
           case can fall back to the same panel the waiting plate uses. */}
