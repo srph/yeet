@@ -1,6 +1,7 @@
 import {
   Controls,
   FullscreenButton,
+  Gesture,
   MediaPlayer,
   MediaProvider,
   MuteButton,
@@ -72,6 +73,16 @@ export function HomeDownloadVideoPlayer({
           />
         ) : null}
       </MediaProvider>
+
+      {/* Tap the frame to toggle playback. Vidstack listens on the provider
+          rather than on this element — which is why it is pointer-events-none
+          and still has to be sized to the frame: the hit test is a bounds
+          check against this rect, not a hit on this node. */}
+      <Gesture
+        className="pointer-events-none absolute inset-0 z-0 block size-full"
+        event="pointerup"
+        action="toggle:paused"
+      />
 
       <CenterPlay />
 
