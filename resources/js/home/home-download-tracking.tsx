@@ -177,7 +177,7 @@ export const HomeDownloadTracking = ({
   return (
     // viewport-relative, not 100%: the parent is a centred grid item and so is
     // shrink-to-fit, which a percentage width would resolve against.
-    <div className="grid w-[min(1000px,100vw_-_2rem)] grid-cols-1 items-center gap-6 min-[880px]:grid-cols-[274px_1fr] min-[880px]:gap-10">
+    <div className="grid w-[min(1000px,100vw_-_2rem)] grid-cols-1 items-start gap-6 min-[880px]:grid-cols-[274px_1fr] min-[880px]:gap-10">
       {/* ── the rail ── */}
       <section className="min-w-0">
         <DownloadStatus status={status} scramble className="mb-2" />
