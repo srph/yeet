@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { Head, Link } from "@inertiajs/react";
 import { useYeetMutation } from "../mutations";
@@ -22,7 +22,26 @@ export default function Home() {
     reset: resetYeet,
   } = useYeetMutation();
 
-  const { data: downloadMeta } = useDownloadMeta(yeetData?.id);
+  const { data: downloadMeta, refetch: refetchDownloadMeta } = useDownloadMeta(
+    yeetData?.id,
+  );
+
+  // The inline players stream from download_url, which is presigned for an
+  // hour and minted per serialization. A tab left open past that fails its
+  // next range request; refetching the row mints a fresh link.
+  //
+  // Keyed on the URL that failed so a genuinely dead object (pruned, S3 down)
+  // costs one retry rather than a request loop: the refetch returns the same
+  // link, the player errors again, and this URL's turn is already spent.
+  const spentSourceUrl = useRef<string | null>(null);
+
+  const handleSourceError = () => {
+    const failed = downloadMeta?.download_url;
+    if (!failed || spentSourceUrl.current === failed) return;
+
+    spentSourceUrl.current = failed;
+    void refetchDownloadMeta();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +101,7 @@ export default function Home() {
                 onRetry={handleRetry}
                 onDownload={handleDownload}
                 onDownloadAnother={handleDownloadAnother}
+                onSourceError={handleSourceError}
               />
             </motion.div>
           ) : (

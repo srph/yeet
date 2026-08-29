@@ -12,6 +12,8 @@ import { SourceIcon } from "@/components/source-icon/source-icon";
 import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
 import { HomeDownloadCta } from "./home-download-cta";
+import { HomeDownloadAudioPlayer } from "./home-download-audio-player";
+import { HomeDownloadVideoPlayer } from "./home-download-video-player";
 
 /**
  * The post-submit screen: a narrow spec rail against a big thumbnail.
@@ -133,11 +135,18 @@ export const HomeDownloadTracking = ({
   onRetry,
   onDownload,
   onDownloadAnother,
+  onSourceError,
 }: {
   meta: DownloadMeta;
   onRetry: () => void;
   onDownload: () => void;
   onDownloadAnother: () => void;
+  /**
+   * download_url is presigned for an hour and minted per serialization, so a
+   * tab left open past that fails its next range request mid-seek. Refetching
+   * the row mints a fresh link.
+   */
+  onSourceError?: () => void;
 }) => {
   const { status } = meta;
 
@@ -146,6 +155,10 @@ export const HomeDownloadTracking = ({
     status === "queued" || status === "probing" || status === "processing";
   const isDead = status === "failed" || status === "expired";
   const isActive = status === "probing" || status === "processing";
+
+  // Playable, not merely settled: prune clears storage_key, which nulls
+  // download_url while status stays "complete".
+  const playableUrl = isSettled ? meta.download_url : null;
 
   const duration = meta.duration === null ? null : formatDuration(meta.duration);
   const took =
@@ -273,89 +286,105 @@ export const HomeDownloadTracking = ({
 
       {/* ── the plate ── */}
       <section className="order-first w-full min-[880px]:order-none">
-        <a
-          href={meta.source_url}
-          target="_blank"
-          rel="noreferrer"
-          className={`group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
-            isSettled
-              ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(191,219,254,0.34),0_0_90px_-26px_rgba(191,219,254,0.42)]"
-              : "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"
-          }`}
-        >
-          {meta.source_thumbnail ? (
-            <img
-              src={meta.source_thumbnail}
-              alt=""
-              className={`size-full object-cover transition-[filter] duration-700 ease-swoop ${
-                isWaiting ? "brightness-50 grayscale-[0.85]" : ""
-              } ${isDead ? "brightness-[0.3] grayscale" : ""} ${
-                isSettled ? "scale-[1.02]" : ""
-              }`}
+        {playableUrl ? (
+          meta.format === "mp4" ? (
+            <HomeDownloadVideoPlayer
+              meta={meta}
+              src={playableUrl}
+              onSourceError={onSourceError}
             />
           ) : (
-            // X posts frequently have no thumbnail, and an mp3 has no video to
-            // show either — so this is a normal state, not a failure.
-            <div className="flex size-full flex-col items-center justify-center gap-2.5 text-neutral-600">
-              {meta.format === "mp3" ? (
-                <MusicIcon className="size-7" />
-              ) : (
-                <FilmIcon className="size-7" />
-              )}
-              <span className="text-[11.5px] font-medium tracking-normal">
-                No preview
-              </span>
-            </div>
-          )}
-
-          {/* scanlines while probe/cook is actively running */}
-          {isActive && (
-            <span className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(234,179,8,0.055)_0_1px,transparent_1px_4px)]" />
-          )}
-
-          {/* the shimmer — the only motion on this screen */}
-          {isWaiting && (
-            <span className="pointer-events-none absolute inset-0 overflow-hidden">
-              <span
-                className={`absolute inset-y-0 w-[38%] ${
-                  isActive
-                    ? "animate-sweep bg-linear-to-r from-transparent via-blue-200/40 to-transparent"
-                    : "animate-sweep-slow bg-linear-to-r from-transparent via-white/[0.14] to-transparent"
+            <HomeDownloadAudioPlayer
+              meta={meta}
+              src={playableUrl}
+              onSourceError={onSourceError}
+            />
+          )
+        ) : (
+          <a
+            href={meta.source_url}
+            target="_blank"
+            rel="noreferrer"
+            className={`group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
+              isSettled
+                ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(191,219,254,0.34),0_0_90px_-26px_rgba(191,219,254,0.42)]"
+                : "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"
+            }`}
+          >
+            {meta.source_thumbnail ? (
+              <img
+                src={meta.source_thumbnail}
+                alt=""
+                className={`size-full object-cover transition-[filter] duration-700 ease-swoop ${
+                  isWaiting ? "brightness-50 grayscale-[0.85]" : ""
+                } ${isDead ? "brightness-[0.3] grayscale" : ""} ${
+                  isSettled ? "scale-[1.02]" : ""
                 }`}
               />
-            </span>
-          )}
+            ) : (
+              // X posts frequently have no thumbnail, and an mp3 has no video to
+              // show either — so this is a normal state, not a failure.
+              <div className="flex size-full flex-col items-center justify-center gap-2.5 text-neutral-600">
+                {meta.format === "mp3" ? (
+                  <MusicIcon className="size-7" />
+                ) : (
+                  <FilmIcon className="size-7" />
+                )}
+                <span className="text-[11.5px] font-medium tracking-normal">
+                  No preview
+                </span>
+              </div>
+            )}
 
-          {/* Hidden while cooking and when there's no thumbnail — the badge
-              would sit on top of the "No preview" panel and promise a source
-              that isn't there. */}
-          {!isWaiting && meta.source_thumbnail && (
-            <>
-              <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_100%_0%,rgba(0,0,0,0.45)_0%,transparent_60%)] opacity-0 transition-opacity duration-300 ease-swoop group-hover:opacity-100" />
-              <span
-                className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg ${SOURCES[meta.source].badge}`}
-              >
-                <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-swoop group-hover:max-w-48">
-                  <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
-                    Watch on {SOURCES[meta.source].label}
-                  </span>
-                  <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-swoop group-hover:translate-y-0">
-                    Watch on {SOURCES[meta.source].label}
-                  </span>
-                </span>
-                <span className="grid size-9 shrink-0 place-items-center text-white">
-                  <ArrowUpRightIcon className="size-4" />
-                </span>
+            {/* scanlines while probe/cook is actively running */}
+            {isActive && (
+              <span className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(234,179,8,0.055)_0_1px,transparent_1px_4px)]" />
+            )}
+
+            {/* the shimmer — the only motion on this screen */}
+            {isWaiting && (
+              <span className="pointer-events-none absolute inset-0 overflow-hidden">
+                <span
+                  className={`absolute inset-y-0 w-[38%] ${
+                    isActive
+                      ? "animate-sweep bg-linear-to-r from-transparent via-blue-200/40 to-transparent"
+                      : "animate-sweep-slow bg-linear-to-r from-transparent via-white/[0.14] to-transparent"
+                  }`}
+                />
               </span>
-            </>
-          )}
+            )}
 
-          {duration && (
-            <span className="absolute right-3 bottom-3 rounded-md bg-neutral-950/70 px-2.5 py-1.5 font-mono text-[11.5px] font-semibold tracking-normal tabular-nums backdrop-blur-md">
-              {duration}
-            </span>
-          )}
-        </a>
+            {/* Hidden while cooking and when there's no thumbnail — the badge
+                would sit on top of the "No preview" panel and promise a source
+                that isn't there. */}
+            {!isWaiting && meta.source_thumbnail && (
+              <>
+                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_100%_0%,rgba(0,0,0,0.45)_0%,transparent_60%)] opacity-0 transition-opacity duration-300 ease-swoop group-hover:opacity-100" />
+                <span
+                  className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg ${SOURCES[meta.source].badge}`}
+                >
+                  <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-swoop group-hover:max-w-48">
+                    <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
+                      Watch on {SOURCES[meta.source].label}
+                    </span>
+                    <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-swoop group-hover:translate-y-0">
+                      Watch on {SOURCES[meta.source].label}
+                    </span>
+                  </span>
+                  <span className="grid size-9 shrink-0 place-items-center text-white">
+                    <ArrowUpRightIcon className="size-4" />
+                  </span>
+                </span>
+              </>
+            )}
+
+            {duration && (
+              <span className="absolute right-3 bottom-3 rounded-md bg-neutral-950/70 px-2.5 py-1.5 font-mono text-[11.5px] font-semibold tracking-normal tabular-nums backdrop-blur-md">
+                {duration}
+              </span>
+            )}
+          </a>
+        )}
       </section>
     </div>
   );

@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* Vidstack's essentials only — provider sizing, slider CSS vars, the
+   data-attribute plumbing the players key off. Not the default theme: both
+   players are custom layouts and would fight it. */
+@import '@vidstack/react/player/styles/base.css';
+
 /* Self-hosted, replacing next/font/google from the Next.js app. */
 @import '@fontsource/playfair-display/700.css';
 @import '@fontsource/playfair-display/700-italic.css';

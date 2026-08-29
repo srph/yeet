@@ -1,0 +1,186 @@
+import {
+  MediaPlayer,
+  MediaProvider,
+  MuteButton,
+  PlayButton,
+  Time,
+  TimeSlider,
+  useMediaRemote,
+  useMediaState,
+} from "@vidstack/react";
+import {
+  MusicIcon,
+  PauseIcon,
+  PlayIcon,
+  RotateCcwIcon,
+  Volume2Icon,
+  VolumeXIcon,
+} from "lucide-react";
+import type { DownloadMeta } from "../types";
+
+/**
+ * The settled mp3 plate. An album read, stripped: artwork, a scrub line, three
+ * buttons. No title, source or bitrate — the rail is already saying all three
+ * a column to the left, and repeating them is how the plate ended up looking
+ * like a card.
+ *
+ * The bottom-anchoring is deliberate and only applies beside the rail, where
+ * the transport lines up with the Download button across the gutter. On a
+ * phone there is no rail to line up with, so it is dropped: the gap would be
+ * space with no job rather than structure.
+ *
+ * Only mounted once status is "complete" and download_url is non-null.
+ */
+
+const GHOST =
+  "grid size-[38px] place-items-center rounded-full text-neutral-400 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200";
+
+export function HomeDownloadAudioPlayer({
+  meta,
+  src,
+  onSourceError,
+}: {
+  meta: DownloadMeta;
+  /** meta.download_url, narrowed to non-null by the caller. */
+  src: string;
+  /** The presigned link lasts an hour; a stale one surfaces here. */
+  onSourceError?: () => void;
+}) {
+  return (
+    <MediaPlayer
+      src={{ src, type: "audio/mpeg" }}
+      title={meta.source_title}
+      viewType="audio"
+      streamType="on-demand"
+      onError={onSourceError}
+      className="block w-full"
+    >
+      {/* No <Poster>: the cover below is an <img> so the missing-thumbnail
+          case can fall back to something drawn rather than a grey box. */}
+      <MediaProvider />
+
+      <div className="flex flex-col min-[880px]:min-h-[420px]">
+        <Cover meta={meta} />
+
+        <div className="flex flex-col gap-4 pt-6 min-[880px]:mt-auto min-[880px]:pt-7">
+          <div className="flex items-center gap-[11px]">
+            <Stamp>
+              <Time type="current" />
+            </Stamp>
+
+            <TimeSlider.Root className="group/seek relative flex h-[18px] flex-1 cursor-pointer touch-none items-center outline-none">
+              <TimeSlider.Track className="relative h-[3px] w-full rounded-full bg-neutral-800">
+                <TimeSlider.Progress className="absolute h-full w-[var(--slider-progress)] rounded-full bg-neutral-700" />
+                <TimeSlider.TrackFill className="absolute h-full w-[var(--slider-fill)] rounded-full bg-blue-200" />
+              </TimeSlider.Track>
+              <TimeSlider.Thumb className="absolute top-1/2 left-[var(--slider-fill)] size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-200 opacity-0 shadow-[0_0_0_5px_rgba(191,219,254,0.16),0_0_12px_rgba(191,219,254,0.55)] transition-opacity duration-150 group-hover/seek:opacity-100 group-data-[dragging]/seek:opacity-100" />
+            </TimeSlider.Root>
+
+            <Stamp>
+              <Time type="duration" />
+            </Stamp>
+          </div>
+
+          <div className="flex items-center justify-center gap-5">
+            <Restart />
+
+            <PlayButton className="grid size-[54px] place-items-center rounded-full bg-blue-200 text-blue-950 transition-colors hover:bg-blue-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200">
+              <ToggleGlyph size={19} />
+            </PlayButton>
+
+            <MuteButton className={GHOST}>
+              <VolumeGlyph />
+            </MuteButton>
+          </div>
+        </div>
+      </div>
+    </MediaPlayer>
+  );
+}
+
+/**
+ * Sized to sit against the 274px rail rather than over it — a cover wider than
+ * the column beside it reads as the page's subject instead of one of two
+ * things on it.
+ */
+function Cover({ meta }: { meta: DownloadMeta }) {
+  const paused = useMediaState("paused");
+
+  return (
+    <div className="relative aspect-square w-[min(212px,62%)] self-center overflow-hidden rounded-[14px] shadow-[0_42px_80px_-32px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.05)]">
+      {meta.source_thumbnail ? (
+        <img
+          src={meta.source_thumbnail}
+          alt=""
+          className="size-full object-cover"
+        />
+      ) : (
+        // X posts frequently have no thumbnail, and with the title stripped
+        // this is the only thing identifying the file — so it gets a drawn
+        // fallback rather than an empty square.
+        <div className="grid size-full place-items-center bg-linear-145 from-[#1e3a5f] via-[#0f172a] to-[#1c1f26] text-neutral-600">
+          <MusicIcon className="size-7" />
+        </div>
+      )}
+
+      <PlayButton
+        className={`absolute inset-0 grid place-items-center bg-neutral-950/30 text-white transition-opacity duration-250 ease-[cubic-bezier(0.19,1,0.22,1)] focus-visible:opacity-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-200 ${
+          paused ? "opacity-100" : "opacity-0 hover:opacity-100"
+        }`}
+      >
+        <PlayIcon
+          className={`size-[26px] translate-x-px transition-opacity ${paused ? "opacity-100" : "opacity-0"}`}
+          fill="currentColor"
+        />
+        <PauseIcon
+          className={`absolute size-[26px] transition-opacity ${paused ? "opacity-0" : "opacity-100"}`}
+          fill="currentColor"
+        />
+      </PlayButton>
+    </div>
+  );
+}
+
+/** Back to the top, rather than a relative skip — there is one file here. */
+function Restart() {
+  const remote = useMediaRemote();
+
+  return (
+    <button
+      type="button"
+      aria-label="Restart"
+      onClick={(event) => remote.seek(0, event.nativeEvent)}
+      className={GHOST}
+    >
+      <RotateCcwIcon className="size-[17px]" />
+    </button>
+  );
+}
+
+function Stamp({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="font-mono text-[10px] font-bold tracking-[0.1em] text-neutral-600 tabular-nums">
+      {children}
+    </span>
+  );
+}
+
+function ToggleGlyph({ size }: { size: number }) {
+  const paused = useMediaState("paused");
+  const Glyph = paused ? PlayIcon : PauseIcon;
+
+  return (
+    <Glyph
+      style={{ width: size, height: size }}
+      fill="currentColor"
+      className={paused ? "translate-x-px" : undefined}
+    />
+  );
+}
+
+function VolumeGlyph() {
+  const muted = useMediaState("muted");
+  const Glyph = muted ? VolumeXIcon : Volume2Icon;
+
+  return <Glyph className="size-[17px]" />;
+}
