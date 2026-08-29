@@ -21,22 +21,9 @@ php artisan queue:work --queue=downloads   # jobs
 
 ## Cookies
 
-Two jars, both files on disk, both pointed at by env.
-
-| | `YTDLP_COOKIES` | `DOUYIN_COOKIES` |
-| --- | --- | --- |
-| Covers | everything except Douyin | Douyin only |
-| Written by | browser export, throwaway account | `php artisan ytdlp:douyin` |
-| Inspect | `php artisan ytdlp:check` | `php artisan ytdlp:douyin` (no-op when present) |
-
-Neither is minted at request time — a missing Douyin jar throws, naming the
-command. `App\Services\DouyinCookies` has the why.
-
-Each jar belongs to its adapter's `Source::ytdlpArgs()`, not to `YtDlp`.
-`YtDlp` contributes only what every source gets (`--no-playlist`,
-`--playlist-items 1`, `--no-warnings`) and appends whatever the resolved
-source asks for — bot-check workarounds, cookies, spoofed headers. Adding a
-source with a new quirk should never mean editing `YtDlp`.
+Two yt-dlp cookie jars, `YTDLP_COOKIES` (everything except Douyin) and
+`DOUYIN_COOKIES` (Douyin only) — both files on disk, pointed at by env,
+neither minted at request time. `docs/cookies.md` has the why.
 
 ## Endpoints
 
@@ -52,30 +39,9 @@ source with a new quirk should never mean editing `YtDlp`.
 
 Page views are counted in this app, in Postgres — no third-party script, no
 cookie, no consent banner. `CountView` (web group, terminable) upserts one row
-per page per day into `site_views`, keyed `(date, page)` where `page` is the
-route name.
-
-Not a stored running total, and not a monthly rollup job. Every figure the
-dashboard shows — all-time, month-to-date, last month — is a `SUM` over the
-same daily rows, so nothing is derived state that can drift, miss a cron run,
-or need recomputing. ~730 rows a year; never pruned.
-
-Only `GET` on `home` / `about`, only 2xx, and only for guests. Skipped:
-authenticated users (the operator is not the audience), Inertia partial
-reloads (`X-Inertia-Partial-Data` — the cookie card polls every 2s), prefetches
-(`Sec-Purpose`/`Purpose`), and self-identifying bots by user agent. `/api/*`
-and every POST fall out of the route-name gate on their own.
-
-The card also draws a 30-day chart, which costs one more query returning ~30
-rows. `SiteViewSummary` gap-fills it, so every day in the window has an entry
-whether or not anything was recorded, and keys `pages` off the union of
-`CountView::COUNTED` and whatever actually appears in the window — a route
-dropped from COUNTED still has history, and its views are already in the day's
-total.
-
-Counting runs in `terminate()`, after the response is on the wire — a failed
-write must never reach a page render. `docs/analytics.md` has the reasoning,
-including why the stored-counter and rollup-table shapes were rejected.
+per page per day into `site_views`, so every figure the dashboard shows is a
+`SUM` over daily rows rather than derived state that can drift. `docs/analytics.md`
+has the reasoning, including which requests are excluded and why.
 
 ## Source icons
 
@@ -90,68 +56,9 @@ today just YouTube, whose tile nests badly on a badge.
 Icons from [simple-icons](https://simpleicons.org) (CC0-1.0) and
 [Font Awesome Free](https://fontawesome.com/license/free) (CC BY 4.0).
 
-## Charts
-
-`dashboard-traffic-chart.tsx` is the first and only chart. It is DOM, not SVG,
-and there is no charting dependency — a bar height is `views / max`, a stack is
-a flex column, and the dot field behind each column is a masked element.
-SVG buys cleaner rotated labels and a simpler segment gap, but needs a measured
-pixel width plus a resize observer to hold 10.5px text at 10.5px; flex is
-responsive for nothing. Revisit on the second chart, when a shared scale/axis
-vocabulary (`d3-scale`, or `visx` if it goes SVG) starts paying for itself.
-
-Only tokens live in `resources/css/app.css`; everything else is ordinary
-utilities on the component. Tailwind expresses all of it — reach for an
-arbitrary value rather than a global class:
-
-| | |
-| --- | --- |
-| `--color-chart-track` | the dot field. Above the `neutral-800` sheet, below the quietest bar |
-| `--chart-dot` / `--chart-gap` | one dot cell; gap between columns |
-
-- The rotated axis label is `origin-bottom-left translate-x-[5.5px] -rotate-90`.
-  Tailwind v4 sets `rotate` and `translate` as individual properties, which the
-  spec applies translate-then-rotate — the same as the longhand it replaces.
-- The dot track's width is
-  `w-[round(down,calc(100%-var(--chart-gap)),var(--chart-dot))]`, trimming it to
-  whole dot cells before it's centred so the right-hand column of dots is never
-  sliced. `round()` is fine to use unguarded.
-- The mask tile is a data URI, so it goes in a custom property on the plot
-  (`--chart-dot-tile`) and the track picks it up with `mask-(--chart-dot-tile)`.
-  It's a chart internal rather than a design token, which is why it's inline on
-  the component and not in `@theme`.
-
-Rules that came out of building it, and are cheap to get wrong:
-
-- **Scale to the window max**, never a padded round number — the dot field is
-  the visible ceiling, so the tallest bar has to reach it.
-- **The column is the hit target**, not the bar. A quiet day is a few pixels
-  tall. Columns are contiguous and the bar is inset by half the gap.
-- **Gap-fill the series server-side.** A chart handed only the days that have
-  rows compresses time, and a dead week reads as a busy one.
-- **A zero day gets no bar**, just its column of dots. A minimum-height stub
-  reads as "1 view".
-- **The readout sits beside the column, never over it.** `side="right"` with
-  `align="center"` against a full-height column anchor puts it on the plot's
-  vertical centre for free — no offset arithmetic, and it never moves
-  vertically while you scrub. `collisionAvoidance={{ side: 'flip', align:
-  'none' }}` flips it to the left near the end of the window.
-- **`align: 'none'` is load-bearing.** With `side: right` the align axis is
-  vertical, and the panel is a few pixels taller than the plot bounding it, so
-  `shift` nudged it down to fit and left it permanently 4px off-centre.
-- **The glide between columns is a CSS transition, not `motion`.** Floating UI
-  rewrites the positioner's inline transform on every reposition, so a JS
-  animation is overwritten on the next frame. Honour Base UI's `data-instant`
-  or the panel slides in from its last position when it reopens.
-
-`motion` earns its place on the column stagger and the popup scale. The hover
-state on the track stays a CSS colour transition: one property, one element.
-
-Headless Chrome screenshots of this card composite stale layers — the readout
-renders translucent and DOM edits don't repaint. Verify it headful.
-
 ## CSS
 
+- Prefer using the closest design token instead of using arbitrary values unless instructed otherwise (e.g. pb-3 > pb-[13px])
 - **Focus:** Interactive links/buttons get `focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200` applied per element (not globally). Text inputs use their own border/ring focus styles.
 - **Control size:** Baseline size for control elements (input/button) starts at 32px.
 - **Metadata/stats:** `font-mono` optionally, unless specified otherwise.

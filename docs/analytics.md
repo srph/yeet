@@ -11,10 +11,12 @@ between them. Explicitly **not** counted:
 - Anything under `auth` (the dashboard counting itself is noise)
 - Non-`GET`, and the `/api/*` polling routes (~1 req/s per download would
   drown everything else)
+- Non-2xx responses (a 404 or 500 isn't a page view)
 - Inertia partial reloads (`X-Inertia-Partial-Data` present) — the cookie
   banner polls `router.reload({ only: [...] })` and those are not page views
 - Prefetches (`Sec-Purpose: prefetch`, `Purpose: prefetch`)
-- Obvious bots by user agent (`bot|crawler|spider|curl|wget|headless`)
+- Obvious bots by user agent (`bot|crawler|spider|curl|wget|headless`, plus a
+  few named crawlers that don't match those generic words)
 
 Raw views, not uniques. A unique-per-day count needs a visitor identity;
 the only no-cookie option is a hashed `IP + UA + daily salt`, which is more
@@ -113,12 +115,21 @@ The `Spec` leader-row component is currently copy-pasted in
 `dashboard-cookie-banner.tsx` and `home-download-tracking.tsx`. This card does
 not need it, so no extraction here — but a third copy would be the signal.
 
+## Chart
+
+The card also draws a 30-day chart, one more query returning ~30 rows
+(`SiteViewSummary::daily()`). It gap-fills: every day in the window gets an
+entry whether or not anything was recorded, so a dead week doesn't compress
+into a shorter bar than a busy one. `pages` per day is keyed off the union of
+`CountView::COUNTED` and whatever page names actually appear in the window —
+a route dropped from `COUNTED` still has history, and its views are already
+folded into the day's total.
+
 ## Not in scope
 
-Referrers, countries, downloads-per-month, a chart. The `page` split is
-stored but not displayed — the card shows one combined number, and a
-`group by page` surfaces the breakdown whenever it's wanted. None of the rest
-is needed to answer "how much is this thing used".
+Referrers, countries, downloads-per-month. The per-page split is stored and
+feeds the chart, but the headline numbers are combined across pages — a
+`group by page` surfaces the breakdown further if it's ever wanted.
 
 ## Tests
 
