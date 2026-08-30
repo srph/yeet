@@ -19,6 +19,7 @@ import {
   Volume2Icon,
   VolumeXIcon,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { DownloadMeta } from "../types";
 
 /**
@@ -35,9 +36,13 @@ import type { DownloadMeta } from "../types";
  * shimmering thumbnail for every other state.
  */
 
-/** Shared by both dock rows; size-7 is the smallest that still clears a thumb. */
+/**
+ * Shared by both dock rows; size-7 is the smallest that still clears a thumb.
+ * Resting at white/70 leaves hover somewhere to go — at white/90 the lift to
+ * full white was too small a step to read as a hover state at all.
+ */
 const ICON_BUTTON =
-  "grid size-7 shrink-0 place-items-center rounded-md text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200";
+  "grid size-7 shrink-0 place-items-center rounded-md text-white/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200";
 
 export function HomeDownloadVideoPlayer({
   meta,
@@ -138,24 +143,70 @@ export function HomeDownloadVideoPlayer({
 }
 
 /**
- * The one control that is not in the dock. Was larger, with an offset shadow
- * and a white hairline ring; the ring did nothing on a near-white fill but
- * muddy the edge, and the offset made it read as pasted on. Now ringless and
- * lit by a centred bloom, so it separates from a bright frame without an edge.
+ * The one control that is not in the dock — and only sometimes a control.
+ *
+ * Until the first frame plays it is the affordance: the dock is hidden behind
+ * the poster, so nothing else says the plate is playable. After that it stops
+ * being a target and becomes feedback — the state just entered, blooming out
+ * over half a second. Sitting there for the whole of a pause covered the very
+ * frame the viewer paused to look at, and the dock's own toggle already
+ * carries the state for anyone who wants it.
+ *
+ * Was larger, with an offset shadow and a white hairline ring; the ring did
+ * nothing on a near-white fill but muddy the edge, and the offset made it
+ * read as pasted on. Now ringless and lit by a centred bloom, so it separates
+ * from a bright frame without an edge.
  */
 function CenterPlay() {
   const paused = useMediaState("paused");
+  const started = useMediaState("started");
+  const [flashing, setFlashing] = useState(false);
+
+  // Every toggle restarts the hold, wherever it came from — dock button,
+  // frame tap or keyboard. Keyed on the value actually changing rather than
+  // on the effect firing, so mounting a paused player is not itself a flash.
+  const wasPaused = useRef(paused);
+
+  useEffect(() => {
+    if (wasPaused.current === paused) return;
+    wasPaused.current = paused;
+
+    setFlashing(true);
+    const timer = setTimeout(() => setFlashing(false), 450);
+
+    return () => clearTimeout(timer);
+  }, [paused]);
+
+  // `started` trails the first play by a tick, so the affordance hands over to
+  // the flash rather than the flash waiting on it — otherwise the disc blinks
+  // out and back in between the two.
+  const idle = !started && paused;
+  const visible = idle || flashing;
 
   return (
     <PlayButton
+      // Feedback is not a target: past the first play the frame's own gesture
+      // owns the tap, and a fading disc that swallows one is worse than no
+      // disc at all.
+      aria-hidden={!idle}
+      tabIndex={idle ? undefined : -1}
       className={`absolute inset-0 z-10 m-auto grid size-16 place-items-center rounded-full bg-blue-200 text-blue-950 shadow-[0_2px_30px_rgba(0,0,0,0.5)] transition duration-300 ease-swoop hover:bg-blue-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200 ${
-        paused
+        idle ? "" : "pointer-events-none "
+      }${
+        visible
           ? "scale-100 opacity-100"
-          : "pointer-events-none scale-90 opacity-0"
+          : started
+            ? // a flash blooms outward as it goes; the idle disc just recedes
+              "scale-125 opacity-0"
+            : "scale-90 opacity-0"
       }`}
     >
-      {/* geometric centring leaves a triangle looking left-heavy */}
-      <PlayIcon className="size-6 translate-x-px" fill="currentColor" />
+      {started && !paused ? (
+        <PauseIcon className="size-6" fill="currentColor" />
+      ) : (
+        // geometric centring leaves a triangle looking left-heavy
+        <PlayIcon className="size-6 translate-x-px" fill="currentColor" />
+      )}
     </PlayButton>
   );
 }
