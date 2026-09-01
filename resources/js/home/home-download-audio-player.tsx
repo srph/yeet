@@ -17,6 +17,7 @@ import {
   VolumeXIcon,
 } from "lucide-react";
 import type { DownloadMeta } from "../types";
+import "./vidstack-player-styles";
 
 /**
  * The settled mp3 plate. An album read, stripped: artwork, a scrub line, three

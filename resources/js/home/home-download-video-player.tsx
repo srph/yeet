@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { DownloadMeta } from "../types";
+import "./vidstack-player-styles";
 
 /**
  * The settled mp4 plate: the encoded file itself, playing in place of the
