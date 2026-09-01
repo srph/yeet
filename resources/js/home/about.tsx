@@ -102,7 +102,7 @@ export default function About() {
         </IconButton>
 
         <div className="fixed inset-x-0 top-0 z-10 flex items-center justify-center gap-2.5 px-4 py-5">
-          <img src="/logo.svg" alt="" className="h-7 w-auto" />
+          <img src="/logo.svg" alt="" width="444" height="457" className="h-7 w-auto" />
           <span className="font-sans text-xl font-semibold text-white">Yeet</span>
         </div>
 

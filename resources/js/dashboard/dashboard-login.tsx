@@ -21,6 +21,8 @@ export default function Login() {
           <img
             src="/logo.svg"
             alt=""
+            width="444"
+            height="457"
             className="h-11.5 w-auto drop-shadow-[0_16px_40px_-16px_rgba(191,219,254,0.6)]"
           />
 

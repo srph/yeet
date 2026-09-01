@@ -24,7 +24,7 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
       <div className="fixed inset-0 overflow-y-auto bg-neutral-950 font-sans text-neutral-50 tracking-[-0.011em] antialiased">
         <header className="mx-auto flex max-w-240 items-center gap-3 px-6.5 py-4">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.svg" alt="" className="h-7 w-auto" />
+            <img src="/logo.svg" alt="" width="444" height="457" className="h-7 w-auto" />
             <span className="text-[19px] font-semibold tracking-[-0.02em]">
               Yeet Control Room
             </span>

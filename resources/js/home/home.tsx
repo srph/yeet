@@ -101,7 +101,7 @@ export default function Home() {
             "bg-linear-to-b from-neutral-950 from-60% to-transparent pb-8 min-[880px]:bg-none min-[880px]:pb-5",
         )}
       >
-        <img src="/logo.svg" alt="" className="h-7 w-auto" />
+        <img src="/logo.svg" alt="" width="444" height="457" className="h-7 w-auto" />
         <span className="font-sans text-xl font-semibold text-white">Yeet</span>
       </div>
 

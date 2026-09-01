@@ -12,11 +12,11 @@ Lab-only for now — no CrUX field data on this origin.
 | 1 | Lazy-load Vidstack players until a file is playable | ~75 KiB JS off the landing request graph | Shipped | Live — LCP 2.9s → 2.6s |
 | 2 | Dynamic-import Zod at first API parse | ~17 KiB JS off initial load | Shipped | Live — LCP unchanged at 2.6s |
 | 3 | `Cache-Control: public, max-age=31536000, immutable` on `/build/assets/*` | Repeat-visit savings (~279 KiB per PSI) | Blocked | Origin is Cloudflare in front of Forge. Needs a Cache Rule or nginx `expires`. Not in this repo. |
-| 4a | Intrinsic `width`/`height` on `/logo.svg` | Clears image-dimension diagnostic | Not started | — |
-| 4b | Move Vidstack CSS out of global `app.css` | Smaller CSS on landing | Shipping | Waiting for this deploy |
+| 4a | Intrinsic `width`/`height` on `/logo.svg` | Clears image-dimension diagnostic | Shipping | Waiting for this deploy |
+| 4b | Move Vidstack CSS out of global `app.css` | Smaller CSS on landing | Shipped | Live — LCP 2.6s → 2.7s (noise); render-blocking 200ms → 150ms |
 | 4c | Drop unused Playfair imports | Smaller build output, not transfer | Cleanup only | — |
 
-**Next:** measure 4b on production. Phase 3 still needs Cloudflare/Forge access. First-load LCP is still JS-bound render delay.
+**Next:** measure 4a. Phase 3 still needs Cloudflare/Forge. First-load LCP is still JS-bound render delay.
 
 ## How we measure
 
@@ -37,6 +37,7 @@ substitute — they will not match PSI numbers.
 - **1:** cold load of `/` must not request `vidstack-*` or `home-download-*-player-*`.
 - **2:** cold load must not request `types-*`; it should appear after submit.
 - **3:** `curl -I` a hashed `/build/assets/*` file → one-year immutable. HTML and `/logo.svg` stay short-lived.
+- **4b:** cold load of `/` must not request `vidstack-player-styles-*`.
 
 ## Baseline
 
@@ -62,6 +63,7 @@ almost all LCP time is **render delay** waiting on JS.
 | 2026-09-01 baseline | 2.4s | 2.9s | 0ms | 0.001 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/h40lhbtmt6?form_factor=mobile) |
 | 2026-09-01 phase 1 | 2.3s | 2.6s | 0ms | 0 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/rd9n6lpafk?form_factor=mobile). One run — API quota blocked the extra two. |
 | 2026-09-01 phase 2 | 2.3s | 2.6s | 0ms | 0 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/n2ptxvjt4w?form_factor=mobile). One run. SI 3.8s (noisy). |
+| 2026-09-01 phase 4b | 2.5s | 2.7s | 10ms | 0.001 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/9wk8cmreni?form_factor=mobile). One run. LCP +100ms vs phase 2 — noise. |
 
 ## Findings
 
@@ -139,5 +141,11 @@ Zod was off the LCP path; dropping ~17 KiB did not beat noise. Speed Index
 
 Vidstack `base.css` was a global `@import` in `app.css`, so landing paid for
 player chrome CSS before any player mounted. Both lazy player modules now
-import `vidstack-player-styles.ts` (one shared CSS file). Landing CSS should
-shrink; the player sheet loads with the player chunk.
+import `vidstack-player-styles.ts` (one shared CSS file, 0.71 KiB gzip).
+
+**Chunk check (pass):** uncached `/` requested `app-CYhZra9o.css` only — no
+`vidstack-player-styles-*`, no player JS. Landing still paints the form.
+
+**PSI mobile** ([9wk8cmreni](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/9wk8cmreni?form_factor=mobile)):
+93 / FCP 2.5s / LCP 2.7s / TBT 10ms / CLS 0.001 / SI 2.5s. Unused JS still
+81 KiB. Render-blocking estimate 200ms → 150ms. LCP did not move past noise.
