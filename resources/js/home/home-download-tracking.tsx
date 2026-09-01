@@ -1,17 +1,35 @@
-import type { ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  type ReactNode,
+} from "react";
 import {
   FilmIcon,
   ArrowUpRightIcon,
   MusicIcon,
 } from "lucide-react";
-import { DownloadMeta } from "../types";
+import type { DownloadMeta } from "../types";
 import { DownloadStatus } from "@/components/download-status/download-status";
 import { SourceIcon } from "@/components/source-icon/source-icon";
 import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
 import { HomeDownloadActions } from "./home-download-actions";
-import { HomeDownloadAudioPlayer } from "./home-download-audio-player";
-import { HomeDownloadVideoPlayer } from "./home-download-video-player";
+
+// Vidstack is ~75 KiB compressed and unused on the landing page. Keep it
+// out of the initial graph; prefetch the matching player once tracking
+// mounts so the chunk is usually warm by the time download_url exists.
+const HomeDownloadVideoPlayer = lazy(() =>
+  import("./home-download-video-player").then((module) => ({
+    default: module.HomeDownloadVideoPlayer,
+  })),
+);
+
+const HomeDownloadAudioPlayer = lazy(() =>
+  import("./home-download-audio-player").then((module) => ({
+    default: module.HomeDownloadAudioPlayer,
+  })),
+);
 
 /**
  * The post-submit screen: a narrow spec rail against a big thumbnail.
@@ -128,6 +146,38 @@ const StackedSpec = ({ label, value, bright }: { label: string; value: string; b
   </div>
 );
 
+/** Holds the plate's footprint while the player chunk loads. */
+function PlayerFallback({
+  format,
+  thumbnail,
+}: {
+  format: "mp3" | "mp4";
+  thumbnail: string | null;
+}) {
+  if (format === "mp3") {
+    return (
+      <div className="flex w-full flex-col min-[880px]:min-h-105" aria-hidden>
+        <div className="relative aspect-square w-53 max-w-full self-center overflow-hidden rounded-xl bg-neutral-800 shadow-[0_42px_80px_-32px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.05)]">
+          {thumbnail ? (
+            <img src={thumbnail} alt="" className="size-full object-cover" />
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      aria-hidden
+      className="aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(191,219,254,0.34),0_0_90px_-26px_rgba(191,219,254,0.42)]"
+    >
+      {thumbnail ? (
+        <img src={thumbnail} alt="" className="size-full object-cover" />
+      ) : null}
+    </div>
+  );
+}
+
 export const HomeDownloadTracking = ({
   meta,
   onRetry,
@@ -157,6 +207,14 @@ export const HomeDownloadTracking = ({
   // Playable, not merely settled: prune clears storage_key, which nulls
   // download_url while status stays "complete".
   const playableUrl = isSettled ? meta.download_url : null;
+
+  useEffect(() => {
+    if (meta.format === "mp4") {
+      void import("./home-download-video-player");
+    } else {
+      void import("./home-download-audio-player");
+    }
+  }, [meta.format]);
 
   const duration = meta.duration === null ? null : formatDuration(meta.duration);
   const took =
@@ -247,19 +305,28 @@ export const HomeDownloadTracking = ({
       {/* ── the plate ── */}
       <section className="order-first w-full min-[880px]:order-none">
         {playableUrl ? (
-          meta.format === "mp4" ? (
-            <HomeDownloadVideoPlayer
-              meta={meta}
-              src={playableUrl}
-              onSourceError={onSourceError}
-            />
-          ) : (
-            <HomeDownloadAudioPlayer
-              meta={meta}
-              src={playableUrl}
-              onSourceError={onSourceError}
-            />
-          )
+          <Suspense
+            fallback={
+              <PlayerFallback
+                format={meta.format}
+                thumbnail={meta.source_thumbnail}
+              />
+            }
+          >
+            {meta.format === "mp4" ? (
+              <HomeDownloadVideoPlayer
+                meta={meta}
+                src={playableUrl}
+                onSourceError={onSourceError}
+              />
+            ) : (
+              <HomeDownloadAudioPlayer
+                meta={meta}
+                src={playableUrl}
+                onSourceError={onSourceError}
+              />
+            )}
+          </Suspense>
         ) : (
           <a
             href={meta.source_url}
