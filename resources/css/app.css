@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 
 /* Self-hosted, replacing next/font/google from the Next.js app. */
-@import '@fontsource/playfair-display/700.css';
-@import '@fontsource/playfair-display/700-italic.css';
 @import '@fontsource/jetbrains-mono/700.css';
 
 /* Switzer isn't a Google Font, so Fontsource doesn't mirror it — pulled
@@ -42,9 +40,8 @@
 
 @theme {
     /* Was tailwind.config.ts theme.extend.fontFamily. Same token names, so
-       every existing `font-sans` / `font-playfair` class ports untouched. */
+       every existing `font-sans` class ports untouched. */
     --font-sans: 'Switzer', ui-sans-serif, system-ui, sans-serif;
-    --font-playfair: 'Playfair Display', ui-serif, Georgia, serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /* The house easing curve — a fast-out, gentle-settle swoop used for
