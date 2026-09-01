@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { DownloadMeta, DownloadMetaSchema } from "./types";
+import type { DownloadMeta } from "./types";
 
 /**
  * Where a row stops moving.
@@ -20,6 +20,8 @@ export const useDownloadMeta = (id?: string) => {
   const queryFn = async (): Promise<DownloadMeta> => {
     const response = await fetch(`/api/download/${id}`);
     if (!response.ok) throw new Error("Failed to fetch status");
+    // Zod is ~17 KiB gzip. Landing does not need it until a row exists.
+    const { DownloadMetaSchema } = await import("./types");
     return DownloadMetaSchema.parse(await response.json());
   };
 

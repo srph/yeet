@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { DownloadMeta, DownloadMetaSchema } from "./types";
+import type { DownloadMeta } from "./types";
 
 // The old hand-written interface duplicated a subset of the download shape and
 // had drifted (it claimed youtubeUrl/youtubeThumbnail, but the code only ever
@@ -63,6 +63,7 @@ export const useYeetMutation = () => {
         throw new Error(await yeetErrorMessage(response));
       }
 
+      const { DownloadMetaSchema } = await import("./types");
       return DownloadMetaSchema.parse(await response.json());
     },
   });
