@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import { EnterFadeUp } from "@/components/enter-fade-up/enter-fade-up";
 import { IconButton } from "@/components/icon-button/icon-button";
+import { cn } from "@/lib/utils";
 import { SOURCE_LIST } from "@/sources";
 
 const limits: { label: string; value: string; bright?: boolean }[] = [
@@ -30,10 +31,27 @@ const feedback = [
   },
 ] as const;
 
+/**
+ * Matches the breakpoint the rest of the app splits mobile/desktop on, and
+ * HomeFooter's own treatment of these two: on a phone the row shares its width
+ * with the credit line, so only the link back across the two pages survives.
+ */
+const DESKTOP_ONLY = "hidden min-[880px]:inline";
+
 const footerLinks = [
-  { label: "Home", href: "/", external: false },
-  { label: "GitHub", href: "https://github.com/srph/yeet", external: true },
-  { label: "Twitter", href: "https://twitter.com/_srph", external: true },
+  { label: "Home", href: "/", external: false, desktopOnly: false },
+  {
+    label: "GitHub",
+    href: "https://github.com/srph/yeet",
+    external: true,
+    desktopOnly: true,
+  },
+  {
+    label: "Twitter",
+    href: "https://twitter.com/_srph",
+    external: true,
+    desktopOnly: true,
+  },
 ] as const;
 
 /** Same leader-dot rail as HomeDownloadTracking's Spec. */
@@ -73,7 +91,7 @@ export default function About() {
     <div className="fixed inset-0 overflow-y-auto text-white">
       <Head title="About" />
 
-      <div className="grid min-h-full place-items-center px-4 pt-20 pb-16">
+      <div className="grid min-h-full grid-rows-[1fr_auto] items-center justify-items-center px-4 pt-20 pb-5">
         <IconButton
           asChild
           className="fixed top-4 left-4 z-20 size-9 bg-white text-neutral-950 hover:bg-neutral-200"
@@ -169,45 +187,54 @@ export default function About() {
           </EnterFadeUp>
         </article>
 
-        <div className="fixed inset-x-0 bottom-0 px-4 py-5">
-          <div className="flex w-full items-center justify-between gap-6 text-sm leading-none">
-            <span className="text-neutral-600">
-              Crafted by{" "}
-              <a
-                href="https://kierb.com"
-                className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Kier Borromeo
-              </a>
-            </span>
-            <div className="flex items-center gap-2.5">
-              {footerLinks.map((link, i) => (
-                <Fragment key={link.label}>
-                  {i > 0 && (
-                    <span className="size-0.5 shrink-0 rounded-full bg-neutral-800" />
-                  )}
-                  {link.external ? (
-                    <a
-                      href={link.href}
-                      className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                    >
-                      {link.label}
-                    </Link>
-                  )}
-                </Fragment>
-              ))}
-            </div>
+        {/* In flow at the end of the page, not pinned over it — the grid
+            row above is 1fr, so it still lands against the bottom of the
+            viewport when the article is short. */}
+        <div className="mt-8 flex w-full items-center justify-between gap-6 text-sm leading-none">
+          <span className="text-neutral-600">
+            Crafted by{" "}
+            <a
+              href="https://kierb.com"
+              className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Kier Borromeo
+            </a>
+          </span>
+          <div className="flex items-center gap-2.5">
+            {footerLinks.map((link, i) => (
+              <Fragment key={link.label}>
+                {i > 0 && (
+                  <span
+                    className={cn(
+                      "size-0.5 shrink-0 rounded-full bg-neutral-800",
+                      link.desktopOnly && DESKTOP_ONLY,
+                    )}
+                  />
+                )}
+                {link.external ? (
+                  <a
+                    href={link.href}
+                    className={cn(
+                      link.desktopOnly && DESKTOP_ONLY,
+                      "text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200",
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                  >
+                    {link.label}
+                  </Link>
+                )}
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>
