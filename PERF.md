@@ -12,11 +12,11 @@ Lab-only for now — no CrUX field data on this origin.
 | 1 | Lazy-load Vidstack players until a file is playable | ~75 KiB JS off the landing request graph | Shipped | Live — LCP 2.9s → 2.6s |
 | 2 | Dynamic-import Zod at first API parse | ~17 KiB JS off initial load | Shipped | Live — LCP unchanged at 2.6s |
 | 3 | `Cache-Control: public, max-age=31536000, immutable` on `/build/assets/*` | Repeat-visit savings (~279 KiB per PSI) | Blocked | Origin is Cloudflare in front of Forge. Needs a Cache Rule or nginx `expires`. Not in this repo. |
-| 4a | Intrinsic `width`/`height` on `/logo.svg` | Clears image-dimension diagnostic | Shipping | Waiting for this deploy |
+| 4a | Intrinsic `width`/`height` on `/logo.svg` | Clears image-dimension diagnostic | Shipped | Live — diagnostic gone. LCP 3.0s on this run is jitter, not the logo. |
 | 4b | Move Vidstack CSS out of global `app.css` | Smaller CSS on landing | Shipped | Live — LCP 2.6s → 2.7s (noise); render-blocking 200ms → 150ms |
 | 4c | Drop unused Playfair imports | Smaller build output, not transfer | Cleanup only | — |
 
-**Next:** measure 4a. Phase 3 still needs Cloudflare/Forge. First-load LCP is still JS-bound render delay.
+**Next:** in-repo leftovers are 4c (dead Playfair CSS) and maybe lazy-loading tracking. Phase 3 still needs Cloudflare/Forge. First-load LCP is still JS-bound; phase 1 was the only ≥200ms move.
 
 ## How we measure
 
@@ -64,6 +64,7 @@ almost all LCP time is **render delay** waiting on JS.
 | 2026-09-01 phase 1 | 2.3s | 2.6s | 0ms | 0 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/rd9n6lpafk?form_factor=mobile). One run — API quota blocked the extra two. |
 | 2026-09-01 phase 2 | 2.3s | 2.6s | 0ms | 0 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/n2ptxvjt4w?form_factor=mobile). One run. SI 3.8s (noisy). |
 | 2026-09-01 phase 4b | 2.5s | 2.7s | 10ms | 0.001 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/9wk8cmreni?form_factor=mobile). One run. LCP +100ms vs phase 2 — noise. |
+| 2026-09-01 phase 4a | 2.8s | 3.0s | 0ms | 0 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/c5t4twwsuv?form_factor=mobile). One run. Image-dimension audit gone. LCP +300ms vs phase 2 — treat as lab jitter; this change cannot move a text LCP. |
 
 ## Findings
 
