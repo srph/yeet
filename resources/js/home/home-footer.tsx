@@ -26,7 +26,7 @@ const links = [
 const DESKTOP_ONLY = "hidden min-[880px]:inline";
 
 const LINK =
-  "text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200";
+  "text-neutral-600 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200";
 
 /**
  * The credit line and the outbound links, sat in flow at the end of the page.
@@ -51,7 +51,7 @@ export function HomeFooter({ className }: { className?: string }) {
         Crafted by{" "}
         <a
           href="https://kierb.com"
-          className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+          className="font-medium text-neutral-500 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
           target="_blank"
         >
           Kier Borromeo

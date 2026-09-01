@@ -195,7 +195,7 @@ export default function About() {
             Crafted by{" "}
             <a
               href="https://kierb.com"
-              className="font-medium text-neutral-500 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+              className="font-medium text-neutral-500 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
               target="_blank"
               rel="noreferrer"
             >
@@ -218,7 +218,7 @@ export default function About() {
                     href={link.href}
                     className={cn(
                       link.desktopOnly && DESKTOP_ONLY,
-                      "text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200",
+                      "text-neutral-600 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200",
                     )}
                     target="_blank"
                     rel="noreferrer"
@@ -228,7 +228,7 @@ export default function About() {
                 ) : (
                   <Link
                     href={link.href}
-                    className="text-neutral-600 transition-colors duration-150 hover:text-neutral-300 hover:duration-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+                    className="text-neutral-600 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
                   >
                     {link.label}
                   </Link>
