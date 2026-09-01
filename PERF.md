@@ -150,3 +150,15 @@ import `vidstack-player-styles.ts` (one shared CSS file, 0.71 KiB gzip).
 **PSI mobile** ([9wk8cmreni](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/9wk8cmreni?form_factor=mobile)):
 93 / FCP 2.5s / LCP 2.7s / TBT 10ms / CLS 0.001 / SI 2.5s. Unused JS still
 81 KiB. Render-blocking estimate 200ms → 150ms. LCP did not move past noise.
+
+## Phase 4a notes
+
+`width="444" height="457"` on every `/logo.svg` `<img>` (matches the SVG
+viewBox). CSS still sizes it with `h-7 w-auto` (~28px tall).
+
+**Check (pass):** production home chunk has `width:\`444\`,height:\`457\``.
+Live DOM: attributes present, rendered 27×28.
+
+**PSI mobile** ([c5t4twwsuv](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/c5t4twwsuv?form_factor=mobile)):
+90 / FCP 2.8s / LCP 3.0s. The image-dimension diagnostic is gone. LCP on this
+run is worse; ignore — a CSS-sized logo cannot delay the text headline LCP.
