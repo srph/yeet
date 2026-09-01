@@ -114,7 +114,9 @@ export default function Home() {
               // does underneath it. pb-44 is the docked CTA's full height —
               // 56px of scrim over two 44px buttons and their bottom pad — so
               // the last spec row can still be scrolled clear of the fade.
-              "items-start pt-24 pb-44 min-[880px]:items-center min-[880px]:pt-20 min-[880px]:pb-16"
+              // Desktop keeps the same 1fr/auto split as the form: the footer
+              // is still in flow, so the plate centres in the space above it.
+              "items-start pt-24 pb-44 min-[880px]:grid-rows-[1fr_auto] min-[880px]:items-center min-[880px]:pt-20 min-[880px]:pb-5"
             : // 1fr over auto: the form centres in the space the footer leaves,
               // and the footer sits against the bottom of a short page without
               // being pinned there.
@@ -160,10 +162,11 @@ export default function Home() {
           </AnimatePresence>
         </MotionConfig>
 
-        {/* The tracking screen has no footer at all: the bottom of the phone
-            belongs to the dock, and the spec sheet is the whole point of the
-            screen. */}
-        {isTracking ? null : <HomeFooter className="mt-8" />}
+        {/* Tracking on a phone still drops the footer: the dock owns the
+            bottom of the viewport. Desktop has no dock, so the footer stays. */}
+        <HomeFooter
+          className={cn("mt-8", isTracking && "hidden min-[880px]:flex")}
+        />
       </div>
 
       {/* ── the docked CTA ── */}
