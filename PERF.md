@@ -9,14 +9,14 @@ Lab-only for now — no CrUX field data on this origin.
 
 | Phase | Change | Expected | State | Production |
 | ----- | ------ | -------- | ----- | ---------- |
-| 1 | Lazy-load Vidstack players until a file is playable | ~75 KiB JS off the landing request graph | Pushed | Waiting for production |
-| 2 | Dynamic-import Zod at first API parse | ~17 KiB JS off initial load | Not started | — |
+| 1 | Lazy-load Vidstack players until a file is playable | ~75 KiB JS off the landing request graph | Shipped | Live — LCP 2.9s → 2.6s |
+| 2 | Dynamic-import Zod at first API parse | ~17 KiB JS off initial load | Pushed | Waiting for production |
 | 3 | `Cache-Control: public, max-age=31536000, immutable` on `/build/assets/*` | Repeat-visit savings (~279 KiB per PSI) | Not started | — |
 | 4a | Intrinsic `width`/`height` on `/logo.svg` | Clears image-dimension diagnostic | Not started | — |
 | 4b | Move Vidstack CSS out of global `app.css` | Smaller CSS on landing | After phase 1 is measured | — |
 | 4c | Drop unused Playfair imports | Smaller build output, not transfer | Cleanup only | — |
 
-**Next:** wait for production, then measure phase 1.
+**Next:** wait for production, then measure phase 2.
 
 ## How we measure
 
@@ -59,7 +59,8 @@ almost all LCP time is **render delay** waiting on JS.
 
 | When | FCP | LCP | TBT | CLS | Notes |
 | ---- | --- | --- | --- | --- | ----- |
-| 2026-09-01 baseline | 2.4s | 2.9s | 0ms | 0.001 | Pre–phase 1 |
+| 2026-09-01 baseline | 2.4s | 2.9s | 0ms | 0.001 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/h40lhbtmt6?form_factor=mobile) |
+| 2026-09-01 phase 1 | 2.3s | 2.6s | 0ms | 0 | [PSI](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/rd9n6lpafk?form_factor=mobile). One run — API quota blocked the extra two. |
 
 ## Findings
 
@@ -89,11 +90,38 @@ TTFB 535ms, render delay 3.5s. Same story — JS-bound text LCP.
 
 ## Phase 1 notes
 
-`HomeDownloadVideoPlayer` / `HomeDownloadAudioPlayer` are `React.lazy` in
-`home-download-tracking.tsx`. Tracking mounts → prefetch the format’s player
-chunk so it is usually warm when `download_url` exists. Suspense fallback
-keeps the plate footprint (16:9 video / square audio).
+Shipped in `94178a6`. `HomeDownloadVideoPlayer` / `HomeDownloadAudioPlayer`
+are `React.lazy` in `home-download-tracking.tsx`. Tracking mounts → prefetch
+the format’s player chunk so it is usually warm when `download_url` exists.
+Suspense fallback keeps the plate footprint (16:9 video / square audio).
 
-Local production build (not yet live): `home.tsx` static imports tracking, but
-tracking lists the players only under `dynamicImports`. Vidstack is not in
-the landing graph.
+**Chunk check (pass):** uncached mobile load of `/` requested tracking JS but
+**no** `vidstack-*` and **no** `home-download-*-player-*`.
+
+**PSI mobile** ([rd9n6lpafk](https://pagespeed.web.dev/analysis/https-yeet-kierb-com/rd9n6lpafk?form_factor=mobile)):
+
+| | Before | After |
+| --- | --- | --- |
+| Performance | 92 | 94 |
+| FCP | 2.4s | 2.3s |
+| LCP | 2.9s | 2.6s |
+| Unused JS | 120 KiB | 81 KiB |
+| Cache “wasted” (repeat) | 279 KiB | 228 KiB |
+
+LCP drop is 300ms — counts as a real move. Unused-JS drop (~39 KiB) matches
+the old unused Vidstack chunk.
+
+Local Slow 4G / 4× CPU uncached LCP: **4.0s → 3.3s**. Same direction as PSI.
+
+Tracking still loads on landing (`home.tsx` static import). Fine — it is
+small. Vidstack was the cost.
+
+Speed Index went 2.4s → 2.6s on this one PSI run. Ignore unless it repeats.
+
+## Phase 2 notes
+
+`queries.ts` / `mutations.ts` `import type` the download shape and
+`await import("./types")` immediately before `DownloadMetaSchema.parse`.
+Local build: `home.tsx` lists `_types-*.js` under `dynamicImports` only.
+Dashboard still statically imports `isDownloadStatus` from the same module —
+irrelevant to the landing graph.
