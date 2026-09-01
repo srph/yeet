@@ -5,17 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="theme-color" content="#000000">
 
-    {{-- Server-rendered fallback. Inertia's <Head> runs client-side only (no
-         SSR), so without this a crawler that doesn't execute JS would see a
-         titleless page — a regression from Next.js, which server-rendered its
-         metadata export. The client overrides this once React mounts. --}}
-    <title inertia>Yeet - Video Downloader</title>
+    {{-- Must already be "{page} - Yeet", same as the title callback in
+         app.tsx. Inertia's <Head> only runs after mount (no SSR), so a
+         different order here flashes in the tab before React can correct it. --}}
+    <title inertia>{{ match ($page['component'] ?? '') {
+        'home' => 'Video Downloader - Yeet',
+        'about' => 'About - Yeet',
+        'dashboard/dashboard-login' => 'Login - Yeet',
+        'dashboard/dashboard' => 'Control Panel - Yeet',
+        default => 'Yeet',
+    } }}</title>
 
     <meta name="description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
     <meta name="keywords" content="youtube, x, twitter, facebook, tiktok, douyin, download, video, converter">
     <meta name="application-name" content="Yeet">
 
-    <meta property="og:title" content="Yeet - Video Downloader">
+    <meta property="og:title" content="Video Downloader - Yeet">
     <meta property="og:description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Yeet">
@@ -26,7 +31,7 @@
     <meta property="og:image:alt" content="Yeet">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Yeet - Video Downloader">
+    <meta name="twitter:title" content="Video Downloader - Yeet">
     <meta name="twitter:description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
     <meta name="twitter:image" content="{{ url('/og-image.png') }}">
 

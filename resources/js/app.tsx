@@ -6,7 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 
 createInertiaApp({
-  title: (title) => (title ? `${title} - Yeet` : "Yeet"),
+  // Empty string, not "Yeet": createHeadManager commits this during first
+  // render, before <Head>'s useEffect. A default would flash "Yeet" over the
+  // server title; blank leaves the blade <title> alone until Head mounts.
+  title: (title) => (title ? `${title} - Yeet` : ""),
 
   resolve: (name) => {
     // Home stays under ./home (name "home" → ./home/home.tsx). Dashboard
