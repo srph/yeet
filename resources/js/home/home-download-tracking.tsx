@@ -4,14 +4,12 @@ import {
   ArrowUpRightIcon,
   MusicIcon,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { DownloadMeta } from "../types";
-import { Button } from "@/components/button/button";
 import { DownloadStatus } from "@/components/download-status/download-status";
 import { SourceIcon } from "@/components/source-icon/source-icon";
 import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
-import { HomeDownloadCta } from "./home-download-cta";
+import { HomeDownloadActions } from "./home-download-actions";
 import { HomeDownloadAudioPlayer } from "./home-download-audio-player";
 import { HomeDownloadVideoPlayer } from "./home-download-video-player";
 
@@ -234,53 +232,15 @@ export const HomeDownloadTracking = ({
           )}
         </dl>
 
-        <div className="mt-5.5">
-          <AnimatePresence mode="popLayout" initial={false}>
-            {isDead ? (
-              <motion.div
-                key="retry"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25 }}
-                className="text-[12.5px] leading-[1.4] text-neutral-600"
-              >
-                {status === "expired"
-                  ? "That link's gone cold. "
-                  : "Shit crashed in the kitchen. Maybe "}
-                <button
-                  type="button"
-                  onClick={onRetry}
-                  className="text-blue-200 underline underline-offset-[3px] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                >
-                  {status === "expired" ? "Yeet it again" : "try again"}
-                </button>
-                ?
-              </motion.div>
-            ) : (
-              <motion.div
-                key="download"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25 }}
-              >
-                <HomeDownloadCta status={status} onDownload={onDownload} />
-
-                {isSettled ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    onClick={onDownloadAnother}
-                    className="mt-1.5 w-full"
-                  >
-                    Start over
-                  </Button>
-                ) : null}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Desktop only. On mobile this same block is docked to the bottom of
+            the viewport by Home, where it sits outside the scrolling page. */}
+        <div className="mt-5.5 hidden min-[880px]:block">
+          <HomeDownloadActions
+            status={status}
+            onRetry={onRetry}
+            onDownload={onDownload}
+            onDownloadAnother={onDownloadAnother}
+          />
         </div>
       </section>
 
