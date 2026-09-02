@@ -23,11 +23,6 @@ import "./vidstack-player-styles";
  * a column to the left, and repeating them is how the plate ended up looking
  * like a card.
  *
- * The bottom-anchoring is deliberate and only applies beside the rail, where
- * the transport lines up with the Download button across the gutter. On a
- * phone there is no rail to line up with, so it is dropped: the gap would be
- * space with no job rather than structure.
- *
  * Only mounted once download_url is non-null.
  */
 
@@ -57,10 +52,10 @@ export function HomeDownloadAudioPlayer({
           case can fall back to the same panel the waiting plate uses. */}
       <MediaProvider />
 
-      <div className="flex w-full flex-col min-[880px]:min-h-105">
+      <div className="flex w-full flex-col">
         <Cover meta={meta} />
 
-        <div className="flex flex-col gap-4 pt-6 min-[880px]:mt-auto min-[880px]:pt-7">
+        <div className="flex flex-col gap-4 pt-16">
           <div className="flex items-center gap-3">
             <Stamp>
               <Time type="current" />

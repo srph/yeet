@@ -156,7 +156,7 @@ function PlayerFallback({
 }) {
   if (format === "mp3") {
     return (
-      <div className="flex w-full flex-col min-[880px]:min-h-105" aria-hidden>
+      <div className="flex w-full flex-col" aria-hidden>
         <div className="relative aspect-square w-53 max-w-full self-center overflow-hidden rounded-xl bg-neutral-800 shadow-[0_42px_80px_-32px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.05)]">
           {thumbnail ? (
             <img src={thumbnail} alt="" className="size-full object-cover" />
