@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
  *
  * In flow, max-w-0 clips it off the row until hover/focus/drag so the dock
  * doesn't reserve a dead gap. overlay paints it absolutely so a centered
- * transport (audio) never shifts. mx-4 is room for the thumb and its halo
+ * transport (audio) never shifts, and leaves it hittable while invisible so
+ * the same mouse path opens it. mx-4 is room for the thumb and its halo
  * at either end — without it overflow-hidden shears the disc at 0% and 100%.
  */
 
@@ -44,7 +45,7 @@ export function VolumeControl({
             "group-hover/volume:opacity-100 group-has-[:focus-visible]/volume:opacity-100",
             "has-[[data-dragging]]:opacity-100",
             overlay
-              ? "pointer-events-none absolute top-1/2 left-full z-30 -translate-y-1/2 group-hover/volume:pointer-events-auto group-has-[:focus-visible]/volume:pointer-events-auto has-[[data-dragging]]:pointer-events-auto"
+              ? "absolute top-1/2 left-full z-30 -translate-y-1/2"
               : "max-w-0 overflow-hidden group-hover/volume:max-w-32 group-has-[:focus-visible]/volume:max-w-32 has-[[data-dragging]]:max-w-32",
           )}
         >
