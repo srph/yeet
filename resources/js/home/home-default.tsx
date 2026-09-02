@@ -3,7 +3,7 @@ import { LoaderCircleIcon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChipToggleButton } from "@/components/chip-toggle-button/chip-toggle-button";
 import { IconButton } from "@/components/icon-button/icon-button";
-import { HomeDefaultRolldown } from "./home-default-rolldown";
+import { HomeDefaultTorph } from "./home-default-torph";
 import { HomeDefaultSourceTags } from "./home-default-source-tags";
 
 export function HomeDefault({
@@ -31,7 +31,7 @@ export function HomeDefault({
 
   return (
     <>
-      <HomeDefaultRolldown />
+      <HomeDefaultTorph />
 
       <div className="h-7"></div>
 

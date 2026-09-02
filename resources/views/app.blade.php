@@ -16,12 +16,12 @@
         default => 'Yeet',
     } }}</title>
 
-    <meta name="description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
+    <meta name="description" content="Fast and easy way to download videos from YouTube, Twitter, Facebook, TikTok and Douyin">
     <meta name="keywords" content="youtube, x, twitter, facebook, tiktok, douyin, download, video, converter">
     <meta name="application-name" content="Yeet">
 
     <meta property="og:title" content="Video Downloader - Yeet">
-    <meta property="og:description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
+    <meta property="og:description" content="Fast and easy way to download videos from YouTube, Twitter, Facebook, TikTok and Douyin">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Yeet">
     <meta property="og:url" content="{{ url('/') }}">
@@ -32,7 +32,7 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Video Downloader - Yeet">
-    <meta name="twitter:description" content="Fast and easy way to download videos from YouTube, X, Facebook, TikTok and Douyin">
+    <meta name="twitter:description" content="Fast and easy way to download videos from YouTube, Twitter, Facebook, TikTok and Douyin">
     <meta name="twitter:image" content="{{ url('/og-image.png') }}">
 
     <meta name="apple-mobile-web-app-capable" content="yes">

@@ -41,7 +41,7 @@ export const SOURCES: Record<Source, SourceMeta> = {
     chip: "bg-red-950 text-red-300",
   },
   x: {
-    label: "X",
+    label: "Twitter",
     host: "x.com",
     text: "text-white",
     // Near-black on a dark surface needs an edge or the tile disappears.
