@@ -41,7 +41,7 @@ export function VolumeControl({
       {desktop ? (
         <div
           className={cn(
-            "flex items-center opacity-0 transition-all duration-150 ease-swoop",
+            "flex items-center opacity-0 transition-all duration-300 ease-swoop",
             "group-hover/volume:opacity-100 group-has-[:focus-visible]/volume:opacity-100",
             "has-[[data-dragging]]:opacity-100",
             overlay
