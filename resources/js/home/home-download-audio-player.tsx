@@ -1,7 +1,6 @@
 import {
   MediaPlayer,
   MediaProvider,
-  MuteButton,
   PlayButton,
   Time,
   TimeSlider,
@@ -13,10 +12,9 @@ import {
   PauseIcon,
   PlayIcon,
   RotateCcwIcon,
-  Volume2Icon,
-  VolumeXIcon,
 } from "lucide-react";
 import type { DownloadMeta } from "../types";
+import { VolumeControl } from "./home-download-volume";
 import "./vidstack-player-styles";
 
 /**
@@ -90,9 +88,7 @@ export function HomeDownloadAudioPlayer({
               <ToggleGlyph className="size-5" />
             </PlayButton>
 
-            <MuteButton className={GHOST}>
-              <VolumeGlyph />
-            </MuteButton>
+            <VolumeControl buttonClassName={GHOST} overlay />
           </div>
         </div>
       </div>
@@ -170,9 +166,3 @@ function ToggleGlyph({ className }: { className: string }) {
   );
 }
 
-function VolumeGlyph() {
-  const muted = useMediaState("muted");
-  const Glyph = muted ? VolumeXIcon : Volume2Icon;
-
-  return <Glyph className="size-4" />;
-}

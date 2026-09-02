@@ -4,7 +4,6 @@ import {
   Gesture,
   MediaPlayer,
   MediaProvider,
-  MuteButton,
   PlayButton,
   Poster,
   Time,
@@ -16,11 +15,10 @@ import {
   MinimizeIcon,
   PauseIcon,
   PlayIcon,
-  Volume2Icon,
-  VolumeXIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { DownloadMeta } from "../types";
+import { VolumeControl } from "./home-download-volume";
 import "./vidstack-player-styles";
 
 /**
@@ -112,11 +110,13 @@ export function HomeDownloadVideoPlayer({
             <TimeSlider.Thumb className="absolute top-1/2 left-[var(--slider-fill)] size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-200 opacity-0 shadow-[0_0_0_5px_rgba(191,219,254,0.16),0_0_12px_rgba(191,219,254,0.55)] transition-opacity group-hover/seek:opacity-100 group-data-[dragging]/seek:opacity-100" />
           </TimeSlider.Root>
 
-          {/* [Play] [Time] ————— [Audio] [Fullscreen] */}
+          {/* [Play] [Audio] [Time] ————— [Fullscreen] */}
           <div className="flex items-center gap-3">
             <PlayButton className={ICON_BUTTON}>
               <ToggleGlyph />
             </PlayButton>
+
+            <VolumeControl buttonClassName={ICON_BUTTON} />
 
             {/* <Time> renders a block-level div, so this wrapper has to be a
                 flex row — whitespace-nowrap cannot stop a block from taking a
@@ -128,10 +128,6 @@ export function HomeDownloadVideoPlayer({
             </span>
 
             <span className="flex-1" />
-
-            <MuteButton className={ICON_BUTTON}>
-              <VolumeGlyph />
-            </MuteButton>
 
             <FullscreenButton className={ICON_BUTTON}>
               <FullscreenGlyph />
@@ -220,13 +216,6 @@ function ToggleGlyph() {
   ) : (
     <PauseIcon className="size-4" fill="currentColor" />
   );
-}
-
-function VolumeGlyph() {
-  const muted = useMediaState("muted");
-  const Glyph = muted ? VolumeXIcon : Volume2Icon;
-
-  return <Glyph className="size-4" />;
 }
 
 function FullscreenGlyph() {
