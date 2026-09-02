@@ -59,7 +59,7 @@ export function HomeDefaultSourceTags({
           key={sample.url}
           type="button"
           onClick={() => onSelect(sample.url)}
-          className="group flex items-center gap-2.5 rounded-[9px] px-2.5 py-[7px] text-left text-[13px] font-medium text-neutral-400 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+          className="group flex items-center gap-2.5 rounded-[9px] px-2.5 py-[7px] text-left text-sm font-medium text-neutral-400 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
         >
           <span className="flex min-w-0 flex-1 items-center gap-2.5 transition-transform duration-150 ease-out group-hover:translate-x-1">
             <span className="shrink-0 text-neutral-600 transition-colors group-hover:text-blue-200">
