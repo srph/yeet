@@ -36,24 +36,23 @@ export const SOURCES: Record<Source, SourceMeta> = {
   youtube: {
     label: "YouTube",
     host: "youtube.com",
-    text: "text-red-400",
-    badge: "bg-red-700",
-    chip: "bg-red-950 text-red-300",
+    text: "text-youtube",
+    badge: "bg-youtube",
+    chip: "bg-youtube/15 text-youtube",
   },
   x: {
     label: "Twitter",
     host: "x.com",
-    text: "text-white",
-    // Near-black on a dark surface needs an edge or the tile disappears.
-    badge: "bg-neutral-950 border border-neutral-700",
-    chip: "bg-neutral-800 text-neutral-200",
+    text: "text-twitter",
+    badge: "bg-twitter",
+    chip: "bg-twitter/15 text-twitter",
   },
   facebook: {
     label: "Facebook",
     host: "facebook.com",
-    text: "text-blue-400",
-    badge: "bg-blue-600",
-    chip: "bg-blue-950 text-blue-300",
+    text: "text-facebook",
+    badge: "bg-facebook",
+    chip: "bg-facebook/15 text-facebook",
   },
   tiktok: {
     label: "TikTok",

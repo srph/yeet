@@ -88,6 +88,12 @@
         }
     }
 
+    /* Brand marks that aren't in Tailwind's palette. YouTube's play-button
+       red; Twitter's classic bird (Material Light Blue 500); Facebook blue. */
+    --color-youtube: #ff0033;
+    --color-twitter: #03a9f4;
+    --color-facebook: #0865fe;
+
     /* Chart tokens. The app's first chart (the Traffic card) introduced these;
        anything drawn later should reach for them rather than re-picking greys.
 
