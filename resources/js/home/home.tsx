@@ -88,7 +88,7 @@ export default function Home() {
     // app.css sets body { overflow-hidden } globally, so a page's own root has
     // to be the scrollport. Home was the only one that never did, which is why
     // a tall spec sheet had nowhere to go and grew up under the logo instead.
-    <div className="fixed inset-0 overflow-y-auto text-white">
+    <div className="fixed inset-0 overflow-y-auto tracking-tight text-white">
       <Head title="Video Downloader" />
 
       {/* The logo floats over that scroll, so on mobile tracking it needs a

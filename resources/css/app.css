@@ -117,8 +117,14 @@
 /* From the old app/globals.css, verbatim, plus smoothing: Switzer (like
    Inter) renders thin and slightly fuzzy under the browser default subpixel
    antialiasing — this is the same treatment usetenor.xyz applies. */
+/* min-h-dvh is not decoration. Every page's own root is a fixed, full-bleed
+   scrollport, so nothing here is in body's flow and body lays out zero tall.
+   Anything that measures the visible box by walking up through clipping
+   ancestors then reads this rule's overflow-hidden against a zero-height rect
+   and concludes the whole page is off-screen — which is how the headline roll
+   in home-default-headline.tsx silently stopped animating. */
 body {
-    @apply bg-neutral-950 overflow-hidden antialiased;
+    @apply bg-neutral-950 min-h-dvh overflow-hidden antialiased;
 }
 
 ::selection {
