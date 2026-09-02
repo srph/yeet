@@ -41,11 +41,11 @@ export function VolumeControl({
         <div
           className={cn(
             "flex items-center opacity-0 transition-all duration-150 ease-swoop",
-            "group-hover/volume:opacity-100 group-focus-within/volume:opacity-100",
+            "group-hover/volume:opacity-100 group-has-[:focus-visible]/volume:opacity-100",
             "has-[[data-dragging]]:opacity-100",
             overlay
-              ? "pointer-events-none absolute top-1/2 left-full z-30 -translate-y-1/2 group-hover/volume:pointer-events-auto group-focus-within/volume:pointer-events-auto has-[[data-dragging]]:pointer-events-auto"
-              : "max-w-0 overflow-hidden group-hover/volume:max-w-32 group-focus-within/volume:max-w-32 has-[[data-dragging]]:max-w-32",
+              ? "pointer-events-none absolute top-1/2 left-full z-30 -translate-y-1/2 group-hover/volume:pointer-events-auto group-has-[:focus-visible]/volume:pointer-events-auto has-[[data-dragging]]:pointer-events-auto"
+              : "max-w-0 overflow-hidden group-hover/volume:max-w-32 group-has-[:focus-visible]/volume:max-w-32 has-[[data-dragging]]:max-w-32",
           )}
         >
           <VolumeSlider.Root className="relative mx-4 flex h-9 w-16 cursor-pointer touch-none items-center outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200">
