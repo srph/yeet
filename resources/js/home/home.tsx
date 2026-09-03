@@ -5,10 +5,10 @@ import { useYeetMutation } from "../mutations";
 import { useDownloadMeta } from "../queries";
 import invariant from "tiny-invariant";
 import { cn } from "@/lib/utils";
+import { SiteFooter } from "@/components/site-footer/site-footer";
 import { HomeDefault } from "./home-default";
 import { HomeDownloadActions } from "./home-download-actions";
 import { HomeDownloadTracking } from "./home-download-tracking";
-import { HomeFooter } from "./home-footer";
 
 // @TODO: Improve failed downloads
 export default function Home() {
@@ -164,7 +164,7 @@ export default function Home() {
 
         {/* Tracking on a phone still drops the footer: the dock owns the
             bottom of the viewport. Desktop has no dock, so the footer stays. */}
-        <HomeFooter
+        <SiteFooter
           className={cn("mt-8", isTracking && "hidden min-[880px]:flex")}
         />
       </div>

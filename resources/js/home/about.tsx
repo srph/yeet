@@ -1,10 +1,9 @@
-import { Fragment } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import { EnterFadeUp } from "@/components/enter-fade-up/enter-fade-up";
 import { IconButton } from "@/components/icon-button/icon-button";
-import { cn } from "@/lib/utils";
+import { SiteFooter } from "@/components/site-footer/site-footer";
 import { SOURCE_LIST } from "@/sources";
 
 const limits: { label: string; value: string; bright?: boolean }[] = [
@@ -28,29 +27,6 @@ const feedback = [
     kind: "DM on Discord",
     value: "@carebeyan",
     href: "https://discord.com/users/103690620308041728",
-  },
-] as const;
-
-/**
- * Matches the breakpoint the rest of the app splits mobile/desktop on, and
- * HomeFooter's own treatment of these two: on a phone the row shares its width
- * with the credit line, so only the link back across the two pages survives.
- */
-const DESKTOP_ONLY = "hidden min-[880px]:inline";
-
-const footerLinks = [
-  { label: "Home", href: "/", external: false, desktopOnly: false },
-  {
-    label: "GitHub",
-    href: "https://github.com/srph/yeet",
-    external: true,
-    desktopOnly: true,
-  },
-  {
-    label: "Twitter",
-    href: "https://twitter.com/_srph",
-    external: true,
-    desktopOnly: true,
   },
 ] as const;
 
@@ -187,56 +163,7 @@ export default function About() {
           </EnterFadeUp>
         </article>
 
-        {/* In flow at the end of the page, not pinned over it — the grid
-            row above is 1fr, so it still lands against the bottom of the
-            viewport when the article is short. */}
-        <div className="mt-8 flex w-full items-center justify-between gap-6 text-sm leading-none">
-          <span className="text-neutral-600">
-            Crafted by{" "}
-            <a
-              href="https://kierb.com"
-              className="font-medium text-neutral-500 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Kier Borromeo
-            </a>
-          </span>
-          <div className="flex items-center gap-2.5">
-            {footerLinks.map((link, i) => (
-              <Fragment key={link.label}>
-                {i > 0 && (
-                  <span
-                    className={cn(
-                      "size-0.5 shrink-0 rounded-full bg-neutral-800",
-                      link.desktopOnly && DESKTOP_ONLY,
-                    )}
-                  />
-                )}
-                {link.external ? (
-                  <a
-                    href={link.href}
-                    className={cn(
-                      link.desktopOnly && DESKTOP_ONLY,
-                      "text-neutral-600 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200",
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    href={link.href}
-                    className="text-neutral-600 transition-colors duration-0 hover:text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-                  >
-                    {link.label}
-                  </Link>
-                )}
-              </Fragment>
-            ))}
-          </div>
-        </div>
+        <SiteFooter className="mt-8" />
       </div>
     </div>
   );
