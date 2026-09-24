@@ -7,9 +7,8 @@ Laravel + Inertia + React. Extraction via `yt-dlp` (`app/Sources/YtDlp.php`). Jo
 ## Starting
 
 ```sh
-npm run dev                                # vite
-php artisan serve                          # app
-php artisan queue:work --queue=downloads   # jobs
+make install   # deps, .env, migrations, Douyin cookies — safe to re-run
+make start     # app, downloads queue, logs, vite
 ```
 
 ## Stack

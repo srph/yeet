@@ -21,10 +21,7 @@ brew install yt-dlp ffmpeg
 ## Setup
 
 ```sh
-composer install
-npm install
-cp .env.example .env && php artisan key:generate
-php artisan migrate
+make install
 ```
 
 Set `AWS_*` in `.env` to point at your S3-compatible bucket, and `YTDLP_BINARY`
@@ -34,9 +31,7 @@ inherit a PATH containing homebrew.
 ## Running
 
 ```sh
-npm run dev                                  # vite
-php artisan serve                            # app
-php artisan queue:work --queue=downloads     # downloads run here
+make start
 ```
 
 ## YouTube cookies (production)
@@ -114,7 +109,7 @@ php artisan ytdlp:douyin
 ```
 
 Lands in `storage/app/douyin-cookies.txt` (override with `DOUYIN_COOKIES`).
-Run it once per machine — `composer setup` covers local, so this is mainly a
+Run it once per machine — `make install` covers local, so this is mainly a
 one-off on the server. Without it, Douyin downloads throw and the exception
 names this command.
 
