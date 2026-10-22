@@ -16,6 +16,8 @@ const TERMINAL = ["complete", "failed", "expired"];
 const isTerminal = (status: DownloadMeta["status"] | undefined) =>
   status !== undefined && TERMINAL.includes(status);
 
+export const downloadQueryKey = (id?: string) => ["download", id] as const;
+
 export const useDownloadMeta = (id?: string) => {
   const queryFn = async (): Promise<DownloadMeta> => {
     const response = await fetch(`/api/download/${id}`);
@@ -26,7 +28,7 @@ export const useDownloadMeta = (id?: string) => {
   };
 
   return useQuery({
-    queryKey: ["download", id],
+    queryKey: downloadQueryKey(id),
     queryFn,
     enabled: !!id,
 

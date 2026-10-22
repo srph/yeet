@@ -1,4 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { downloadQueryKey } from "./queries";
 import type { DownloadMeta } from "./types";
 
 // Zod stays off the landing graph (dynamic import below). In Vite that
@@ -58,7 +59,15 @@ async function yeetErrorMessage(response: Response): Promise<string> {
 }
 
 export const useYeetMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<YeetResponse, Error, YeetPayload>({
+    // POST answers with the same serialization GET polls for, so the row is
+    // already in hand. Seeding the cache lets the tracking screen mount the
+    // moment POST lands instead of after a second round trip.
+    onSuccess: (download) => {
+      queryClient.setQueryData(downloadQueryKey(download.id), download);
+    },
     mutationFn: async (payload: YeetPayload) => {
       const response = await fetch("/api/download", {
         method: "POST",

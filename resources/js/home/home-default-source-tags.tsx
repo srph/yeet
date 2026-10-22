@@ -1,5 +1,7 @@
+import { motion } from "motion/react";
 import { SourceIcon } from "@/components/source-icon/source-icon";
 import type { Source } from "@/sources";
+import { HOME_SAMPLES_INDEX, useHomeMotion } from "./home-motion";
 
 type Sample = {
   source: Source;
@@ -52,25 +54,31 @@ export function HomeDefaultSourceTags({
 }: {
   onSelect: (url: string) => void;
 }) {
+  const { homeSettle } = useHomeMotion();
+
   return (
     <div className="flex flex-col gap-0.5">
-      {samples.map((sample) => (
-        <button
-          key={sample.url}
-          type="button"
-          onClick={() => onSelect(sample.url)}
-          className="group flex items-center gap-2.5 rounded-[9px] px-2.5 py-[7px] text-left text-sm font-medium text-neutral-400 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-        >
-          <span className="flex min-w-0 flex-1 items-center gap-2.5 transition-transform duration-150 ease-out group-hover:translate-x-1">
-            <span className="shrink-0 text-neutral-600 transition-colors group-hover:text-blue-200">
-              <SourceIcon source={sample.source} className="size-3.5" />
+      {samples.map((sample, index) => (
+        // The entrance sits on a wrapper because the button's own `transition`
+        // class covers opacity and transform, and would lag every frame
+        // motion writes to them.
+        <motion.div key={sample.url} {...homeSettle(HOME_SAMPLES_INDEX + index)}>
+          <button
+            type="button"
+            onClick={() => onSelect(sample.url)}
+            className="group flex w-full items-center gap-2.5 rounded-[9px] px-2.5 py-[7px] text-left text-sm font-medium text-neutral-400 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+          >
+            <span className="flex min-w-0 flex-1 items-center gap-2.5 transition-transform duration-150 ease-out group-hover:translate-x-1">
+              <span className="shrink-0 text-neutral-600 transition-colors group-hover:text-blue-200">
+                <SourceIcon source={sample.source} className="size-3.5" />
+              </span>
+              <span className="truncate">{sample.title}</span>
             </span>
-            <span className="truncate">{sample.title}</span>
-          </span>
-          <span className="shrink-0 font-mono text-[11px] tabular-nums text-neutral-600">
-            {sample.duration}
-          </span>
-        </button>
+            <span className="shrink-0 font-mono text-[11px] tabular-nums text-neutral-600">
+              {sample.duration}
+            </span>
+          </button>
+        </motion.div>
       ))}
     </div>
   );

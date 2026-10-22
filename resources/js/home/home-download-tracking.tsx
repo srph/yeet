@@ -2,8 +2,10 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useState,
   type ReactNode,
 } from "react";
+import { motion } from "motion/react";
 import {
   FilmIcon,
   ArrowUpRightIcon,
@@ -15,6 +17,7 @@ import { SourceIcon } from "@/components/source-icon/source-icon";
 import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
 import { HomeDownloadActions } from "./home-download-actions";
+import { RAIL, useHomeMotion } from "./home-motion";
 
 // Vidstack is ~75 KiB compressed and unused on the landing page. Keep it
 // out of the initial graph; prefetch the matching player once tracking
@@ -204,6 +207,13 @@ export const HomeDownloadTracking = ({
   const isDead = status === "failed" || status === "expired";
   const isActive = status === "probing" || status === "processing";
 
+  const { plateRise, railRise } = useHomeMotion();
+
+  // Fades the thumbnail in rather than letting it pop when it decodes. Set
+  // once and never cleared: the probe can swap source_thumbnail for a better
+  // one, and the old image holds until the new one is ready on its own.
+  const [isThumbnailShown, setIsThumbnailShown] = useState(false);
+
   // Playable, not merely settled: prune clears storage_key, which nulls
   // download_url while status stays "complete".
   const playableUrl = isSettled ? meta.download_url : null;
@@ -233,16 +243,27 @@ export const HomeDownloadTracking = ({
   return (
     // viewport-relative, not 100%: the parent is a centred grid item and so is
     // shrink-to-fit, which a percentage width would resolve against.
-    <div className="grid w-[min(1000px,100vw_-_2rem)] grid-cols-1 items-start gap-6 min-[880px]:grid-cols-[274px_1fr] min-[880px]:gap-10">
+    //
+    // layout="position": desktop centres this block, so the rail growing at
+    // Ready moves the whole thing up — this glides it there instead.
+    <motion.div
+      layout="position"
+      className="grid w-[min(1000px,100vw_-_2rem)] grid-cols-1 items-start gap-6 min-[880px]:grid-cols-[274px_1fr] min-[880px]:gap-10"
+    >
       {/* ── the rail ── */}
       <section className="min-w-0">
-        <DownloadStatus status={status} scramble className="mb-2" />
+        <motion.div {...railRise(RAIL.STATUS)}>
+          <DownloadStatus status={status} scramble className="mb-2" />
+        </motion.div>
 
-        <h1 className="text-xl leading-[1.28] font-semibold tracking-[-0.035em] text-white">
+        <motion.h1
+          {...railRise(RAIL.TITLE)}
+          className="text-xl leading-[1.28] font-semibold tracking-[-0.035em] text-white"
+        >
           {meta.source_title}
-        </h1>
+        </motion.h1>
 
-        <dl className="mt-4">
+        <motion.dl {...railRise(RAIL.SPECS)} className="mt-4">
           <Spec
             label="Source"
             value={
@@ -288,22 +309,28 @@ export const HomeDownloadTracking = ({
           ) : (
             <Spec label="Expires" value="7 days once ready" />
           )}
-        </dl>
+        </motion.dl>
 
         {/* Desktop only. On mobile this same block is docked to the bottom of
             the viewport by Home, where it sits outside the scrolling page. */}
-        <div className="mt-5.5 hidden min-[880px]:block">
+        <motion.div
+          {...railRise(RAIL.ACTIONS)}
+          className="mt-5.5 hidden min-[880px]:block"
+        >
           <HomeDownloadActions
             status={status}
             onRetry={onRetry}
             onDownload={onDownload}
             onDownloadAnother={onDownloadAnother}
           />
-        </div>
+        </motion.div>
       </section>
 
       {/* ── the plate ── */}
-      <section className="order-first w-full min-[880px]:order-none">
+      <motion.section
+        {...plateRise}
+        className="order-first w-full min-[880px]:order-none"
+      >
         {playableUrl ? (
           <Suspense
             fallback={
@@ -340,13 +367,19 @@ export const HomeDownloadTracking = ({
           >
             {meta.source_thumbnail ? (
               <img
+                // A cached thumbnail can finish decoding before React attaches
+                // onLoad, so check on mount as well.
+                ref={(img) => {
+                  if (img?.complete && img.naturalWidth > 0) setIsThumbnailShown(true);
+                }}
+                onLoad={() => setIsThumbnailShown(true)}
                 src={meta.source_thumbnail}
                 alt=""
-                className={`size-full object-cover transition-[filter] duration-700 ease-swoop ${
-                  isWaiting ? "brightness-50 grayscale-[0.85]" : ""
-                } ${isDead ? "brightness-[0.3] grayscale" : ""} ${
-                  isSettled ? "scale-[1.02]" : ""
-                }`}
+                className={`size-full object-cover transition-[filter,opacity] duration-700 ease-swoop ${
+                  isThumbnailShown ? "" : "opacity-0"
+                } ${isWaiting ? "brightness-50 grayscale-[0.85]" : ""} ${
+                  isDead ? "brightness-[0.3] grayscale" : ""
+                } ${isSettled ? "scale-[1.02]" : ""}`}
               />
             ) : (
               // X posts frequently have no thumbnail, and an mp3 has no video to
@@ -412,7 +445,7 @@ export const HomeDownloadTracking = ({
             )}
           </a>
         )}
-      </section>
-    </div>
+      </motion.section>
+    </motion.div>
   );
 };

@@ -5,6 +5,7 @@ import { ChipToggleButton } from "@/components/chip-toggle-button/chip-toggle-bu
 import { IconButton } from "@/components/icon-button/icon-button";
 import { HomeDefaultHeadline } from "./home-default-headline";
 import { HomeDefaultSourceTags } from "./home-default-source-tags";
+import { useHomeMotion } from "./home-motion";
 
 export function HomeDefault({
   url,
@@ -23,6 +24,8 @@ export function HomeDefault({
   onFormatChange: (format: "mp3" | "mp4") => void;
   onSubmit: (e: React.FormEvent) => void;
 }) {
+  const { homeSettle } = useHomeMotion();
+
   // Keep last message mounted so 1fr → 0fr has content to collapse.
   const [displayedError, setDisplayedError] = useState(yeetErrorMessage);
   if (yeetErrorMessage !== null && yeetErrorMessage !== displayedError) {
@@ -31,11 +34,13 @@ export function HomeDefault({
 
   return (
     <>
-      <HomeDefaultHeadline />
+      <motion.div {...homeSettle(0)}>
+        <HomeDefaultHeadline />
+      </motion.div>
 
       <div className="h-7"></div>
 
-      <form onSubmit={onSubmit}>
+      <motion.form onSubmit={onSubmit} {...homeSettle(1)}>
         <div className="relative">
           <input
             type="text"
@@ -147,7 +152,7 @@ export function HomeDefault({
             </motion.div>
           </div>
         </motion.div>
-      </form>
+      </motion.form>
 
       <div className="h-4"></div>
 

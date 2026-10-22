@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer/site-footer";
 import { HomeDefault } from "./home-default";
 import { HomeDownloadActions } from "./home-download-actions";
 import { HomeDownloadTracking } from "./home-download-tracking";
+import { useHomeMotion } from "./home-motion";
 
 // @TODO: Improve failed downloads
 export default function Home() {
@@ -16,18 +17,23 @@ export default function Home() {
 
   const [format, setFormat] = useState<"mp3" | "mp4">("mp4");
 
+  const { homeExit, trackingExit, dock } = useHomeMotion();
+
   const {
     mutateAsync: yeet,
-    data: yeetData,
     error: yeetError,
     isPending: isYeetPending,
     isError: isYeetError,
     reset: resetYeet,
   } = useYeetMutation();
 
-  const { data: downloadMeta, refetch: refetchDownloadMeta } = useDownloadMeta(
-    yeetData?.id,
-  );
+  // Held here rather than read off the mutation: a mutation clears its data
+  // the moment it starts again, so a retry would drop the tracking screen
+  // and flash the form until the new row came back.
+  const [downloadId, setDownloadId] = useState<string>();
+
+  const { data: downloadMeta, refetch: refetchDownloadMeta } =
+    useDownloadMeta(downloadId);
 
   // The inline players stream from download_url, which is presigned for an
   // hour and minted per serialization. A tab left open past that fails its
@@ -50,7 +56,7 @@ export default function Home() {
     e.preventDefault();
     if (!url.trim()) return;
     try {
-      await yeet({ url, format });
+      setDownloadId((await yeet({ url, format })).id);
     } catch {
       // Surfaced via yeetErrorMessage
     }
@@ -58,7 +64,7 @@ export default function Home() {
 
   const handleRetry = async () => {
     try {
-      await yeet({ url, format });
+      setDownloadId((await yeet({ url, format })).id);
     } catch {
       // Surfaced via download tracking / yeetErrorMessage
     }
@@ -79,6 +85,7 @@ export default function Home() {
   const handleDownloadAnother = () => {
     resetYeet();
     setUrl("");
+    setDownloadId(undefined);
   };
 
   const isTracking = Boolean(downloadMeta);
@@ -88,116 +95,119 @@ export default function Home() {
     // app.css sets body { overflow-hidden } globally, so a page's own root has
     // to be the scrollport. Home was the only one that never did, which is why
     // a tall spec sheet had nowhere to go and grew up under the logo instead.
-    <div className="fixed inset-0 overflow-y-auto tracking-tight text-white">
-      <Head title="Video Downloader" />
-
-      {/* The logo floats over that scroll, so on mobile tracking it needs a
-          ground of its own — without one the plate slides up behind bare
-          text on its way past. */}
-      <div
-        className={cn(
-          "fixed inset-x-0 top-0 z-10 flex items-center justify-center gap-2.5 px-4 py-5",
-          isTracking &&
-            "bg-linear-to-b from-neutral-950 from-60% to-transparent pb-8 min-[880px]:bg-none min-[880px]:pb-5",
-        )}
+    //
+    // layoutScroll because this is the scrollport, not the window: without it
+    // the tracking screen's layout animation reads a scrolled offset as the
+    // element having moved, and glides it back across the scroll distance.
+    <MotionConfig reducedMotion="user">
+      <motion.div
+        layoutScroll
+        className="fixed inset-0 overflow-y-auto tracking-tight text-white"
       >
-        <img src="/logo.svg" alt="" width="444" height="457" className="h-7 w-auto" />
-        <span className="font-sans text-xl font-semibold text-white">Yeet</span>
-      </div>
+        <Head title="Video Downloader" />
 
-      <div
-        className={cn(
-          "grid min-h-full justify-items-center px-4",
-          isTracking
-            ? // Top-aligned against a fixed pad on mobile rather than centred:
-              // the plate then lands in the same place whatever the spec sheet
-              // does underneath it. pb-44 is the docked CTA's full height —
-              // 56px of scrim over two 44px buttons and their bottom pad — so
-              // the last spec row can still be scrolled clear of the fade.
-              // Desktop keeps the same 1fr/auto split as the form: the footer
-              // is still in flow, so the plate centres in the space above it.
-              "items-start pt-24 pb-44 min-[880px]:grid-rows-[1fr_auto] min-[880px]:items-center min-[880px]:pt-20 min-[880px]:pb-5"
-            : // 1fr over auto: the form centres in the space the footer leaves,
-              // and the footer sits against the bottom of a short page without
-              // being pinned there.
-              "grid-rows-[1fr_auto] items-center pt-20 pb-5",
-        )}
-      >
-        <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
-          <AnimatePresence initial={false} mode="popLayout">
-            {downloadMeta ? (
-              <motion.div
-                key="queued"
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -24 }}
-              >
-                <HomeDownloadTracking
-                  meta={downloadMeta}
+        {/* The logo floats over that scroll, so on mobile tracking it needs a
+            ground of its own — without one the plate slides up behind bare
+            text on its way past. */}
+        <div
+          className={cn(
+            "fixed inset-x-0 top-0 z-10 flex items-center justify-center gap-2.5 px-4 py-5",
+            isTracking &&
+              "bg-linear-to-b from-neutral-950 from-60% to-transparent pb-8 min-[880px]:bg-none min-[880px]:pb-5",
+          )}
+        >
+          <img src="/logo.svg" alt="" width="444" height="457" className="h-7 w-auto" />
+          <span className="font-sans text-xl font-semibold text-white">Yeet</span>
+        </div>
+
+        <div
+          className={cn(
+            "grid min-h-full justify-items-center px-4",
+            isTracking
+              ? // Top-aligned against a fixed pad on mobile rather than centred:
+                // the plate then lands in the same place whatever the spec sheet
+                // does underneath it. pb-44 is the docked CTA's full height —
+                // 56px of scrim over two 44px buttons and their bottom pad — so
+                // the last spec row can still be scrolled clear of the fade.
+                // Desktop keeps the same 1fr/auto split as the form: the footer
+                // is still in flow, so the plate centres in the space above it.
+                "items-start pt-24 pb-44 min-[880px]:grid-rows-[1fr_auto] min-[880px]:items-center min-[880px]:pt-20 min-[880px]:pb-5"
+              : // 1fr over auto: the form centres in the space the footer leaves,
+                // and the footer sits against the bottom of a short page without
+                // being pinned there.
+                "grid-rows-[1fr_auto] items-center pt-20 pb-5",
+          )}
+        >
+          {/* Each screen staggers its own entrance (see home-motion.ts); the
+              wrappers here only own the exit, which moves as one block.
+              popLayout pulls the leaving screen out of flow in place, so the
+              grid can switch layouts under it without it jumping. */}
+          <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
+            <AnimatePresence initial={false} mode="popLayout">
+              {downloadMeta ? (
+                <motion.div key="queued" exit={trackingExit}>
+                  <HomeDownloadTracking
+                    meta={downloadMeta}
+                    onRetry={handleRetry}
+                    onDownload={handleDownload}
+                    onDownloadAnother={handleDownloadAnother}
+                    onSourceError={handleSourceError}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="form"
+                  exit={homeExit}
+                  className="w-full max-w-120 min-w-0"
+                >
+                  <HomeDefault
+                    url={url}
+                    format={format}
+                    isYeetPending={isYeetPending}
+                    yeetErrorMessage={isYeetError ? yeetError.message : null}
+                    onUrlChange={setUrl}
+                    onFormatChange={setFormat}
+                    onSubmit={handleSubmit}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </MotionConfig>
+
+          {/* Tracking on a phone still drops the footer: the dock owns the
+              bottom of the viewport. Desktop has no dock, so the footer stays. */}
+          <SiteFooter
+            className={cn("mt-8", isTracking && "hidden min-[880px]:flex")}
+          />
+        </div>
+
+        {/* ── the docked CTA ── */}
+        {/* Rendered here rather than inside the rail so it is nowhere near the
+            transform the tracking screen animates in on: a transformed ancestor
+            would become the containing block and this would stop being fixed to
+            the viewport. The scrim is what lets the spec sheet run underneath —
+            it fades into the page ground instead of colliding with the button.
+            pointer-events stay off everywhere but the buttons themselves, so the
+            fade band doesn't swallow taps on the rows showing through it. */}
+        <AnimatePresence>
+          {downloadMeta ? (
+            <motion.div
+              key="dock"
+              {...dock}
+              className="pointer-events-none fixed inset-x-0 bottom-0 z-10 bg-linear-to-t from-neutral-950 from-55% to-transparent px-4 pt-14 pb-[max(1.25rem,env(safe-area-inset-bottom))] min-[880px]:hidden"
+            >
+              <div className="pointer-events-auto mx-auto w-[min(1000px,100vw_-_2rem)]">
+                <HomeDownloadActions
+                  status={downloadMeta.status}
                   onRetry={handleRetry}
                   onDownload={handleDownload}
                   onDownloadAnother={handleDownloadAnother}
-                  onSourceError={handleSourceError}
                 />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="form"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="w-full max-w-120 min-w-0"
-              >
-                <HomeDefault
-                  url={url}
-                  format={format}
-                  isYeetPending={isYeetPending}
-                  yeetErrorMessage={isYeetError ? yeetError.message : null}
-                  onUrlChange={setUrl}
-                  onFormatChange={setFormat}
-                  onSubmit={handleSubmit}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </MotionConfig>
-
-        {/* Tracking on a phone still drops the footer: the dock owns the
-            bottom of the viewport. Desktop has no dock, so the footer stays. */}
-        <SiteFooter
-          className={cn("mt-8", isTracking && "hidden min-[880px]:flex")}
-        />
-      </div>
-
-      {/* ── the docked CTA ── */}
-      {/* Rendered here rather than inside the rail so it is nowhere near the
-          transform the tracking screen animates in on: a transformed ancestor
-          would become the containing block and this would stop being fixed to
-          the viewport. The scrim is what lets the spec sheet run underneath —
-          it fades into the page ground instead of colliding with the button.
-          pointer-events stay off everywhere but the buttons themselves, so the
-          fade band doesn't swallow taps on the rows showing through it. */}
-      <AnimatePresence>
-        {downloadMeta ? (
-          <motion.div
-            key="dock"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 16 }}
-            transition={{ duration: 0.3, type: "spring", bounce: 0 }}
-            className="pointer-events-none fixed inset-x-0 bottom-0 z-10 bg-linear-to-t from-neutral-950 from-55% to-transparent px-4 pt-14 pb-[max(1.25rem,env(safe-area-inset-bottom))] min-[880px]:hidden"
-          >
-            <div className="pointer-events-auto mx-auto w-[min(1000px,100vw_-_2rem)]">
-              <HomeDownloadActions
-                status={downloadMeta.status}
-                onRetry={handleRetry}
-                onDownload={handleDownload}
-                onDownloadAnother={handleDownloadAnother}
-              />
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </div>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </motion.div>
+    </MotionConfig>
   );
 }
