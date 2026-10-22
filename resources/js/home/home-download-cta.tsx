@@ -1,6 +1,5 @@
-import { LoaderCircleIcon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { Button } from "@/components/button/button";
+import { RotateCcwIcon } from "lucide-react";
+import { MetalButton } from "@/components/metal-button/metal-button";
 import type { DownloadMeta } from "../types";
 
 /** Lucide arrow-down-to-line, split so the arrow can ease toward the tray. */
@@ -17,7 +16,7 @@ function DownloadIcon({ className }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <g className="-translate-y-[2px] transition-transform duration-200 ease-out group-hover:translate-y-px">
+      <g className="-translate-y-0.5 transition-transform duration-200 ease-out group-enabled:group-hover:translate-y-px motion-reduce:transition-none motion-reduce:group-enabled:group-hover:-translate-y-0.5">
         <path d="M12 17V3" />
         <path d="m6 11 6 6 6-6" />
       </g>
@@ -29,44 +28,32 @@ function DownloadIcon({ className }: { className?: string }) {
 export function HomeDownloadCta({
   status,
   onDownload,
+  onRetry,
 }: {
   status: DownloadMeta["status"];
   onDownload: () => void;
+  onRetry: () => void;
 }) {
   const isSettled = status === "complete";
+  const isDead = status === "failed" || status === "expired";
 
   return (
-    <Button
+    <MetalButton
       type="button"
-      size="lg"
-      disabled={!isSettled}
-      onClick={onDownload}
-      aria-label={isSettled ? "Download Now" : "Processing Download"}
-      className="group relative w-full overflow-hidden"
+      disabled={!isSettled && !isDead}
+      onClick={isDead ? onRetry : onDownload}
+      className="group w-full"
     >
-      <AnimatePresence initial={false}>
-        <motion.span
-          key={isSettled ? "ready" : status === "queued" ? "waiting" : "busy"}
-          initial={{ y: 8 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.25 }}
-          className="absolute inset-0 flex items-center justify-center gap-2.5"
-        >
-          {isSettled ? (
-            <>
-              <DownloadIcon className="size-[15px] overflow-visible" />
-              Download Now
-            </>
-          ) : status === "queued" ? (
-            "Waiting"
-          ) : (
-            <>
-              <LoaderCircleIcon className="size-[15px] animate-[spin_0.5s_linear_infinite]" />
-              {status === "probing" ? "Grabbing metadata" : "Processing"}
-            </>
-          )}
-        </motion.span>
-      </AnimatePresence>
-    </Button>
+      {isDead ? (
+        <RotateCcwIcon className="size-4" aria-hidden="true" />
+      ) : (
+        <DownloadIcon className="size-4 overflow-visible" />
+      )}
+      {isDead
+        ? status === "expired"
+          ? "Yeet it again"
+          : "Try again"
+        : "Download Now"}
+    </MetalButton>
   );
 }

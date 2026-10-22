@@ -1,0 +1,179 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+    .metal-button {
+        --metal-accent: var(--color-neutral-400);
+        --metal-deep: var(--color-neutral-500);
+        --metal-graphite: #0c0c11;
+
+        background: var(--metal-graphite);
+        color: var(--color-blue-950);
+        box-shadow: 0 1px 2px #0009, 0 8px 16px -6px #0009;
+        cursor: pointer;
+        transition: filter 0.2s ease-out, scale 0.2s ease-out, color 0.45s ease-out;
+    }
+
+    .metal-button:disabled {
+        color: var(--color-neutral-400);
+    }
+
+    .metal-button:enabled:active {
+        scale: 0.97;
+    }
+
+    .metal-button__surface {
+        position: absolute;
+        inset: 0;
+        clip-path: inset(0 round 9999px);
+        pointer-events: none;
+    }
+
+    .metal-button__surface > span,
+    .metal-button__light > span,
+    .metal-button__swirls > span {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+    }
+
+    .metal-button__base {
+        background: linear-gradient(115deg,
+            color-mix(in srgb, var(--metal-deep) 16%, var(--metal-graphite)),
+            color-mix(in srgb, var(--metal-deep) 8%, var(--metal-graphite)) 46%,
+            color-mix(in srgb, var(--metal-accent) 9.92%, var(--metal-graphite)));
+    }
+
+    .metal-button__swirls > span {
+        border-radius: 9999px;
+        filter: blur(10px);
+        animation: metal-button-rotate 7s linear infinite;
+        background: conic-gradient(from 0deg, transparent 0deg,
+            color-mix(in srgb, color-mix(in srgb, var(--metal-accent) 48%, #000) 75%, transparent) 60deg,
+            transparent 130deg,
+            color-mix(in srgb, color-mix(in srgb, var(--metal-deep) 52%, #000) 70%, transparent) 220deg,
+            transparent 300deg);
+    }
+
+    .metal-button__swirls > span + span {
+        animation-duration: 11s;
+        animation-direction: reverse;
+        background: conic-gradient(from 90deg, transparent 0deg,
+            color-mix(in srgb, color-mix(in srgb, var(--metal-accent) 40%, #000) 55%, transparent) 80deg,
+            transparent 160deg,
+            color-mix(in srgb, color-mix(in srgb, var(--metal-accent) 48%, #000) 50%, transparent) 260deg,
+            transparent 340deg);
+    }
+
+    .metal-button__gloss {
+        background: radial-gradient(40px 18px at 26% 4%, #ffffff42, transparent 72%);
+        box-shadow: inset 0 1px 0 #ffffff42, inset 0 -5px 9px -5px var(--color-neutral-800), inset 0 0 0 1px #ffffff14;
+    }
+
+    .metal-button__light {
+        opacity: 1;
+        transition: opacity 0.45s ease-out;
+    }
+
+    .metal-button:disabled .metal-button__light {
+        opacity: 0;
+    }
+
+    .metal-button:disabled .metal-button__swirls > span {
+        animation-play-state: paused;
+    }
+
+    .metal-button__light > .metal-button__base {
+        background: linear-gradient(115deg, #d5e7ff, var(--color-blue-200) 46%, #cfe3ff);
+    }
+
+    .metal-button__light > .metal-button__swirls > span {
+        background: conic-gradient(from 0deg, transparent 0deg, #fffc 60deg,
+            transparent 130deg, color-mix(in srgb, var(--color-blue-300) 75%, transparent) 220deg,
+            transparent 300deg);
+    }
+
+    .metal-button__light > .metal-button__swirls > span + span {
+        background: conic-gradient(from 90deg, transparent 0deg, #fff9 80deg,
+            transparent 160deg, color-mix(in srgb, var(--color-blue-400) 50%, transparent) 260deg,
+            transparent 340deg);
+    }
+
+    .metal-button__light > .metal-button__gloss {
+        background: radial-gradient(40px 18px at 26% 4%, #ffffffb0, transparent 72%);
+        box-shadow: inset 0 1px 0 #ffffffa0, inset 0 -5px 9px -5px var(--color-blue-400), inset 0 0 0 1px #ffffff40;
+    }
+
+    .metal-button__light > .metal-button__glint {
+        inset: 0 auto;
+        width: 35%;
+        border-radius: 0;
+        background: linear-gradient(100deg, transparent, #fffffff2, transparent);
+    }
+
+    .metal-button__roll {
+        display: inline-flex;
+        height: 1.3em;
+        overflow: hidden;
+        line-height: 1.3;
+    }
+
+    .metal-button__letter {
+        position: relative;
+        display: inline-block;
+        white-space: pre;
+        transition: translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .metal-button__letter-copy {
+        position: absolute;
+        top: 100%;
+        left: 0;
+    }
+
+    @media (hover: hover) {
+        .metal-button:enabled:hover {
+            filter: brightness(1.06);
+            scale: 1.03;
+        }
+
+        .metal-button:enabled:hover:active {
+            scale: 0.97;
+        }
+
+        .metal-button:enabled:hover .metal-button__letter {
+            translate: 0 -100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .metal-button,
+        .metal-button__light,
+        .metal-button__letter {
+            transition: none;
+        }
+
+        .metal-button__swirls > span {
+            animation: none;
+        }
+
+        .metal-button__glint {
+            display: none;
+        }
+
+        .metal-button:enabled:hover,
+        .metal-button:enabled:active,
+        .metal-button:enabled:hover:active {
+            scale: none;
+        }
+
+        .metal-button:enabled:hover .metal-button__letter {
+            translate: none;
+        }
+    }
+
+    @keyframes metal-button-rotate {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+}

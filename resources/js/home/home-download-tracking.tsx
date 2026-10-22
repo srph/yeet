@@ -3,9 +3,9 @@ import {
   Suspense,
   useEffect,
   useState,
-  type ReactNode,
 } from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import useMeasure from "react-use-measure";
 import {
   FilmIcon,
   ArrowUpRightIcon,
@@ -13,10 +13,9 @@ import {
 } from "lucide-react";
 import type { DownloadMeta } from "../types";
 import { DownloadStatus } from "@/components/download-status/download-status";
-import { SourceIcon } from "@/components/source-icon/source-icon";
-import { formatFileSize } from "@/lib/fs";
 import { SOURCES } from "@/sources";
 import { HomeDownloadActions } from "./home-download-actions";
+import { formatDuration, HomeDownloadSpecs } from "./home-download-specs";
 import { RAIL, useHomeMotion } from "./home-motion";
 
 // Vidstack is ~75 KiB compressed and unused on the landing page. Keep it
@@ -48,106 +47,33 @@ const HomeDownloadAudioPlayer = lazy(() =>
  * doesn't reflect the actual file is worse than an absent row.
  */
 
-const formatDuration = (seconds: number) => {
-  const total = Math.max(0, Math.round(seconds));
-  const hours = Math.floor(total / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const rest = total % 60;
-  const pad = (value: number) => String(value).padStart(2, "0");
+/** Crossfade the title while its measured height carries the sheet below it. */
+function TrackingTitle({ title }: { title: string }) {
+  const reduce = useReducedMotion();
+  const [ref, { height }] = useMeasure();
 
-  return hours > 0
-    ? `${hours}:${pad(minutes)}:${pad(rest)}`
-    : `${minutes}:${pad(rest)}`;
-};
-
-/** Queue wait + cook — distinct from media Length above. */
-const formatElapsed = (createdAt: string, fulfilledAt: string) => {
-  const seconds = Math.max(
-    0,
-    Math.round((new Date(fulfilledAt).getTime() - new Date(createdAt).getTime()) / 1000),
+  return (
+    <motion.div
+      initial={false}
+      animate={{ height: height || "auto" }}
+      transition={{ duration: reduce ? 0 : 0.38, ease: [0.22, 1, 0.36, 1] }}
+      className="relative"
+    >
+      <AnimatePresence initial={false} mode="popLayout">
+        <motion.h1
+          key={title}
+          ref={ref}
+          initial={{ opacity: 0, transform: `translateY(${reduce ? 0 : 4}px)` }}
+          animate={{ opacity: 1, transform: "translateY(0px)", transition: { duration: reduce ? 0 : 0.36, delay: reduce ? 0 : 0.12 } }}
+          exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
+          className="text-xl leading-[1.28] font-semibold tracking-[-0.035em] text-white"
+        >
+          {title}
+        </motion.h1>
+      </AnimatePresence>
+    </motion.div>
   );
-
-  if (seconds < 60) return `${seconds}s`;
-
-  const minutes = Math.floor(seconds / 60);
-  const rest = seconds % 60;
-
-  if (minutes < 60) return rest > 0 ? `${minutes}m ${rest}s` : `${minutes}m`;
-
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
-};
-
-/**
- * Middle-truncate so the extension survives: the tail is the informative part
- * ("...mp3" vs "...mp4"), and source ids are long enough that a plain clip
- * would eat it. The "..." doubles as the separator, so there's no second dot.
- */
-const truncateFileName = (name: string, head = 8) => {
-  const dot = name.lastIndexOf(".");
-
-  // Dotfile or no extension at all — nothing worth preserving on the right.
-  if (dot <= 0) return name.length > head + 3 ? `${name.slice(0, head)}...` : name;
-
-  const base = name.slice(0, dot);
-  const ext = name.slice(dot + 1);
-
-  return base.length > head ? `${base.slice(0, head)}...${ext}` : name;
-};
-
-const formatExpiry = (iso: string) => {
-  const remaining = new Date(iso).getTime() - Date.now();
-  if (remaining <= 0) return "any moment now";
-
-  const hours = Math.round(remaining / 3_600_000);
-  if (hours < 24) return `in ${hours} ${hours === 1 ? "hour" : "hours"}`;
-
-  const days = Math.round(hours / 24);
-  return `in ${days} ${days === 1 ? "day" : "days"}`;
-};
-
-const Spec = ({
-  label,
-  value,
-  bright,
-  title,
-  uppercase = true,
-}: {
-  label: string;
-  value: ReactNode;
-  bright?: boolean;
-  /** The untruncated value, surfaced on hover. */
-  title?: string;
-  /** Filenames are case-sensitive — pass false to keep the value as typed. */
-  uppercase?: boolean;
-}) => (
-  <div className="flex items-baseline gap-2 py-[5.5px] text-xs">
-    <dt className="font-mono whitespace-nowrap uppercase tracking-wide text-neutral-600">
-      {label}
-    </dt>
-    <span className="h-px flex-1 -translate-y-[3px] bg-[repeating-linear-gradient(90deg,var(--color-neutral-800)_0_2px,transparent_2px_5px)]" />
-    <dd
-      title={title}
-      className={`whitespace-nowrap font-mono tracking-wide tabular-nums ${uppercase ? "uppercase" : "normal-case"} ${bright ? "text-white" : "text-neutral-400"}`}
-    >
-      {value}
-    </dd>
-  </div>
-);
-
-/** For values too long to sit on a leader row without truncating away the end. */
-const StackedSpec = ({ label, value, bright }: { label: string; value: string; bright?: boolean }) => (
-  <div className="pt-2 pb-[5.5px] text-xs">
-    <dt className="mb-1 text-neutral-600">{label}</dt>
-    <dd
-      className={`leading-[1.35] break-all ${bright ? "text-white" : "text-neutral-400"}`}
-    >
-      {value}
-    </dd>
-  </div>
-);
+}
 
 /** Holds the plate's footprint while the player chunk loads. */
 function PlayerFallback({
@@ -227,18 +153,6 @@ export const HomeDownloadTracking = ({
   }, [meta.format]);
 
   const duration = meta.duration === null ? null : formatDuration(meta.duration);
-  const took =
-    meta.fulfilled_at === null
-      ? null
-      : formatElapsed(meta.created_at, meta.fulfilled_at);
-
-  // Gated on isSettled, not just on the value: the number describes a file in
-  // the bucket, so it has no business appearing next to a failed row or an
-  // expired tombstone whose object prune already deleted.
-  const size =
-    isSettled && meta.storage_file_size !== null
-      ? formatFileSize(meta.storage_file_size)
-      : null;
 
   return (
     // viewport-relative, not 100%: the parent is a centred grid item and so is
@@ -256,59 +170,12 @@ export const HomeDownloadTracking = ({
           <DownloadStatus status={status} scramble className="mb-2" />
         </motion.div>
 
-        <motion.h1
-          {...railRise(RAIL.TITLE)}
-          className="text-xl leading-[1.28] font-semibold tracking-[-0.035em] text-white"
-        >
-          {meta.source_title}
-        </motion.h1>
+        <motion.div {...railRise(RAIL.TITLE)}>
+          <TrackingTitle title={meta.source_title} />
+        </motion.div>
 
         <motion.dl {...railRise(RAIL.SPECS)} className="mt-4">
-          <Spec
-            label="Source"
-            value={
-              <a
-                href={meta.source_url}
-                target="_blank"
-                rel="noreferrer"
-                className="group inline-flex max-w-full items-center gap-1.5 transition hover:text-blue-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
-              >
-                <SourceIcon source={meta.source} className="size-3 shrink-0" />
-                <span className="truncate">{SOURCES[meta.source].label}</span>
-                <ArrowUpRightIcon className="size-2.5 shrink-0 transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px" />
-              </a>
-            }
-          />
-
-          <Spec label="Format" value={meta.format.toUpperCase()} bright />
-
-          {duration && <Spec label="Length" value={duration} />}
-
-          {took && <Spec label="Took" value={took} />}
-
-          {size && <Spec label="File size" value={size} bright />}
-
-          {meta.storage_file_name && (
-            <Spec
-              label="File name"
-              value={truncateFileName(meta.storage_file_name)}
-              title={meta.storage_file_name}
-              bright={isSettled}
-              uppercase={false}
-            />
-          )}
-
-          {status === "failed" ? (
-            // Stacked, not a leader row: an exception message is long and
-            // arbitrary, and truncating it hides the only useful part.
-            <StackedSpec label="Reason" value={meta.reason ?? "Unknown error"} />
-          ) : status === "expired" ? (
-            <Spec label="Expired" value="link is gone" />
-          ) : meta.expires_at ? (
-            <Spec label="Expires" value={formatExpiry(meta.expires_at)} />
-          ) : (
-            <Spec label="Expires" value="7 days once ready" />
-          )}
+          <HomeDownloadSpecs meta={meta} />
         </motion.dl>
 
         {/* Desktop only. On mobile this same block is docked to the bottom of
