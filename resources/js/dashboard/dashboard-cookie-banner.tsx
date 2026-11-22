@@ -110,7 +110,7 @@ export function DashboardCookieBanner({
         return;
       }
 
-      router.reload({ only: ["cookieHealth"], preserveScroll: true });
+      router.reload({ only: ["cookieHealth"] });
     }, 2000);
 
     return () => window.clearInterval(interval);

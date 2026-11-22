@@ -1,6 +1,6 @@
 import "../css/app.css";
 
-import { createInertiaApp } from "@inertiajs/react";
+import { createInertiaApp, type ResolvedComponent } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
@@ -20,7 +20,10 @@ createInertiaApp({
 
     return resolvePageComponent(
       path,
-      import.meta.glob(["./home/**/*.tsx", "./dashboard/**/*.tsx"]),
+      import.meta.glob<ResolvedComponent>(
+        ["./home/**/*.tsx", "./dashboard/**/*.tsx"],
+        { import: "default" },
+      ),
     );
   },
 
