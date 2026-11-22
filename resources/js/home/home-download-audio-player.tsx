@@ -7,12 +7,7 @@ import {
   useMediaRemote,
   useMediaState,
 } from "@vidstack/react";
-import {
-  MusicIcon,
-  PauseIcon,
-  PlayIcon,
-  RotateCcwIcon,
-} from "lucide-react";
+import { MusicIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
 import type { DownloadMeta } from "../types";
 import { VolumeControl } from "./home-download-volume";
 import "./vidstack-player-styles";
@@ -160,4 +155,3 @@ function ToggleGlyph({ className }: { className: string }) {
     <PauseIcon className={className} fill="currentColor" />
   );
 }
-

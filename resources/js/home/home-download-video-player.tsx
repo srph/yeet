@@ -10,12 +10,7 @@ import {
   TimeSlider,
   useMediaState,
 } from "@vidstack/react";
-import {
-  MaximizeIcon,
-  MinimizeIcon,
-  PauseIcon,
-  PlayIcon,
-} from "lucide-react";
+import { MaximizeIcon, MinimizeIcon, PauseIcon, PlayIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { DownloadMeta } from "../types";
 import { VolumeControl } from "./home-download-volume";

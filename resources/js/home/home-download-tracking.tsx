@@ -1,16 +1,7 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useState,
-} from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import useMeasure from "react-use-measure";
-import {
-  FilmIcon,
-  ArrowUpRightIcon,
-  MusicIcon,
-} from "lucide-react";
+import { FilmIcon, ArrowUpRightIcon, MusicIcon } from "lucide-react";
 import type { DownloadMeta } from "../types";
 import { DownloadStatus } from "@/components/download-status/download-status";
 import { SOURCES } from "@/sources";
@@ -64,7 +55,14 @@ function TrackingTitle({ title }: { title: string }) {
           key={title}
           ref={ref}
           initial={{ opacity: 0, transform: `translateY(${reduce ? 0 : 4}px)` }}
-          animate={{ opacity: 1, transform: "translateY(0px)", transition: { duration: reduce ? 0 : 0.36, delay: reduce ? 0 : 0.12 } }}
+          animate={{
+            opacity: 1,
+            transform: "translateY(0px)",
+            transition: {
+              duration: reduce ? 0 : 0.36,
+              delay: reduce ? 0 : 0.12,
+            },
+          }}
           exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
           className="text-xl leading-[1.28] font-semibold tracking-[-0.035em] text-white"
         >
@@ -152,7 +150,8 @@ export const HomeDownloadTracking = ({
     }
   }, [meta.format]);
 
-  const duration = meta.duration === null ? null : formatDuration(meta.duration);
+  const duration =
+    meta.duration === null ? null : formatDuration(meta.duration);
 
   return (
     // viewport-relative, not 100%: the parent is a centred grid item and so is
@@ -237,7 +236,8 @@ export const HomeDownloadTracking = ({
                 // A cached thumbnail can finish decoding before React attaches
                 // onLoad, so check on mount as well.
                 ref={(img) => {
-                  if (img?.complete && img.naturalWidth > 0) setIsThumbnailShown(true);
+                  if (img?.complete && img.naturalWidth > 0)
+                    setIsThumbnailShown(true);
                 }}
                 onLoad={() => setIsThumbnailShown(true)}
                 src={meta.source_thumbnail}
@@ -291,7 +291,10 @@ export const HomeDownloadTracking = ({
                   className={`pointer-events-none absolute top-3 right-3 flex h-9 origin-right items-center overflow-hidden rounded-lg ${SOURCES[meta.source].badge}`}
                 >
                   <span className="grid max-w-0 overflow-hidden text-[14.5px] font-semibold tracking-[-0.02em] text-white transition-[max-width] duration-300 ease-swoop group-hover:max-w-48">
-                    <span className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5" aria-hidden>
+                    <span
+                      className="invisible [grid-area:1/1] whitespace-nowrap pl-2.5"
+                      aria-hidden
+                    >
                       Watch on {SOURCES[meta.source].label}
                     </span>
                     <span className="[grid-area:1/1] translate-y-full whitespace-nowrap pl-2.5 transition-transform duration-300 ease-swoop group-hover:translate-y-0">

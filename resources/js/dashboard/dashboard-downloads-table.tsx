@@ -117,7 +117,9 @@ function formatRelative(from: number, now: number) {
 function matchesFilter(status: string, filter: Filter) {
   if (filter === "all") return true;
   if (filter === "active") {
-    return status === "queued" || status === "probing" || status === "processing";
+    return (
+      status === "queued" || status === "probing" || status === "processing"
+    );
   }
   return status === filter;
 }
@@ -246,7 +248,9 @@ export function DashboardDownloadsTable({
                             {/* Same pill the frontfacing format picker uses,
                                 just static — one badge face for MP3/MP4
                                 everywhere it shows up. */}
-                            <ChipBadge>{download.format.toUpperCase()}</ChipBadge>
+                            <ChipBadge>
+                              {download.format.toUpperCase()}
+                            </ChipBadge>
                           </td>
                           <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
                             {isDownloadStatus(download.status) ? (
@@ -292,7 +296,9 @@ export function DashboardDownloadsTable({
                             {formatDuration(download.duration)}
                           </td>
                           <td className="overflow-hidden px-1 py-3 text-right align-middle text-xs whitespace-nowrap tabular-nums text-neutral-600">
-                            <Tooltip content={formatGmt8Tooltip(download.created_at)}>
+                            <Tooltip
+                              content={formatGmt8Tooltip(download.created_at)}
+                            >
                               <span className="cursor-default">
                                 {formatCreatedAgo(download.created_at, now)}
                               </span>

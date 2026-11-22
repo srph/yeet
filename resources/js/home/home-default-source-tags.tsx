@@ -62,7 +62,10 @@ export function HomeDefaultSourceTags({
         // The entrance sits on a wrapper because the button's own `transition`
         // class covers opacity and transform, and would lag every frame
         // motion writes to them.
-        <motion.div key={sample.url} {...homeSettle(HOME_SAMPLES_INDEX + index)}>
+        <motion.div
+          key={sample.url}
+          {...homeSettle(HOME_SAMPLES_INDEX + index)}
+        >
           <button
             type="button"
             onClick={() => onSelect(sample.url)}

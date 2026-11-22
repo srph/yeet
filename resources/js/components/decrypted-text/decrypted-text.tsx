@@ -7,7 +7,7 @@ const encrypt = (input: string) => {
     .map((char) =>
       char === " "
         ? " "
-        : String.fromCharCode(33 + Math.floor(Math.random() * 94))
+        : String.fromCharCode(33 + Math.floor(Math.random() * 94)),
     )
     .join("");
 };

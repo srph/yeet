@@ -14,9 +14,7 @@ createInertiaApp({
   resolve: (name) => {
     // Home stays under ./home (name "home" → ./home/home.tsx). Dashboard
     // pages use a folder prefix (e.g. "dashboard/dashboard-login").
-    const path = name.includes("/")
-      ? `./${name}.tsx`
-      : `./home/${name}.tsx`;
+    const path = name.includes("/") ? `./${name}.tsx` : `./home/${name}.tsx`;
 
     return resolvePageComponent(
       path,

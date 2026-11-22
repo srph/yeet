@@ -78,13 +78,20 @@ const Working = () => (
 );
 
 const MARKER: Record<Status, ReactNode> = {
-  queued: <span className="size-1.5 shrink-0 rounded-full bg-current/70" aria-hidden />,
+  queued: (
+    <span
+      className="size-1.5 shrink-0 rounded-full bg-current/70"
+      aria-hidden
+    />
+  ),
   probing: <Working />,
   processing: <Working />,
   // Lucide's default 2px stroke is tuned for 24px and reads lighter than the
   // 700-weight label beside it once shrunk — the same correction the table's
   // ArrowUpRight already makes at 2.25.
-  complete: <Check className="size-2.5 shrink-0" strokeWidth={3.4} aria-hidden />,
+  complete: (
+    <Check className="size-2.5 shrink-0" strokeWidth={3.4} aria-hidden />
+  ),
   // Typed rather than drawn: "!" is ASCII, so unlike ✓/✕ it can't fall out of
   // the shipped font subset and silently reflow the tag. It also inherits the
   // label's weight and cap-height instead of needing its own alignment.
@@ -97,7 +104,9 @@ const MARKER: Record<Status, ReactNode> = {
   // dashes trailing off around the rim — is the whole point of the shape,
   // so it needs Lucide's own path rather than a filled silhouette that
   // would flatten it back into a plain clock.
-  expired: <ClockFading className="size-2.5 shrink-0" strokeWidth={2.5} aria-hidden />,
+  expired: (
+    <ClockFading className="size-2.5 shrink-0" strokeWidth={2.5} aria-hidden />
+  ),
 };
 
 export function DownloadStatus({

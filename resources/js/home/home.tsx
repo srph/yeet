@@ -116,8 +116,16 @@ export default function Home() {
               "bg-linear-to-b from-neutral-950 from-60% to-transparent pb-8 min-[880px]:bg-none min-[880px]:pb-5",
           )}
         >
-          <img src="/logo.svg" alt="" width="444" height="457" className="h-7 w-auto" />
-          <span className="font-sans text-xl font-semibold text-white">Yeet</span>
+          <img
+            src="/logo.svg"
+            alt=""
+            width="444"
+            height="457"
+            className="h-7 w-auto"
+          />
+          <span className="font-sans text-xl font-semibold text-white">
+            Yeet
+          </span>
         </div>
 
         <div
@@ -142,7 +150,9 @@ export default function Home() {
               wrappers here only own the exit, which moves as one block.
               popLayout pulls the leaving screen out of flow in place, so the
               grid can switch layouts under it without it jumping. */}
-          <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0 }}>
+          <MotionConfig
+            transition={{ duration: 0.4, type: "spring", bounce: 0 }}
+          >
             <AnimatePresence initial={false} mode="popLayout">
               {downloadMeta ? (
                 <motion.div key="queued" exit={trackingExit}>

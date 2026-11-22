@@ -1,35 +1,35 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Self-hosted, replacing next/font/google from the Next.js app. */
-@import '@fontsource/jetbrains-mono/700.css';
+@import "@fontsource/jetbrains-mono/700.css";
 
 /* Switzer isn't a Google Font, so Fontsource doesn't mirror it — pulled
    straight from Fontshare's CDN and re-hosted here the same way, at the
    four weights the app actually uses (400/500/600/700, no italics). */
 @font-face {
-    font-family: 'Switzer';
-    src: url('../fonts/switzer/switzer-latin-400-normal.woff2') format('woff2');
+    font-family: "Switzer";
+    src: url("../fonts/switzer/switzer-latin-400-normal.woff2") format("woff2");
     font-weight: 400;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
-    font-family: 'Switzer';
-    src: url('../fonts/switzer/switzer-latin-500-normal.woff2') format('woff2');
+    font-family: "Switzer";
+    src: url("../fonts/switzer/switzer-latin-500-normal.woff2") format("woff2");
     font-weight: 500;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
-    font-family: 'Switzer';
-    src: url('../fonts/switzer/switzer-latin-600-normal.woff2') format('woff2');
+    font-family: "Switzer";
+    src: url("../fonts/switzer/switzer-latin-600-normal.woff2") format("woff2");
     font-weight: 600;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
-    font-family: 'Switzer';
-    src: url('../fonts/switzer/switzer-latin-700-normal.woff2') format('woff2');
+    font-family: "Switzer";
+    src: url("../fonts/switzer/switzer-latin-700-normal.woff2") format("woff2");
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -41,8 +41,9 @@
 @theme {
     /* Was tailwind.config.ts theme.extend.fontFamily. Same token names, so
        every existing `font-sans` class ports untouched. */
-    --font-sans: 'Switzer', ui-sans-serif, system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
+    --font-mono:
+        "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /* The house easing curve — a fast-out, gentle-settle swoop used for
        hover/reveal transitions throughout, and for the `sweep` animation

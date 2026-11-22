@@ -42,7 +42,8 @@ export function SourceIcon({
   variant?: "mark" | "badge";
   className?: string;
 }) {
-  const src = (variant === "badge" ? BADGE_SRC[source] : undefined) ?? SRC[source];
+  const src =
+    (variant === "badge" ? BADGE_SRC[source] : undefined) ?? SRC[source];
   const mask = `url(${src}) center / contain no-repeat`;
 
   return (

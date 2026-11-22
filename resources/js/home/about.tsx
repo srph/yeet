@@ -78,15 +78,22 @@ export default function About() {
         </IconButton>
 
         <div className="fixed inset-x-0 top-0 z-10 flex items-center justify-center gap-2.5 px-4 py-5">
-          <img src="/logo.svg" alt="" width="444" height="457" className="h-7 w-auto" />
-          <span className="font-sans text-xl font-semibold text-white">Yeet</span>
+          <img
+            src="/logo.svg"
+            alt=""
+            width="444"
+            height="457"
+            className="h-7 w-auto"
+          />
+          <span className="font-sans text-xl font-semibold text-white">
+            Yeet
+          </span>
         </div>
 
         <article className="w-full max-w-110">
           <EnterFadeUp delay={0.04}>
             <h1 className="mt-5 text-center text-[33px] font-semibold leading-[1.05] tracking-[-0.04em]">
-              Paste a link,{" "}
-              <span className="text-blue-200">get a file.</span>
+              Paste a link, <span className="text-blue-200">get a file.</span>
             </h1>
           </EnterFadeUp>
           <EnterFadeUp delay={0.11}>
@@ -100,8 +107,8 @@ export default function About() {
               >
                 mine
               </a>{" "}
-              to download silly videos from different websites. Please go easy on
-              it; there are rate limits so it stays up for everyone.
+              to download silly videos from different websites. Please go easy
+              on it; there are rate limits so it stays up for everyone.
             </p>
           </EnterFadeUp>
 

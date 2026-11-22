@@ -8,9 +8,14 @@
 
         background: var(--metal-graphite);
         color: var(--color-blue-950);
-        box-shadow: 0 1px 2px #0009, 0 8px 16px -6px #0009;
+        box-shadow:
+            0 1px 2px #0009,
+            0 8px 16px -6px #0009;
         cursor: pointer;
-        transition: filter 0.2s ease-out, scale 0.2s ease-out, color 0.45s ease-out;
+        transition:
+            filter 0.2s ease-out,
+            scale 0.2s ease-out,
+            color 0.45s ease-out;
     }
 
     .metal-button:disabled {
@@ -37,36 +42,71 @@
     }
 
     .metal-button__base {
-        background: linear-gradient(115deg,
+        background: linear-gradient(
+            115deg,
             color-mix(in srgb, var(--metal-deep) 16%, var(--metal-graphite)),
             color-mix(in srgb, var(--metal-deep) 8%, var(--metal-graphite)) 46%,
-            color-mix(in srgb, var(--metal-accent) 9.92%, var(--metal-graphite)));
+            color-mix(in srgb, var(--metal-accent) 9.92%, var(--metal-graphite))
+        );
     }
 
     .metal-button__swirls > span {
         border-radius: 9999px;
         filter: blur(10px);
         animation: metal-button-rotate 7s linear infinite;
-        background: conic-gradient(from 0deg, transparent 0deg,
-            color-mix(in srgb, color-mix(in srgb, var(--metal-accent) 48%, #000) 75%, transparent) 60deg,
+        background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            color-mix(
+                    in srgb,
+                    color-mix(in srgb, var(--metal-accent) 48%, #000) 75%,
+                    transparent
+                )
+                60deg,
             transparent 130deg,
-            color-mix(in srgb, color-mix(in srgb, var(--metal-deep) 52%, #000) 70%, transparent) 220deg,
-            transparent 300deg);
+            color-mix(
+                    in srgb,
+                    color-mix(in srgb, var(--metal-deep) 52%, #000) 70%,
+                    transparent
+                )
+                220deg,
+            transparent 300deg
+        );
     }
 
     .metal-button__swirls > span + span {
         animation-duration: 11s;
         animation-direction: reverse;
-        background: conic-gradient(from 90deg, transparent 0deg,
-            color-mix(in srgb, color-mix(in srgb, var(--metal-accent) 40%, #000) 55%, transparent) 80deg,
+        background: conic-gradient(
+            from 90deg,
+            transparent 0deg,
+            color-mix(
+                    in srgb,
+                    color-mix(in srgb, var(--metal-accent) 40%, #000) 55%,
+                    transparent
+                )
+                80deg,
             transparent 160deg,
-            color-mix(in srgb, color-mix(in srgb, var(--metal-accent) 48%, #000) 50%, transparent) 260deg,
-            transparent 340deg);
+            color-mix(
+                    in srgb,
+                    color-mix(in srgb, var(--metal-accent) 48%, #000) 50%,
+                    transparent
+                )
+                260deg,
+            transparent 340deg
+        );
     }
 
     .metal-button__gloss {
-        background: radial-gradient(40px 18px at 26% 4%, #ffffff42, transparent 72%);
-        box-shadow: inset 0 1px 0 #ffffff42, inset 0 -5px 9px -5px var(--color-neutral-800), inset 0 0 0 1px #ffffff14;
+        background: radial-gradient(
+            40px 18px at 26% 4%,
+            #ffffff42,
+            transparent 72%
+        );
+        box-shadow:
+            inset 0 1px 0 #ffffff42,
+            inset 0 -5px 9px -5px var(--color-neutral-800),
+            inset 0 0 0 1px #ffffff14;
     }
 
     .metal-button__light {
@@ -83,31 +123,58 @@
     }
 
     .metal-button__light > .metal-button__base {
-        background: linear-gradient(115deg, #d5e7ff, var(--color-blue-200) 46%, #cfe3ff);
+        background: linear-gradient(
+            115deg,
+            #d5e7ff,
+            var(--color-blue-200) 46%,
+            #cfe3ff
+        );
     }
 
     .metal-button__light > .metal-button__swirls > span {
-        background: conic-gradient(from 0deg, transparent 0deg, #fffc 60deg,
-            transparent 130deg, color-mix(in srgb, var(--color-blue-300) 75%, transparent) 220deg,
-            transparent 300deg);
+        background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            #fffc 60deg,
+            transparent 130deg,
+            color-mix(in srgb, var(--color-blue-300) 75%, transparent) 220deg,
+            transparent 300deg
+        );
     }
 
     .metal-button__light > .metal-button__swirls > span + span {
-        background: conic-gradient(from 90deg, transparent 0deg, #fff9 80deg,
-            transparent 160deg, color-mix(in srgb, var(--color-blue-400) 50%, transparent) 260deg,
-            transparent 340deg);
+        background: conic-gradient(
+            from 90deg,
+            transparent 0deg,
+            #fff9 80deg,
+            transparent 160deg,
+            color-mix(in srgb, var(--color-blue-400) 50%, transparent) 260deg,
+            transparent 340deg
+        );
     }
 
     .metal-button__light > .metal-button__gloss {
-        background: radial-gradient(40px 18px at 26% 4%, #ffffffb0, transparent 72%);
-        box-shadow: inset 0 1px 0 #ffffffa0, inset 0 -5px 9px -5px var(--color-blue-400), inset 0 0 0 1px #ffffff40;
+        background: radial-gradient(
+            40px 18px at 26% 4%,
+            #ffffffb0,
+            transparent 72%
+        );
+        box-shadow:
+            inset 0 1px 0 #ffffffa0,
+            inset 0 -5px 9px -5px var(--color-blue-400),
+            inset 0 0 0 1px #ffffff40;
     }
 
     .metal-button__light > .metal-button__glint {
         inset: 0 auto;
         width: 35%;
         border-radius: 0;
-        background: linear-gradient(100deg, transparent, #fffffff2, transparent);
+        background: linear-gradient(
+            100deg,
+            transparent,
+            #fffffff2,
+            transparent
+        );
     }
 
     .metal-button__roll {
