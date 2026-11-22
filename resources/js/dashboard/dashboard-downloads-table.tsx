@@ -3,10 +3,7 @@ import { useState } from "react";
 import { ChipBadge } from "@/components/chip-toggle-button/chip-toggle-button";
 import { DownloadStatus } from "@/components/download-status/download-status";
 import { SourceIcon } from "@/components/source-icon/source-icon";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/toggle-group/toggle-group";
+import { Select } from "@/components/select/select";
 import { Tooltip, TooltipProvider } from "@/components/tooltip/tooltip";
 import { useNow } from "@/hooks/use-now";
 import { isSource, SOURCES } from "@/sources";
@@ -28,11 +25,11 @@ type DownloadRow = {
 
 type Filter = "all" | "active" | "complete" | "failed";
 
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "active", label: "Active" },
-  { id: "complete", label: "Complete" },
-  { id: "failed", label: "Failed" },
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "complete", label: "Complete" },
+  { value: "failed", label: "Failed" },
 ];
 
 const COLUMN_WIDTHS = {
@@ -145,19 +142,12 @@ export function DashboardDownloadsTable({
           <h3 className="text-[15px] font-semibold tracking-[-0.02em]">
             Recently
           </h3>
-          <ToggleGroup
-            value={[filter]}
-            // Unpressing the active filter would empty the group and leave
-            // nothing to anchor the pill to, so hold the last one.
-            onValueChange={([next]) => next && setFilter(next)}
+          <Select
+            value={filter}
+            onValueChange={setFilter}
+            options={FILTERS}
             aria-label="Filter downloads"
-          >
-            {FILTERS.map((chip) => (
-              <ToggleGroupItem key={chip.id} value={chip.id}>
-                {chip.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+          />
         </div>
 
         {downloads.length === 0 ? (
@@ -174,9 +164,9 @@ export function DashboardDownloadsTable({
             <div className="overflow-x-auto">
               <table className="w-full min-w-180 table-fixed border-collapse">
                 <colgroup>
-                  <col style={{ width: COLUMN_WIDTHS.status }} />
-                  <col style={{ width: COLUMN_WIDTHS.format }} />
                   <col />
+                  <col style={{ width: COLUMN_WIDTHS.format }} />
+                  <col style={{ width: COLUMN_WIDTHS.status }} />
                   <col style={{ width: COLUMN_WIDTHS.source }} />
                   <col style={{ width: COLUMN_WIDTHS.length }} />
                   <col style={{ width: COLUMN_WIDTHS.created }} />
@@ -184,13 +174,13 @@ export function DashboardDownloadsTable({
                 <thead>
                   <tr className="border-b border-neutral-800">
                     <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
-                      Status
+                      Title
                     </th>
                     <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
                       Format
                     </th>
                     <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
-                      Title
+                      Status
                     </th>
                     <th className="px-1 py-2.5 text-left text-xs font-medium text-neutral-600">
                       Source
@@ -226,24 +216,6 @@ export function DashboardDownloadsTable({
                           key={download.id}
                           className="border-b border-neutral-800/60 last:border-b-0 hover:bg-white/[0.015]"
                         >
-                          <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                            {isDownloadStatus(download.status) ? (
-                              <DownloadStatus status={download.status} />
-                            ) : (
-                              // A value the frontend doesn't know about is
-                              // worth showing verbatim rather than coercing
-                              // into the nearest tone.
-                              <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-neutral-500 uppercase">
-                                {download.status}
-                              </span>
-                            )}
-                          </td>
-                          <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
-                            {/* Same pill the frontfacing format picker uses,
-                                just static — one badge face for MP3/MP4
-                                everywhere it shows up. */}
-                            <ChipBadge>{download.format.toUpperCase()}</ChipBadge>
-                          </td>
                           <td className="overflow-hidden px-1 py-3 align-middle">
                             <span className="block truncate text-[13.5px] font-semibold tracking-[-0.02em]">
                               {download.status === "complete" &&
@@ -269,6 +241,24 @@ export function DashboardDownloadsTable({
                                 </>
                               ) : null}
                             </span>
+                          </td>
+                          <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
+                            {/* Same pill the frontfacing format picker uses,
+                                just static — one badge face for MP3/MP4
+                                everywhere it shows up. */}
+                            <ChipBadge>{download.format.toUpperCase()}</ChipBadge>
+                          </td>
+                          <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
+                            {isDownloadStatus(download.status) ? (
+                              <DownloadStatus status={download.status} />
+                            ) : (
+                              // A value the frontend doesn't know about is
+                              // worth showing verbatim rather than coercing
+                              // into the nearest tone.
+                              <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-neutral-500 uppercase">
+                                {download.status}
+                              </span>
+                            )}
                           </td>
                           <td className="overflow-hidden px-1 py-3 align-middle whitespace-nowrap">
                             <a
