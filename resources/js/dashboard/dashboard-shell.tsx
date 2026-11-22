@@ -38,12 +38,12 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
                 <img
                   src={user.discord_avatar}
                   alt=""
-                  className="size-5.5 rounded-full bg-neutral-800"
+                  className="size-5.5 rounded-full bg-neutral-800 outline -outline-offset-1 outline-[#00000030]"
                 />
               ) : (
                 <span
                   aria-hidden
-                  className="size-5.5 rounded-full bg-linear-to-br from-[#5865f2] to-neutral-700"
+                  className="size-5.5 rounded-full bg-linear-to-br from-[#5865f2] to-neutral-700 outline -outline-offset-1 outline-[#00000030]"
                 />
               )}
               <span className="hidden text-[12.5px] font-medium text-white sm:inline">
