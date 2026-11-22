@@ -5,7 +5,11 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "icons": "node scripts/sync-source-icons.mjs"
+        "icons": "node scripts/sync-source-icons.mjs",
+        "typecheck": "tsc --noEmit",
+        "lint": "oxlint resources/js scripts",
+        "format": "prettier --write resources/js resources/css",
+        "format:check": "prettier --check resources/js resources/css"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",
@@ -14,6 +18,8 @@
         "@vitejs/plugin-react": "^6.0.3",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^3.1",
+        "oxlint": "^1.94.0",
+        "prettier": "^3.10.1",
         "tailwindcss": "^4.3.3",
         "typescript": "^7.0.2",
         "vite": "^8.0.0"

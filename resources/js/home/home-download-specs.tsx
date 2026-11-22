@@ -275,9 +275,17 @@ export function HomeDownloadSpecs({ meta }: { meta: DownloadMeta }) {
       : meta.expires_at ? formatExpiry(meta.expires_at) : "7 days once ready",
   });
 
-  const previous = useRef(new Set(rows.map((row) => row.id)));
-  const entering = rows.filter((row) => !previous.current.has(row.id)).map((row) => row.id);
-  useEffect(() => { previous.current = new Set(rows.map((row) => row.id)); });
+  // Which rows just appeared, diffed against the last set seen. Held in state
+  // (React's "previous value" pattern) so render never reads a ref; it's only
+  // right on the render that adds a row, which is all it needs to be, since
+  // AnimatedSpec latches `entering` and `delay` on mount.
+  const ids = rows.map((row) => row.id);
+  const idsKey = ids.join(" ");
+  const [seen, setSeen] = useState({ key: idsKey, ids: new Set(ids), entering: [] as string[] });
+  if (seen.key !== idsKey) {
+    setSeen({ key: idsKey, ids: new Set(ids), entering: ids.filter((id) => !seen.ids.has(id)) });
+  }
+  const entering = seen.entering;
 
   return (
     <AnimatePresence initial={false}>

@@ -1,0 +1,8 @@
+{
+  "overrides": [
+    {
+      "files": "resources/js/**/*.{ts,tsx}",
+      "options": { "tabWidth": 2 }
+    }
+  ]
+}

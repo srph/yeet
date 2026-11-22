@@ -32,7 +32,7 @@ const DecryptedText = ({
     }, speed);
 
     return () => clearInterval(interval);
-  }, [text, speed]);
+  }, [cursor, text, speed]);
 
   const display = useTransform(cursor, (cursor) => {
     return text.slice(0, cursor) + encrypt(text.slice(cursor));

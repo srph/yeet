@@ -61,3 +61,13 @@ Icons from [simple-icons](https://simpleicons.org) (CC0-1.0) and
 - **Focus:** Interactive links/buttons get `focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200` applied per element (not globally). Text inputs use their own border/ring focus styles.
 - **Control size:** Baseline size for control elements (input/button) starts at 32px.
 - **Metadata/stats:** `font-mono` optionally, unless specified otherwise.
+
+## Verification
+
+Before handing off frontend changes:
+
+```sh
+npm run typecheck      # tsc
+npm run lint           # oxlint
+npm run format:check   # prettier (npm run format to fix)
+```
