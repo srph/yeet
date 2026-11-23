@@ -7,51 +7,50 @@
    straight from Fontshare's CDN and re-hosted here the same way, at the
    four weights the app actually uses (400/500/600/700, no italics). */
 @font-face {
-    font-family: "Switzer";
-    src: url("../fonts/switzer/switzer-latin-400-normal.woff2") format("woff2");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Switzer";
+  src: url("../fonts/switzer/switzer-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 @font-face {
-    font-family: "Switzer";
-    src: url("../fonts/switzer/switzer-latin-500-normal.woff2") format("woff2");
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Switzer";
+  src: url("../fonts/switzer/switzer-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
 }
 @font-face {
-    font-family: "Switzer";
-    src: url("../fonts/switzer/switzer-latin-600-normal.woff2") format("woff2");
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Switzer";
+  src: url("../fonts/switzer/switzer-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 @font-face {
-    font-family: "Switzer";
-    src: url("../fonts/switzer/switzer-latin-700-normal.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+  font-family: "Switzer";
+  src: url("../fonts/switzer/switzer-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 @source '../js/**/*.tsx';
 @source '../views/**/*.blade.php';
 
 @theme {
-    /* Was tailwind.config.ts theme.extend.fontFamily. Same token names, so
+  /* Was tailwind.config.ts theme.extend.fontFamily. Same token names, so
        every existing `font-sans` class ports untouched. */
-    --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
-    --font-mono:
-        "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    /* The house easing curve — a fast-out, gentle-settle swoop used for
+  /* The house easing curve — a fast-out, gentle-settle swoop used for
        hover/reveal transitions throughout, and for the `sweep` animation
        below. Named so call sites read `ease-swoop` instead of repeating the
        raw cubic-bezier. */
-    --ease-swoop: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-swoop: cubic-bezier(0.19, 1, 0.22, 1);
 
-    /* The post-submit screen's two idle motions. Tailwind's built-in
+  /* The post-submit screen's two idle motions. Tailwind's built-in
        animate-pulse is close to `blink` but bottoms out at opacity .5, which
        reads as a glow rather than a status light — hence the custom pair.
 
@@ -64,55 +63,55 @@
        a single lap — a hover/focus flourish on an icon, not a loading spinner.
        Its default fill-mode is `none`, so the icon springs back to 0deg once
        the lap finishes rather than freezing wherever the animation ended. */
-    --animate-blink: blink 1.2s ease-in-out infinite;
-    --animate-blink-slow: blink 2.2s ease-in-out infinite;
-    --animate-sweep: sweep 2.1s var(--ease-swoop) infinite;
-    --animate-sweep-slow: sweep 3.2s var(--ease-swoop) infinite;
-    --animate-spin-once: spin 0.5s ease-in-out 1;
+  --animate-blink: blink 1.2s ease-in-out infinite;
+  --animate-blink-slow: blink 2.2s ease-in-out infinite;
+  --animate-sweep: sweep 2.1s var(--ease-swoop) infinite;
+  --animate-sweep-slow: sweep 3.2s var(--ease-swoop) infinite;
+  --animate-spin-once: spin 0.5s ease-in-out 1;
 
-    @keyframes blink {
-        0%,
-        100% {
-            opacity: 0.32;
-        }
-        50% {
-            opacity: 1;
-        }
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 0.32;
     }
-
-    @keyframes sweep {
-        0% {
-            left: -40%;
-        }
-        100% {
-            left: 104%;
-        }
+    50% {
+      opacity: 1;
     }
+  }
 
-    /* Brand marks that aren't in Tailwind's palette. YouTube's play-button
+  @keyframes sweep {
+    0% {
+      left: -40%;
+    }
+    100% {
+      left: 104%;
+    }
+  }
+
+  /* Brand marks that aren't in Tailwind's palette. YouTube's play-button
        red; Twitter's classic bird (Material Light Blue 500); Facebook blue. */
-    --color-youtube: #ff0033;
-    --color-twitter: #03a9f4;
-    --color-facebook: #0865fe;
+  --color-youtube: #ff0033;
+  --color-twitter: #03a9f4;
+  --color-facebook: #0865fe;
 
-    /* Chart tokens. The app's first chart (the Traffic card) introduced these;
+  /* Chart tokens. The app's first chart (the Traffic card) introduced these;
        anything drawn later should reach for them rather than re-picking greys.
 
        `chart-track` is the dot field standing in for gridlines. It has to sit
        above the neutral-800 content sheet and below the quietest bar, which is
        a narrow gap — hence its own token rather than a neutral step. */
-    --color-chart-track: #383838;
+  --color-chart-track: #383838;
 
-    /* One dot cell. The tile is a 2px square on a 6px grid, so this drives both
+  /* One dot cell. The tile is a 2px square on a 6px grid, so this drives both
        the mask size and the width rounding that keeps the right-hand column of
        dots from being sliced in half. */
-    --chart-dot: 6px;
+  --chart-dot: 6px;
 
-    /* Gap between columns. The bar is inset by half of it on each side, so the
+  /* Gap between columns. The bar is inset by half of it on each side, so the
        columns themselves stay contiguous and adjacent hover states meet with no
        seam. Also the amount trimmed off the dot track before it's rounded down
        to whole cells. */
-    --chart-gap: 4px;
+  --chart-gap: 4px;
 }
 
 /* From the old app/globals.css, verbatim, plus smoothing: Switzer (like
@@ -125,9 +124,9 @@
    and concludes the whole page is off-screen — which is how the headline roll
    in home-default-headline.tsx silently stopped animating. */
 body {
-    @apply bg-neutral-950 min-h-dvh overflow-hidden antialiased;
+  @apply bg-neutral-950 min-h-dvh overflow-hidden antialiased;
 }
 
 ::selection {
-    @apply bg-blue-200 text-blue-950;
+  @apply bg-blue-200 text-blue-950;
 }
