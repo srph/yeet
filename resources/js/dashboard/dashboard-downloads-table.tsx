@@ -73,7 +73,7 @@ function formatCreatedAgo(iso: string, now: number) {
   return plural(Math.floor(elapsed / SECOND), "second");
 }
 
-/** "(GMT+8) dd m, y h:mm:ss AM/PM" — mono zone label, sans for the timestamp. */
+/** "(GMT+8) m dd, y h:mm:ss AM/PM" — mono zone label, sans for the timestamp. */
 function formatGmt8Tooltip(iso: string) {
   const parts = Object.fromEntries(
     gmt8Parts
@@ -86,7 +86,7 @@ function formatGmt8Tooltip(iso: string) {
     <>
       <span className="font-mono">(GMT+8)</span>{" "}
       <span>
-        {parts.day} {parts.month}, {parts.year} {parts.hour}:{parts.minute}:
+        {parts.month} {parts.day}, {parts.year} {parts.hour}:{parts.minute}:
         {parts.second} {parts.dayPeriod}
       </span>
     </>
