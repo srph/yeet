@@ -9,7 +9,7 @@ Laravel + Inertia + React. Extraction via [yt-dlp](https://github.com/yt-dlp/yt-
 ## Requirements
 
 - PHP 8.3+
-- Postgres
+- Postgres — `docker compose up -d` runs one matching `.env.example`
 - Node 22+
 - `yt-dlp` and `ffmpeg` — ffmpeg is required to merge YouTube's separate
   video/audio streams into mp4, and to transcode mp3

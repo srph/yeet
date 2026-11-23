@@ -1,0 +1,26 @@
+# Local Postgres for development. Credentials match .env.example, so a fresh
+# `make install` connects without edits. Data lives in a named volume, so
+# `docker compose down` keeps it; `down -v` wipes it.
+#
+#   docker compose up -d
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: yeet
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d yeet"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  postgres:

@@ -1,4 +1,4 @@
-.PHONY: install start
+.PHONY: install start start\:db
 
 # Everything the app shells out to. yt-dlp and ffmpeg aren't installed by
 # composer or npm, so a missing one would otherwise only surface as a failed
@@ -21,3 +21,8 @@ install:
 # Server, downloads queue, logs and vite together — see `dev` in composer.json.
 start:
 	composer dev
+
+# Local Postgres from compose.yaml, matching .env.example. --wait returns once
+# it accepts connections, so `make start:db && make install` is safe.
+start\:db:
+	docker compose up -d --wait
