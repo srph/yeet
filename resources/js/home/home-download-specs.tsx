@@ -211,7 +211,9 @@ function AnimatedSpec({
       initial={{ height: 0 }}
       animate={{ height: "auto", transition: timing(0.24, d) }}
       exit={{ height: 0, transition: timing(0.26, 0.26) }}
-      className="overflow-hidden"
+      // overflow-hidden clips at the padding edge, so the side gutter is what
+      // lets a flush-right link's focus outline (2px + 1px offset) show.
+      className="-mx-1 overflow-hidden px-1"
     >
       <motion.div
         initial={{ opacity: row.stacked ? 0 : 1 }}
