@@ -37,17 +37,17 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-2">
-            <div className="flex select-none items-center gap-2.5 rounded-full border border-neutral-800 p-1 pr-3">
+            <div className="flex select-none items-center gap-2.5 rounded-lg border border-neutral-800 p-1 pr-3">
               {user.discord_avatar ? (
                 <img
                   src={user.discord_avatar}
                   alt=""
-                  className="size-5.5 rounded-full bg-neutral-800 outline -outline-offset-1 outline-[#00000030]"
+                  className="size-5.5 rounded-sm bg-neutral-800 outline -outline-offset-1 outline-[#00000030]"
                 />
               ) : (
                 <span
                   aria-hidden
-                  className="size-5.5 rounded-full bg-linear-to-br from-[#5865f2] to-neutral-700 outline -outline-offset-1 outline-[#00000030]"
+                  className="size-5.5 rounded-sm bg-linear-to-br from-[#5865f2] to-neutral-700 outline -outline-offset-1 outline-[#00000030]"
                 />
               )}
               <span className="hidden text-[12.5px] font-medium text-white sm:inline">
@@ -58,7 +58,7 @@ export function DashboardShell({ user, flash, children }: DashboardShellProps) {
               type="button"
               onClick={() => router.post("/logout")}
               aria-label="Log out"
-              className="grid size-8 place-items-center rounded-full border border-neutral-800 text-neutral-500 transition hover:border-neutral-700 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+              className="grid size-8 place-items-center rounded-lg border border-neutral-800 text-neutral-500 transition hover:border-neutral-700 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
             >
               <LogOut size={15} />
             </button>
