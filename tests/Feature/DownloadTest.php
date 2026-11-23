@@ -2,7 +2,9 @@
 
 use App\Jobs\ProcessDownload;
 use App\Models\Download;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 
 beforeEach(function () {
     Queue::fake();
@@ -132,12 +134,12 @@ it('throttles burst requests per minute', function () use ($post) {
     ]);
 
     // RateLimiter is resolved at boot; re-bind with the test config.
-    Illuminate\Support\Facades\RateLimiter::for('downloads', function ($request) {
+    RateLimiter::for('downloads', function ($request) {
         return [
-            Illuminate\Cache\RateLimiting\Limit::perMinute(
+            Limit::perMinute(
                 config('services.downloads.throttle_per_minute')
             )->by($request->ip()),
-            Illuminate\Cache\RateLimiting\Limit::perDay(
+            Limit::perDay(
                 config('services.downloads.throttle_per_day')
             )->by($request->ip()),
         ];
@@ -157,12 +159,12 @@ it('throttles daily requests', function () use ($post) {
         'services.downloads.throttle_per_day' => 2,
     ]);
 
-    Illuminate\Support\Facades\RateLimiter::for('downloads', function ($request) {
+    RateLimiter::for('downloads', function ($request) {
         return [
-            Illuminate\Cache\RateLimiting\Limit::perMinute(
+            Limit::perMinute(
                 config('services.downloads.throttle_per_minute')
             )->by($request->ip()),
-            Illuminate\Cache\RateLimiting\Limit::perDay(
+            Limit::perDay(
                 config('services.downloads.throttle_per_day')
             )->by($request->ip()),
         ];
@@ -173,4 +175,19 @@ it('throttles daily requests', function () use ($post) {
     $post($payload)->assertCreated();
     $post($payload)->assertOk();
     $post($payload)->assertStatus(429);
+});
+
+it('opens a download at its shareable address', function () {
+    $download = Download::factory()->create();
+
+    $this->get("/d/{$download->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('home', false)
+            ->where('download.id', $download->id)
+            ->where('download.status', $download->status));
+});
+
+it('404s a shareable address with no download behind it', function () {
+    $this->get('/d/01jdx3k8m2q7v9r4t6w0y5zabc')->assertNotFound();
 });

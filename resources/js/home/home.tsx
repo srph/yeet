@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { useYeetMutation } from "../mutations";
 import { useDownloadMeta } from "../queries";
+import type { DownloadMeta } from "../types";
 import invariant from "tiny-invariant";
 import { cn } from "@/lib/utils";
 import { SiteFooter } from "@/components/site-footer/site-footer";
@@ -11,8 +12,33 @@ import { HomeDownloadActions } from "./home-download-actions";
 import { HomeDownloadTracking } from "./home-download-tracking";
 import { useHomeMotion } from "./home-motion";
 
+/**
+ * Moves between the form and a download's tracking screen by rewriting the
+ * URL and the `download` prop with a client-side visit — no request, so it is
+ * as instant as the local state it replaced. Back from /d/{id} lands on /.
+ */
+const showDownload = (download: DownloadMeta | null, replace = false) => {
+  const visit = {
+    url: download ? `/d/${download.id}` : "/",
+    props: (props: Record<string, unknown>) => ({ ...props, download }),
+    // Same key, so Home stays mounted and the fade-through still runs.
+    preserveState: true,
+  };
+
+  if (replace) {
+    router.replace(visit);
+  } else {
+    router.push(visit);
+  }
+};
+
+/**
+ * Rendered by both / and /d/{id}; the URL is the source of truth for which
+ * download is open. `download` is the row /d/{id} hands over on a cold load,
+ * null after "Start over", and absent on /.
+ */
 // @TODO: Improve failed downloads
-export default function Home() {
+export default function Home({ download }: { download?: DownloadMeta | null }) {
   const [url, setUrl] = useState("");
 
   const [format, setFormat] = useState<"mp3" | "mp4">("mp4");
@@ -27,13 +53,13 @@ export default function Home() {
     reset: resetYeet,
   } = useYeetMutation();
 
-  // Held here rather than read off the mutation: a mutation clears its data
-  // the moment it starts again, so a retry would drop the tracking screen
+  // Read off the page prop rather than the mutation: a mutation clears its
+  // data the moment it starts again, so a retry would drop the tracking screen
   // and flash the form until the new row came back.
-  const [downloadId, setDownloadId] = useState<string>();
-
-  const { data: downloadMeta, refetch: refetchDownloadMeta } =
-    useDownloadMeta(downloadId);
+  const { data: downloadMeta, refetch: refetchDownloadMeta } = useDownloadMeta(
+    download?.id,
+    download ?? undefined,
+  );
 
   // The inline players stream from download_url, which is presigned for an
   // hour and minted per serialization. A tab left open past that fails its
@@ -56,15 +82,26 @@ export default function Home() {
     e.preventDefault();
     if (!url.trim()) return;
     try {
-      setDownloadId((await yeet({ url, format })).id);
+      showDownload(await yeet({ url, format }));
     } catch {
       // Surfaced via yeetErrorMessage
     }
   };
 
+  // Re-submits the row's own source rather than the form's: a /d/{id} opened
+  // from a shared link has an empty form. Dedupe means this joins a live row
+  // if someone already re-yeeted it. Replace, not push — the dead row's link
+  // isn't somewhere Back should lead.
   const handleRetry = async () => {
+    invariant(downloadMeta, "Download Metadata is required");
     try {
-      setDownloadId((await yeet({ url, format })).id);
+      showDownload(
+        await yeet({
+          url: downloadMeta.source_url,
+          format: downloadMeta.format,
+        }),
+        true,
+      );
     } catch {
       // Surfaced via download tracking / yeetErrorMessage
     }
@@ -85,7 +122,7 @@ export default function Home() {
   const handleDownloadAnother = () => {
     resetYeet();
     setUrl("");
-    setDownloadId(undefined);
+    showDownload(null);
   };
 
   const isTracking = Boolean(downloadMeta);

@@ -40,11 +40,13 @@ type Column = DailyViews & { label: string };
  *
  * Labelled by path, not by route name. `site_views.page` stores the route name
  * because that survives a URL change, but the readout is read against the site,
- * where these are `/` and `/about`. A page with no entry here falls back to its
- * route name in `rowsFor` — an invented path would be worse than an honest key.
+ * where these are `/`, `/d` (any /d/{id}) and `/about`. A page with no entry
+ * here falls back to its route name in `rowsFor` — an invented path would be
+ * worse than an honest key.
  */
 const PAGES = [
   { key: "about", label: "/about", color: "var(--color-neutral-500)" },
+  { key: "download", label: "/d", color: "var(--color-blue-400)" },
   { key: "home", label: "/", color: "var(--color-blue-200)" },
 ];
 

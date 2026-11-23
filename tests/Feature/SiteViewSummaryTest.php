@@ -62,9 +62,9 @@ it('reports zeroes for days with no traffic rather than omitting them', function
     $daily = collect($summary()['daily'])->keyBy('date');
 
     expect($daily[now()->subDays(3)->toDateString()])
-        ->toMatchArray(['views' => 40, 'pages' => ['home' => 40, 'about' => 0]])
+        ->toMatchArray(['views' => 40, 'pages' => ['home' => 40, 'download' => 0, 'about' => 0]])
         ->and($daily[now()->subDays(2)->toDateString()])
-        ->toMatchArray(['views' => 0, 'pages' => ['home' => 0, 'about' => 0]]);
+        ->toMatchArray(['views' => 0, 'pages' => ['home' => 0, 'download' => 0, 'about' => 0]]);
 });
 
 it('splits each day by page and totals across them', function () use ($summary) {
@@ -72,7 +72,7 @@ it('splits each day by page and totals across them', function () use ($summary) 
     SiteView::create(['date' => now(), 'page' => 'about', 'views' => 38]);
 
     expect(collect($summary()['daily'])->last())
-        ->toMatchArray(['views' => 128, 'pages' => ['home' => 90, 'about' => 38]]);
+        ->toMatchArray(['views' => 128, 'pages' => ['home' => 90, 'download' => 0, 'about' => 38]]);
 });
 
 // A route dropped from CountView::COUNTED still has history in the table. Its

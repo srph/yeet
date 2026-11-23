@@ -17,8 +17,12 @@ class CountView
      * Public because SiteViewSummary zero-fills the dashboard's daily series
      * against it: a page that is counted but had no traffic on a given day
      * still needs a 0, not a missing key.
+     *
+     * `download` is /d/{id}, and only its cold loads reach the server: a
+     * submit on / moves there with a client-side visit. So it counts shared
+     * links being opened (and reloads), not downloads started.
      */
-    public const COUNTED = ['home', 'about'];
+    public const COUNTED = ['home', 'download', 'about'];
 
     /**
      * The high-volume commercial crawlers all self-identify, so this catches

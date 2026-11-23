@@ -18,7 +18,13 @@ const isTerminal = (status: DownloadMeta["status"] | undefined) =>
 
 export const downloadQueryKey = (id?: string) => ["download", id] as const;
 
-export const useDownloadMeta = (id?: string) => {
+/**
+ * `initialData` is the row /d/{id} hands over as a page prop, so a cold load
+ * paints tracking without waiting on this fetch. React Query only uses it when
+ * the cache has nothing for the key — a client-side visit back to a page whose
+ * props are a history snapshot doesn't clobber the live row.
+ */
+export const useDownloadMeta = (id?: string, initialData?: DownloadMeta) => {
   const queryFn = async (): Promise<DownloadMeta> => {
     const response = await fetch(`/api/download/${id}`);
     if (!response.ok) throw new Error("Failed to fetch status");
@@ -31,6 +37,7 @@ export const useDownloadMeta = (id?: string) => {
     queryKey: downloadQueryKey(id),
     queryFn,
     enabled: !!id,
+    initialData,
 
     // A settled row is immutable, and saying so is what keeps the inline
     // players from restarting when you switch tabs: download_url is presigned
