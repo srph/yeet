@@ -307,3 +307,35 @@ it('rejects a downloaded file over the size limit', function () {
     expect(fn () => $ytdlp->download('https://youtu.be/dQw4w9WgXcQ', 'mp4'))
         ->toThrow(fn (DownloadFailed $e) => expect($e->getMessage())->toStartWith('File exceeds'));
 });
+
+it('rejects an audio-only leftover when the video part was over the size limit', function () {
+    config(['services.downloads.max_filesize_bytes' => 209715200]);
+
+    // yt-dlp skips the oversized video part, still fetches the audio part,
+    // skips the merge and exits 0 — leaving only the intermediate behind.
+    Process::fake(function (PendingProcess $process) {
+        $command = $process->command;
+        $template = $command[array_search('-o', $command, true) + 1];
+        file_put_contents(str_replace('%(ext)s', 'f251.webm', $template), 'opus');
+
+        return Process::result(
+            output: '[download] File is larger than max-filesize (359000000 bytes > 209715200 bytes). Aborting.',
+        );
+    });
+
+    expect(fn () => ytdlp()->download('https://youtu.be/dQw4w9WgXcQ', 'mp4'))
+        ->toThrow(fn (DownloadFailed $e) => expect($e->getMessage())->toBe('File exceeds the 200 MB limit'));
+});
+
+it('caps mp4 downloads at 1080p before falling back to anything', function () {
+    Process::fake(['*' => Process::result()]);
+
+    expect(fn () => ytdlp()->download('https://youtu.be/dQw4w9WgXcQ', 'mp4'))
+        ->toThrow(DownloadFailed::class);
+
+    Process::assertRan(fn ($process) => in_array(
+        'bv*[height<=1080]+ba/b[height<=1080]/bv*+ba/b',
+        $process->command,
+        true,
+    ));
+});

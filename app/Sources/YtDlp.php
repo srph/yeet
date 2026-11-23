@@ -124,7 +124,16 @@ class YtDlp
             ? ['-x', '--audio-format', 'mp3', '--audio-quality', '0']
             // Best video+audio, merged to mp4. Also needs ffmpeg, since
             // YouTube serves the two streams separately.
-            : ['-f', 'bv*+ba/b', '--merge-output-format', 'mp4'];
+            //
+            // Capped at 1080p first: a 4K stream is over the size limit for
+            // almost anything past a couple of minutes, and an oversized video
+            // part doesn't fail the run — see the leftover check below. The
+            // uncapped selector stays as a fallback for sources that only
+            // offer something bigger.
+            : [
+                '-f', 'bv*[height<=1080]+ba/b[height<=1080]/bv*+ba/b',
+                '--merge-output-format', 'mp4',
+            ];
 
         // Stays under ProcessDownload's $timeout of 3600.
         // --max-filesize aborts when yt-dlp knows the remote size; the
@@ -150,9 +159,38 @@ class YtDlp
             throw new DownloadFailed($stderr);
         }
 
-        $files = glob("{$dir}/media.*");
+        // When --max-filesize skips one half of a video+audio pair, yt-dlp
+        // still downloads the other half, skips the merge, and exits 0. What's
+        // left is `media.f251.webm` — an audio-only intermediate that used to
+        // be uploaded as the "mp4". Only the final output counts: intermediates
+        // are named media.f<format_id>.<ext>, and .part files are unfinished.
+        $leftovers = glob("{$dir}/media.f*.*") ?: [];
+        $files = array_values(array_filter(
+            glob("{$dir}/media.*") ?: [],
+            fn (string $file) => ! in_array($file, $leftovers, true)
+                && ! str_ends_with($file, '.part'),
+        ));
+
+        if (empty($files) && str_contains($result->output(), 'larger than max-filesize')) {
+            array_map('unlink', glob("{$dir}/media.*") ?: []);
+            @rmdir($dir);
+
+            $limitMb = (int) round($maxBytes / 1024 / 1024);
+
+            Log::error('ytdlp.download.fail', [
+                'format' => $format,
+                'stderr' => "File exceeds the {$limitMb} MB limit",
+                'url_host' => $host,
+                'leftovers' => array_map('basename', $leftovers),
+            ]);
+
+            throw new DownloadFailed("File exceeds the {$limitMb} MB limit");
+        }
 
         if (empty($files)) {
+            array_map('unlink', glob("{$dir}/media.*") ?: []);
+            @rmdir($dir);
+
             Log::error('ytdlp.download.fail', [
                 'format' => $format,
                 'exit' => $result->exitCode(),
