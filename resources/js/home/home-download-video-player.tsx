@@ -27,7 +27,7 @@ import "./vidstack-player-styles";
  * between the timecode and the volume toggle.
  *
  * Only mounted once download_url is non-null — HomeDownloadTracking keeps its
- * shimmering thumbnail for every other state.
+ * developing thumbnail for every other state.
  */
 
 /**
@@ -60,7 +60,7 @@ export function HomeDownloadVideoPlayer({
       // visibly swaps when the job settles.
       poster={meta.source_thumbnail ?? undefined}
       onError={onSourceError}
-      className="group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(191,219,254,0.34),0_0_90px_-26px_rgba(191,219,254,0.42)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
+      className="group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
     >
       {/* contain, not cover: TikTok and Douyin are vertical, and cover would
           crop the subject out of a 16:9 frame. */}

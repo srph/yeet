@@ -26,8 +26,7 @@ import type { DownloadStatus as Status } from "@/types";
 /**
  * Amber, not blue: blue-200 is the action accent (button fill, focus ring,
  * link hover), and on the rail this tag sits directly above a blue-200 CTA —
- * colour-matching the button that says "wait" was the old bug. Amber also
- * agrees with the scanline the thumbnail already draws during these states.
+ * colour-matching the button that says "wait" was the old bug.
  *
  * `probing` and `processing` share a tone on purpose. The reader doesn't need
  * to colour-discriminate two flavours of "wait"; the label says which.

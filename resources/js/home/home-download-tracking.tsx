@@ -38,6 +38,30 @@ const HomeDownloadAudioPlayer = lazy(() =>
  * doesn't reflect the actual file is worse than an absent row.
  */
 
+/**
+ * The thumbnail develops instead of being swept by a shimmer: each status the
+ * job reaches takes it a step closer to the picture, and Ready is the frame
+ * coming into focus. Nothing loops — the status tag's dots are the only
+ * motion that says "working", and the plate just records how far along it is.
+ *
+ * The scale-up while blurred is not decoration: blur samples past the edge of
+ * the image and darkens the rim, so the frame is pushed in far enough for the
+ * overflow-hidden plate to crop that halo off. It eases back as the blur
+ * clears, which is what lets Ready read as a focus pull rather than a cut.
+ *
+ * Ready deliberately has no ring or glow on the plate. Blue-200 is the "act"
+ * accent, so it stays on what can be pressed — the play disc and the CTA.
+ */
+const DEVELOP: Record<DownloadMeta["status"], string> = {
+  queued: "brightness-35 grayscale blur-md scale-108",
+  probing: "brightness-45 grayscale-80 blur-sm scale-106",
+  processing: "brightness-60 grayscale-45 blur-xs scale-104",
+  complete: "scale-102",
+  // No blur: a dead job isn't on its way anywhere, it's just out.
+  failed: "brightness-30 grayscale",
+  expired: "brightness-30 grayscale",
+};
+
 /** Crossfade the title while its measured height carries the sheet below it. */
 function TrackingTitle({ title }: { title: string }) {
   const reduce = useReducedMotion();
@@ -96,7 +120,7 @@ function PlayerFallback({
   return (
     <div
       aria-hidden
-      className="aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(191,219,254,0.34),0_0_90px_-26px_rgba(191,219,254,0.42)]"
+      className="aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"
     >
       {thumbnail ? (
         <img src={thumbnail} alt="" className="size-full object-cover" />
@@ -128,8 +152,6 @@ export const HomeDownloadTracking = ({
   const isSettled = status === "complete";
   const isWaiting =
     status === "queued" || status === "probing" || status === "processing";
-  const isDead = status === "failed" || status === "expired";
-  const isActive = status === "probing" || status === "processing";
 
   const { plateRise, railRise } = useHomeMotion();
 
@@ -225,11 +247,7 @@ export const HomeDownloadTracking = ({
             href={meta.source_url}
             target="_blank"
             rel="noreferrer"
-            className={`group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 transition-shadow duration-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200 ${
-              isSettled
-                ? "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(191,219,254,0.34),0_0_90px_-26px_rgba(191,219,254,0.42)]"
-                : "shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)]"
-            }`}
+            className="group relative block aspect-video w-full overflow-hidden rounded-2xl bg-neutral-800 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-200"
           >
             {meta.source_thumbnail ? (
               <img
@@ -242,11 +260,9 @@ export const HomeDownloadTracking = ({
                 onLoad={() => setIsThumbnailShown(true)}
                 src={meta.source_thumbnail}
                 alt=""
-                className={`size-full object-cover transition-[filter,opacity] duration-700 ease-swoop ${
+                className={`size-full object-cover transition-[filter,opacity,scale] duration-1400 ease-swoop ${
                   isThumbnailShown ? "" : "opacity-0"
-                } ${isWaiting ? "brightness-50 grayscale-[0.85]" : ""} ${
-                  isDead ? "brightness-[0.3] grayscale" : ""
-                } ${isSettled ? "scale-[1.02]" : ""}`}
+                } ${DEVELOP[status]}`}
               />
             ) : (
               // X posts frequently have no thumbnail, and an mp3 has no video to
@@ -261,24 +277,6 @@ export const HomeDownloadTracking = ({
                   No preview
                 </span>
               </div>
-            )}
-
-            {/* scanlines while probe/cook is actively running */}
-            {isActive && (
-              <span className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(234,179,8,0.055)_0_1px,transparent_1px_4px)]" />
-            )}
-
-            {/* the shimmer — the only motion on this screen */}
-            {isWaiting && (
-              <span className="pointer-events-none absolute inset-0 overflow-hidden">
-                <span
-                  className={`absolute inset-y-0 w-[38%] ${
-                    isActive
-                      ? "animate-sweep bg-linear-to-r from-transparent via-blue-200/40 to-transparent"
-                      : "animate-sweep-slow bg-linear-to-r from-transparent via-white/[0.14] to-transparent"
-                  }`}
-                />
-              </span>
             )}
 
             {/* Hidden while cooking and when there's no thumbnail — the badge

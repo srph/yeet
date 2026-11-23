@@ -45,19 +45,14 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* The house easing curve — a fast-out, gentle-settle swoop used for
-       hover/reveal transitions throughout, and for the `sweep` animation
-       below. Named so call sites read `ease-swoop` instead of repeating the
+       hover/reveal transitions throughout, and for the thumbnail developing
+       on the post-submit screen. Named so call sites read `ease-swoop` instead of repeating the
        raw cubic-bezier. */
   --ease-swoop: cubic-bezier(0.19, 1, 0.22, 1);
 
-  /* The post-submit screen's two idle motions. Tailwind's built-in
-       animate-pulse is close to `blink` but bottoms out at opacity .5, which
-       reads as a glow rather than a status light — hence the custom pair.
-
-       `sweep` is the shimmer crossing the thumbnail while a download cooks.
-       It slides a gradient band across, so it animates `left` against a
-       clipped parent rather than transform: the band starts fully offscreen
-       and the overflow-hidden frame does the masking.
+  /* The status light's blink. Tailwind's built-in animate-pulse is close
+       but bottoms out at opacity .5, which reads as a glow rather than a
+       status light — hence the custom pair.
 
        `spin-once` reuses Tailwind's built-in `spin` keyframe but caps it at
        a single lap — a hover/focus flourish on an icon, not a loading spinner.
@@ -65,8 +60,6 @@
        the lap finishes rather than freezing wherever the animation ended. */
   --animate-blink: blink 1.2s ease-in-out infinite;
   --animate-blink-slow: blink 2.2s ease-in-out infinite;
-  --animate-sweep: sweep 2.1s var(--ease-swoop) infinite;
-  --animate-sweep-slow: sweep 3.2s var(--ease-swoop) infinite;
   --animate-spin-once: spin 0.5s ease-in-out 1;
 
   @keyframes blink {
@@ -76,15 +69,6 @@
     }
     50% {
       opacity: 1;
-    }
-  }
-
-  @keyframes sweep {
-    0% {
-      left: -40%;
-    }
-    100% {
-      left: 104%;
     }
   }
 
